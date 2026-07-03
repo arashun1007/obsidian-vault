@@ -86,6 +86,68 @@
       "imageAsset": null
     },
     {
+      "id": "etsu",
+      "name": "エツ",
+      "kana": "えつ",
+      "scientificName": "Coilia nasus",
+      "family": "カタクチイワシ科",
+      "category": "blue",
+      "categoryLabel": "青魚",
+      "accentColor": "#3F7CAC",
+      "seasonMonths": [
+        5,
+        6,
+        7
+      ],
+      "typicalSizeCm": 30,
+      "distribution": "有明海・筑後川の汽水",
+      "habitat": "沿岸〜沖合の表層を群れで回遊",
+      "taste": "上品な白身と骨切りの妙",
+      "cookingMethods": [
+        "刺身",
+        "天ぷら",
+        "洗い",
+        "塩焼き"
+      ],
+      "aliases": [
+        "エツウオ"
+      ],
+      "description": "筑後川の初夏の風物詩。刀のように細長い体で小骨が多い。",
+      "imageAsset": null
+    },
+    {
+      "id": "oakamuro",
+      "name": "オアカムロ",
+      "kana": "おあかむろ",
+      "scientificName": "Decapterus tabl",
+      "family": "アジ科",
+      "category": "blue",
+      "categoryLabel": "青魚",
+      "accentColor": "#3F7CAC",
+      "seasonMonths": [
+        6,
+        7,
+        8,
+        9
+      ],
+      "typicalSizeCm": 40,
+      "distribution": "本州中部以南の暖海",
+      "habitat": "沿岸〜沖合の表層を群れで回遊",
+      "taste": "脂は少なく旨みが濃い",
+      "cookingMethods": [
+        "くさや",
+        "干物",
+        "刺身",
+        "たたき"
+      ],
+      "aliases": [
+        "アカゼ",
+        "アカムロ"
+      ],
+      "description": "尾が赤いムロアジの仲間。くさやの原料にもなる。",
+      "imageAsset": null
+    },
+    {
       "id": "katakuchiiwashi",
       "name": "カタクチイワシ",
       "kana": "かたくちいわし",
@@ -372,6 +434,35 @@
       "imageAsset": null
     },
     {
+      "id": "hira",
+      "name": "ヒラ",
+      "kana": "ひら",
+      "scientificName": "Ilisha elongata",
+      "family": "ニシン科",
+      "category": "blue",
+      "categoryLabel": "青魚",
+      "accentColor": "#3F7CAC",
+      "seasonMonths": [
+        5,
+        6,
+        7
+      ],
+      "typicalSizeCm": 45,
+      "distribution": "有明海など西日本の内湾",
+      "habitat": "沿岸〜沖合の表層を群れで回遊",
+      "taste": "小骨は多いが上質な脂と旨み",
+      "cookingMethods": [
+        "刺身",
+        "塩焼き",
+        "フライ"
+      ],
+      "aliases": [
+        "ヒラコノシロ"
+      ],
+      "description": "有明海の珍魚。強い側扁が名の由来。小骨が多いが美味。",
+      "imageAsset": null
+    },
+    {
       "id": "maaji",
       "name": "マアジ",
       "kana": "まあじ",
@@ -504,6 +595,37 @@
       "imageAsset": null
     },
     {
+      "id": "marusouda",
+      "name": "マルソウダ",
+      "kana": "まるそうだ",
+      "scientificName": "Auxis rochei",
+      "family": "サバ科",
+      "category": "blue",
+      "categoryLabel": "青魚",
+      "accentColor": "#3F7CAC",
+      "seasonMonths": [
+        8,
+        9,
+        10
+      ],
+      "typicalSizeCm": 40,
+      "distribution": "全世界の暖海",
+      "habitat": "沿岸〜沖合の表層を群れで回遊",
+      "taste": "血合いが多く濃厚な風味",
+      "cookingMethods": [
+        "なまり節",
+        "削り節",
+        "刺身",
+        "たたき"
+      ],
+      "aliases": [
+        "ソウダガツオ",
+        "メジカ"
+      ],
+      "description": "血合いが多く独特の風味。宗田節(そうだぶし)の主原料。鮮度落ちが早い。",
+      "imageAsset": null
+    },
+    {
       "id": "muroaji",
       "name": "ムロアジ",
       "kana": "むろあじ",
@@ -533,6 +655,37 @@
         "アオムロ"
       ],
       "description": "伊豆諸島の「くさや」の主原料として有名。",
+      "imageAsset": null
+    },
+    {
+      "id": "meaji",
+      "name": "メアジ",
+      "kana": "めあじ",
+      "scientificName": "Selar crumenophthalmus",
+      "family": "アジ科",
+      "category": "blue",
+      "categoryLabel": "青魚",
+      "accentColor": "#3F7CAC",
+      "seasonMonths": [
+        6,
+        7,
+        8
+      ],
+      "typicalSizeCm": 25,
+      "distribution": "本州中部以南の暖海",
+      "habitat": "沿岸〜沖合の表層を群れで回遊",
+      "taste": "青魚らしい旨みと程よい脂",
+      "cookingMethods": [
+        "刺身",
+        "塩焼き",
+        "干物",
+        "唐揚げ"
+      ],
+      "aliases": [
+        "アカアジ",
+        "オニアジ"
+      ],
+      "description": "大きな目が特徴。沖縄や南日本で親しまれる小型のアジ。",
       "imageAsset": null
     },
     {
@@ -567,6 +720,67 @@
       "imageAsset": null
     },
     {
+      "id": "akakamasu",
+      "name": "アカカマス",
+      "kana": "あかかます",
+      "scientificName": "Sphyraena pinguis",
+      "family": "カマス科",
+      "category": "white",
+      "categoryLabel": "白身魚",
+      "accentColor": "#6FA8A0",
+      "seasonMonths": [
+        9,
+        10,
+        11
+      ],
+      "typicalSizeCm": 35,
+      "distribution": "本州中部以南の沿岸",
+      "habitat": "沿岸の岩礁・砂地",
+      "taste": "上品な白身で干物が絶品",
+      "cookingMethods": [
+        "塩焼き",
+        "干物",
+        "刺身",
+        "天ぷら"
+      ],
+      "aliases": [
+        "カマス",
+        "ホンカマス"
+      ],
+      "description": "「カマスの一夜干し」が定番。秋が旬で脂がのる。",
+      "imageAsset": null
+    },
+    {
+      "id": "akagarei",
+      "name": "アカガレイ",
+      "kana": "あかがれい",
+      "scientificName": "Hippoglossoides dubius",
+      "family": "カレイ科",
+      "category": "white",
+      "categoryLabel": "白身魚",
+      "accentColor": "#6FA8A0",
+      "seasonMonths": [
+        11,
+        12,
+        1
+      ],
+      "typicalSizeCm": 45,
+      "distribution": "日本海・北日本のやや深場",
+      "habitat": "沿岸の岩礁・砂地",
+      "taste": "柔らかく淡泊",
+      "cookingMethods": [
+        "煮付け",
+        "唐揚げ",
+        "干物",
+        "フライ"
+      ],
+      "aliases": [
+        "アカガレ"
+      ],
+      "description": "無眼側が赤みを帯びる。日本海の底引きで多く獲れ子持ちが人気。",
+      "imageAsset": null
+    },
+    {
       "id": "isaki",
       "name": "イサキ",
       "kana": "いさき",
@@ -595,6 +809,68 @@
         "ウリンボ(幼魚)"
       ],
       "description": "梅雨時が旬で「梅雨イサキ」。産卵前の初夏は「麦わらイサキ」とも。",
+      "imageAsset": null
+    },
+    {
+      "id": "ishigakidai",
+      "name": "イシガキダイ",
+      "kana": "いしがきだい",
+      "scientificName": "Oplegnathus punctatus",
+      "family": "イシダイ科",
+      "category": "white",
+      "categoryLabel": "白身魚",
+      "accentColor": "#6FA8A0",
+      "seasonMonths": [
+        9,
+        10,
+        11
+      ],
+      "typicalSizeCm": 50,
+      "distribution": "本州中部以南の岩礁",
+      "habitat": "沿岸の岩礁・砂地",
+      "taste": "締まった上質な白身",
+      "cookingMethods": [
+        "刺身",
+        "塩焼き",
+        "鍋",
+        "カルパッチョ"
+      ],
+      "aliases": [
+        "クチジロ",
+        "モモ(幼魚)"
+      ],
+      "description": "白い斑点が石垣状。老成すると口の周りが白くなる。磯釣りの人気種。",
+      "imageAsset": null
+    },
+    {
+      "id": "ishigarei",
+      "name": "イシガレイ",
+      "kana": "いしがれい",
+      "scientificName": "Platichthys bicoloratus",
+      "family": "カレイ科",
+      "category": "white",
+      "categoryLabel": "白身魚",
+      "accentColor": "#6FA8A0",
+      "seasonMonths": [
+        10,
+        11,
+        12,
+        1
+      ],
+      "typicalSizeCm": 50,
+      "distribution": "北海道〜九州の砂泥底",
+      "habitat": "沿岸の岩礁・砂地",
+      "taste": "締まった上品な白身",
+      "cookingMethods": [
+        "刺身",
+        "煮付け",
+        "唐揚げ",
+        "ムニエル"
+      ],
+      "aliases": [
+        "イシモチガレイ"
+      ],
+      "description": "無眼側に石のような骨質板が並ぶ。冬が旬で刺身も美味。",
       "imageAsset": null
     },
     {
@@ -627,6 +903,38 @@
         "クチグロ"
       ],
       "description": "強靭な歯でウニや貝を砕く。幼魚は縞模様、老成すると口が黒くなる。磯釣りの王者。",
+      "imageAsset": null
+    },
+    {
+      "id": "itoyoridai",
+      "name": "イトヨリダイ",
+      "kana": "いとよりだい",
+      "scientificName": "Nemipterus virgatus",
+      "family": "イトヨリダイ科",
+      "category": "white",
+      "categoryLabel": "白身魚",
+      "accentColor": "#6FA8A0",
+      "seasonMonths": [
+        11,
+        12,
+        1
+      ],
+      "typicalSizeCm": 40,
+      "distribution": "本州中部以南のやや深場",
+      "habitat": "沿岸の岩礁・砂地",
+      "taste": "上品で華やかな白身",
+      "cookingMethods": [
+        "刺身",
+        "塩焼き",
+        "煮付け",
+        "ムニエル",
+        "椀種"
+      ],
+      "aliases": [
+        "イトヨリ",
+        "イトヒキ"
+      ],
+      "description": "黄色い糸状に伸びた尾と桃色の体が美しい高級白身。",
       "imageAsset": null
     },
     {
@@ -729,6 +1037,38 @@
       "imageAsset": null
     },
     {
+      "id": "kyusen",
+      "name": "キュウセン",
+      "kana": "きゅうせん",
+      "scientificName": "Parajulis poecilepterus",
+      "family": "ベラ科",
+      "category": "white",
+      "categoryLabel": "白身魚",
+      "accentColor": "#6FA8A0",
+      "seasonMonths": [
+        6,
+        7,
+        8,
+        9
+      ],
+      "typicalSizeCm": 25,
+      "distribution": "本州中部以南の岩礁・藻場",
+      "habitat": "沿岸の岩礁・砂地",
+      "taste": "淡白で柔らかい白身",
+      "cookingMethods": [
+        "天ぷら",
+        "塩焼き",
+        "唐揚げ",
+        "南蛮漬け"
+      ],
+      "aliases": [
+        "ベラ",
+        "アオベラ/アカベラ"
+      ],
+      "description": "関西で夏に好まれる。雄は青緑、雌は赤褐色で性転換する。",
+      "imageAsset": null
+    },
+    {
       "id": "kurodai",
       "name": "クロダイ",
       "kana": "くろだい",
@@ -759,6 +1099,37 @@
         "カイズ(中型)"
       ],
       "description": "雑食で環境適応力が高い。関西では「チヌ」と呼び釣りの対象として人気。",
+      "imageAsset": null
+    },
+    {
+      "id": "kobudai",
+      "name": "コブダイ",
+      "kana": "こぶだい",
+      "scientificName": "Semicossyphus reticulatus",
+      "family": "ベラ科",
+      "category": "white",
+      "categoryLabel": "白身魚",
+      "accentColor": "#6FA8A0",
+      "seasonMonths": [
+        11,
+        12,
+        1
+      ],
+      "typicalSizeCm": 100,
+      "distribution": "本州中部以南の岩礁",
+      "habitat": "沿岸の岩礁・砂地",
+      "taste": "冬は脂がのり上品",
+      "cookingMethods": [
+        "刺身",
+        "鍋",
+        "しゃぶしゃぶ",
+        "煮付け"
+      ],
+      "aliases": [
+        "カンダイ",
+        "モブシ"
+      ],
+      "description": "雄は成長すると額と顎が大きく張り出す。冬の「寒コブ」が旬。",
       "imageAsset": null
     },
     {
@@ -825,6 +1196,37 @@
       "imageAsset": null
     },
     {
+      "id": "shiroguchi",
+      "name": "シログチ",
+      "kana": "しろぐち",
+      "scientificName": "Pennahia argentata",
+      "family": "ニベ科",
+      "category": "white",
+      "categoryLabel": "白身魚",
+      "accentColor": "#6FA8A0",
+      "seasonMonths": [
+        6,
+        7,
+        8
+      ],
+      "typicalSizeCm": 40,
+      "distribution": "本州中部以南の砂泥底",
+      "habitat": "沿岸の岩礁・砂地",
+      "taste": "淡白で柔らかく練り物の高級原料",
+      "cookingMethods": [
+        "塩焼き",
+        "刺身",
+        "天ぷら",
+        "かまぼこ"
+      ],
+      "aliases": [
+        "イシモチ",
+        "グチ"
+      ],
+      "description": "浮袋で「グーグー」鳴く。高級かまぼこ・はんぺんの原料。",
+      "imageAsset": null
+    },
+    {
       "id": "suketoudara",
       "name": "スケトウダラ",
       "kana": "すけとうだら",
@@ -885,6 +1287,35 @@
         "マルスズキ"
       ],
       "description": "代表的な出世魚。夏が旬で「夏の白身の王」。河川にも遡上する。",
+      "imageAsset": null
+    },
+    {
+      "id": "takabe",
+      "name": "タカベ",
+      "kana": "たかべ",
+      "scientificName": "Labracoglossa argentiventris",
+      "family": "タカベ科",
+      "category": "white",
+      "categoryLabel": "白身魚",
+      "accentColor": "#6FA8A0",
+      "seasonMonths": [
+        7,
+        8,
+        9
+      ],
+      "typicalSizeCm": 25,
+      "distribution": "本州中部以南の岩礁",
+      "habitat": "沿岸の岩礁・砂地",
+      "taste": "夏に脂がのり塩焼き絶品",
+      "cookingMethods": [
+        "塩焼き",
+        "刺身",
+        "干物"
+      ],
+      "aliases": [
+        "ホタ"
+      ],
+      "description": "背に黄色い縦帯。伊豆諸島の夏の高級魚で塩焼きが名物。",
       "imageAsset": null
     },
     {
@@ -952,6 +1383,37 @@
       "imageAsset": null
     },
     {
+      "id": "babagarei",
+      "name": "ババガレイ",
+      "kana": "ばばがれい",
+      "scientificName": "Microstomus achne",
+      "family": "カレイ科",
+      "category": "white",
+      "categoryLabel": "白身魚",
+      "accentColor": "#6FA8A0",
+      "seasonMonths": [
+        12,
+        1,
+        2,
+        3
+      ],
+      "typicalSizeCm": 50,
+      "distribution": "北日本の砂泥底",
+      "habitat": "沿岸の岩礁・砂地",
+      "taste": "身が厚く脂がのる",
+      "cookingMethods": [
+        "煮付け",
+        "唐揚げ",
+        "鍋"
+      ],
+      "aliases": [
+        "ナメタガレイ",
+        "ナメタ"
+      ],
+      "description": "体表がぬめる。東北で子持ちの煮付けが正月の縁起物。",
+      "imageAsset": null
+    },
+    {
       "id": "hirame",
       "name": "ヒラメ",
       "kana": "ひらめ",
@@ -981,6 +1443,36 @@
         "ソゲ(小型)"
       ],
       "description": "「左ヒラメに右カレイ」。冬の「寒ビラメ」が旬。縁側(えんがわ)は高級部位。",
+      "imageAsset": null
+    },
+    {
+      "id": "hoshigarei",
+      "name": "ホシガレイ",
+      "kana": "ほしがれい",
+      "scientificName": "Verasper variegatus",
+      "family": "カレイ科",
+      "category": "white",
+      "categoryLabel": "白身魚",
+      "accentColor": "#6FA8A0",
+      "seasonMonths": [
+        12,
+        1,
+        2
+      ],
+      "typicalSizeCm": 60,
+      "distribution": "本州の砂泥底",
+      "habitat": "沿岸の岩礁・砂地",
+      "taste": "ヒラメに並ぶ最高級の白身",
+      "cookingMethods": [
+        "刺身",
+        "寿司",
+        "煮付け",
+        "えんがわ"
+      ],
+      "aliases": [
+        "星がれい"
+      ],
+      "description": "背びれ・尻びれに黒い斑紋。天然物は極めて高価。",
       "imageAsset": null
     },
     {
@@ -1207,6 +1699,98 @@
       "imageAsset": null
     },
     {
+      "id": "matsukawa",
+      "name": "マツカワ",
+      "kana": "まつかわ",
+      "scientificName": "Verasper moseri",
+      "family": "カレイ科",
+      "category": "white",
+      "categoryLabel": "白身魚",
+      "accentColor": "#6FA8A0",
+      "seasonMonths": [
+        10,
+        11,
+        12
+      ],
+      "typicalSizeCm": 60,
+      "distribution": "北日本の砂底",
+      "habitat": "沿岸の岩礁・砂地",
+      "taste": "カレイ最高峰の締まった白身",
+      "cookingMethods": [
+        "刺身",
+        "寿司",
+        "煮付け",
+        "えんがわ"
+      ],
+      "aliases": [
+        "タカノハ",
+        "王鰈"
+      ],
+      "description": "北海道で「王鰈(おうちょう)」としてブランド化。カレイ類最高級。",
+      "imageAsset": null
+    },
+    {
+      "id": "mahaze",
+      "name": "マハゼ",
+      "kana": "まはぜ",
+      "scientificName": "Acanthogobius flavimanus",
+      "family": "ハゼ科",
+      "category": "white",
+      "categoryLabel": "白身魚",
+      "accentColor": "#6FA8A0",
+      "seasonMonths": [
+        9,
+        10,
+        11
+      ],
+      "typicalSizeCm": 20,
+      "distribution": "全国の内湾・河口",
+      "habitat": "沿岸の岩礁・砂地",
+      "taste": "淡白で上品。江戸前天ぷらの種",
+      "cookingMethods": [
+        "天ぷら",
+        "佃煮",
+        "甘露煮",
+        "刺身"
+      ],
+      "aliases": [
+        "ハゼ",
+        "デキハゼ(幼魚)"
+      ],
+      "description": "江戸前天ぷらの代表。秋の「彼岸ハゼ」の釣りが風物詩。",
+      "imageAsset": null
+    },
+    {
+      "id": "meitagarei",
+      "name": "メイタガレイ",
+      "kana": "めいたがれい",
+      "scientificName": "Pleuronichthys cornutus",
+      "family": "カレイ科",
+      "category": "white",
+      "categoryLabel": "白身魚",
+      "accentColor": "#6FA8A0",
+      "seasonMonths": [
+        9,
+        10,
+        11
+      ],
+      "typicalSizeCm": 25,
+      "distribution": "本州中部以南の砂泥底",
+      "habitat": "沿岸の岩礁・砂地",
+      "taste": "身は薄いが上品で美味",
+      "cookingMethods": [
+        "煮付け",
+        "唐揚げ",
+        "刺身"
+      ],
+      "aliases": [
+        "メダカガレイ",
+        "目板がれい"
+      ],
+      "description": "両目の間に骨質の棘。小型だが味が濃く関西で人気。",
+      "imageAsset": null
+    },
+    {
       "id": "mejina",
       "name": "メジナ",
       "kana": "めじな",
@@ -1236,6 +1820,36 @@
         "クシロ"
       ],
       "description": "関西で「グレ」、九州で「クロ」。冬の「寒グレ」が磯釣りとして人気。",
+      "imageAsset": null
+    },
+    {
+      "id": "yanagimushigarei",
+      "name": "ヤナギムシガレイ",
+      "kana": "やなぎむしがれい",
+      "scientificName": "Tanakius kitaharai",
+      "family": "カレイ科",
+      "category": "white",
+      "categoryLabel": "白身魚",
+      "accentColor": "#6FA8A0",
+      "seasonMonths": [
+        10,
+        11,
+        12
+      ],
+      "typicalSizeCm": 30,
+      "distribution": "本州中部以北のやや深場",
+      "habitat": "沿岸の岩礁・砂地",
+      "taste": "上品で干物が絶品",
+      "cookingMethods": [
+        "干物",
+        "煮付け",
+        "唐揚げ"
+      ],
+      "aliases": [
+        "ヤナギガレイ",
+        "笹がれい"
+      ],
+      "description": "福井・若狭の「笹がれい」の一夜干しが高級品として知られる。",
       "imageAsset": null
     },
     {
@@ -1338,6 +1952,36 @@
       "imageAsset": null
     },
     {
+      "id": "kurokajiki",
+      "name": "クロカジキ",
+      "kana": "くろかじき",
+      "scientificName": "Istiompax indica",
+      "family": "マカジキ科",
+      "category": "migratory",
+      "categoryLabel": "大型回遊魚",
+      "accentColor": "#2C5F8A",
+      "seasonMonths": [
+        7,
+        8,
+        9
+      ],
+      "typicalSizeCm": 400,
+      "distribution": "熱帯・亜熱帯の外洋",
+      "habitat": "外洋の表層を大回遊",
+      "taste": "白っぽい身で淡泊",
+      "cookingMethods": [
+        "刺身",
+        "ステーキ",
+        "照り焼き"
+      ],
+      "aliases": [
+        "シロカワ",
+        "クロカワ"
+      ],
+      "description": "カジキ最大級でトローリングの大物。身は白っぽい。",
+      "imageAsset": null
+    },
+    {
       "id": "kuromaguro",
       "name": "クロマグロ",
       "kana": "くろまぐろ",
@@ -1368,6 +2012,35 @@
         "メジ/ヨコワ(幼魚)"
       ],
       "description": "「黒いダイヤ」。大間などの寒鮪は最高級。大トロ・中トロ・赤身と部位で味が変わる。",
+      "imageAsset": null
+    },
+    {
+      "id": "koshinaga",
+      "name": "コシナガ",
+      "kana": "こしなが",
+      "scientificName": "Thunnus tonggol",
+      "family": "サバ科",
+      "category": "migratory",
+      "categoryLabel": "大型回遊魚",
+      "accentColor": "#2C5F8A",
+      "seasonMonths": [
+        6,
+        7,
+        8
+      ],
+      "typicalSizeCm": 100,
+      "distribution": "南日本の暖海",
+      "habitat": "外洋の表層を大回遊",
+      "taste": "赤身は柔らかくあっさり",
+      "cookingMethods": [
+        "刺身",
+        "漬け",
+        "煮付け"
+      ],
+      "aliases": [
+        "ヨコワ(混称)"
+      ],
+      "description": "小型のマグロで胴が細長い。西日本で流通する。",
       "imageAsset": null
     },
     {
@@ -1435,6 +2108,98 @@
         "マヒマヒ"
       ],
       "description": "ハワイでは「マヒマヒ」。鮮度が良ければ刺身も。白身フライの原料。",
+      "imageAsset": null
+    },
+    {
+      "id": "suma",
+      "name": "スマ",
+      "kana": "すま",
+      "scientificName": "Euthynnus affinis",
+      "family": "サバ科",
+      "category": "migratory",
+      "categoryLabel": "大型回遊魚",
+      "accentColor": "#2C5F8A",
+      "seasonMonths": [
+        6,
+        7,
+        8,
+        9
+      ],
+      "typicalSizeCm": 80,
+      "distribution": "本州中部以南の暖海",
+      "habitat": "外洋の表層を大回遊",
+      "taste": "カツオに似た濃厚な旨みと脂",
+      "cookingMethods": [
+        "刺身",
+        "たたき",
+        "寿司"
+      ],
+      "aliases": [
+        "ヤイト",
+        "ホシガツオ"
+      ],
+      "description": "腹の黒点が灸(やいと)に見える。近年養殖も進む「幻の魚」。",
+      "imageAsset": null
+    },
+    {
+      "id": "bashoukajiki",
+      "name": "バショウカジキ",
+      "kana": "ばしょうかじき",
+      "scientificName": "Istiophorus platypterus",
+      "family": "マカジキ科",
+      "category": "migratory",
+      "categoryLabel": "大型回遊魚",
+      "accentColor": "#2C5F8A",
+      "seasonMonths": [
+        7,
+        8,
+        9
+      ],
+      "typicalSizeCm": 300,
+      "distribution": "本州中部以南の暖海",
+      "habitat": "外洋の表層を大回遊",
+      "taste": "淡めの赤身で柔らかい",
+      "cookingMethods": [
+        "刺身",
+        "塩焼き",
+        "フライ",
+        "照り焼き"
+      ],
+      "aliases": [
+        "バレン",
+        "芭蕉旗魚"
+      ],
+      "description": "大きな背びれを芭蕉の葉に見立てた名。泳ぐと最速級の魚。",
+      "imageAsset": null
+    },
+    {
+      "id": "hirasouda",
+      "name": "ヒラソウダ",
+      "kana": "ひらそうだ",
+      "scientificName": "Auxis thazard",
+      "family": "サバ科",
+      "category": "migratory",
+      "categoryLabel": "大型回遊魚",
+      "accentColor": "#2C5F8A",
+      "seasonMonths": [
+        8,
+        9,
+        10
+      ],
+      "typicalSizeCm": 45,
+      "distribution": "全世界の暖海",
+      "habitat": "外洋の表層を大回遊",
+      "taste": "血合いが多く濃厚",
+      "cookingMethods": [
+        "刺身",
+        "たたき",
+        "なまり節"
+      ],
+      "aliases": [
+        "ソウダガツオ",
+        "スボ"
+      ],
+      "description": "マルソウダと共に「ソウダガツオ」。新鮮なら刺身も美味。",
       "imageAsset": null
     },
     {
@@ -1565,6 +2330,36 @@
       "imageAsset": null
     },
     {
+      "id": "minamimaguro",
+      "name": "ミナミマグロ",
+      "kana": "みなみまぐろ",
+      "scientificName": "Thunnus maccoyii",
+      "family": "サバ科",
+      "category": "migratory",
+      "categoryLabel": "大型回遊魚",
+      "accentColor": "#2C5F8A",
+      "seasonMonths": [
+        12,
+        1,
+        2
+      ],
+      "typicalSizeCm": 200,
+      "distribution": "南半球の外洋を回遊",
+      "habitat": "外洋の表層を大回遊",
+      "taste": "濃厚な脂と強い旨み。大トロ級",
+      "cookingMethods": [
+        "刺身",
+        "寿司",
+        "漬け"
+      ],
+      "aliases": [
+        "インドマグロ",
+        "ゴウシュウマグロ"
+      ],
+      "description": "南半球産で脂が濃く高級。別名インドマグロ。資源管理が厳格。",
+      "imageAsset": null
+    },
+    {
       "id": "mekajiki",
       "name": "メカジキ",
       "kana": "めかじき",
@@ -1630,6 +2425,37 @@
       "imageAsset": null
     },
     {
+      "id": "aohata",
+      "name": "アオハタ",
+      "kana": "あおはた",
+      "scientificName": "Epinephelus awoara",
+      "family": "ハタ科",
+      "category": "rockfish",
+      "categoryLabel": "根魚",
+      "accentColor": "#7A6C5D",
+      "seasonMonths": [
+        10,
+        11,
+        12
+      ],
+      "typicalSizeCm": 40,
+      "distribution": "本州中部以南の岩礁",
+      "habitat": "岩礁帯に定住",
+      "taste": "上品で締まった白身",
+      "cookingMethods": [
+        "刺身",
+        "鍋",
+        "煮付け",
+        "蒸し物"
+      ],
+      "aliases": [
+        "アオナ",
+        "キハタ"
+      ],
+      "description": "黄色みを帯びた体。ハタ類の中では比較的手頃で美味。",
+      "imageAsset": null
+    },
+    {
       "id": "akahata",
       "name": "アカハタ",
       "kana": "あかはた",
@@ -1659,6 +2485,95 @@
         "アカバ"
       ],
       "description": "赤い体色に横帯。温暖化で分布が北上している南方系のハタ。",
+      "imageAsset": null
+    },
+    {
+      "id": "ukkarikasago",
+      "name": "ウッカリカサゴ",
+      "kana": "うっかりかさご",
+      "scientificName": "Sebastiscus tertius",
+      "family": "フサカサゴ科",
+      "category": "rockfish",
+      "categoryLabel": "根魚",
+      "accentColor": "#7A6C5D",
+      "seasonMonths": [
+        12,
+        1,
+        2
+      ],
+      "typicalSizeCm": 35,
+      "distribution": "本州中部以南のやや深場",
+      "habitat": "岩礁帯に定住",
+      "taste": "カサゴより大きく上質",
+      "cookingMethods": [
+        "煮付け",
+        "刺身",
+        "鍋",
+        "唐揚げ"
+      ],
+      "aliases": [
+        "カサゴ(混同)"
+      ],
+      "description": "カサゴにそっくりで長年混同された。より深所に棲み大型。",
+      "imageAsset": null
+    },
+    {
+      "id": "ezomebaru",
+      "name": "エゾメバル",
+      "kana": "えぞめばる",
+      "scientificName": "Sebastes taczanowskii",
+      "family": "メバル科",
+      "category": "rockfish",
+      "categoryLabel": "根魚",
+      "accentColor": "#7A6C5D",
+      "seasonMonths": [
+        6,
+        7,
+        8
+      ],
+      "typicalSizeCm": 25,
+      "distribution": "北日本の岩礁",
+      "habitat": "岩礁帯に定住",
+      "taste": "淡白で上品",
+      "cookingMethods": [
+        "煮付け",
+        "唐揚げ",
+        "味噌汁"
+      ],
+      "aliases": [
+        "ガヤ"
+      ],
+      "description": "北海道で「ガヤ」と呼ばれ大量に獲れる。安価で家庭向き。",
+      "imageAsset": null
+    },
+    {
+      "id": "oomonhata",
+      "name": "オオモンハタ",
+      "kana": "おおもんはた",
+      "scientificName": "Epinephelus areolatus",
+      "family": "ハタ科",
+      "category": "rockfish",
+      "categoryLabel": "根魚",
+      "accentColor": "#7A6C5D",
+      "seasonMonths": [
+        7,
+        8,
+        9
+      ],
+      "typicalSizeCm": 50,
+      "distribution": "本州中部以南の岩礁",
+      "habitat": "岩礁帯に定住",
+      "taste": "上品で締まった白身",
+      "cookingMethods": [
+        "刺身",
+        "煮付け",
+        "鍋",
+        "唐揚げ"
+      ],
+      "aliases": [
+        "ホウキハタ(近縁)"
+      ],
+      "description": "温暖化で漁獲が増えた入門的なハタ。クセがなく美味。",
       "imageAsset": null
     },
     {
@@ -1820,6 +2735,37 @@
       "imageAsset": null
     },
     {
+      "id": "takanohadai",
+      "name": "タカノハダイ",
+      "kana": "たかのはだい",
+      "scientificName": "Goniistius zonatus",
+      "family": "タカノハダイ科",
+      "category": "rockfish",
+      "categoryLabel": "根魚",
+      "accentColor": "#7A6C5D",
+      "seasonMonths": [
+        11,
+        12,
+        1
+      ],
+      "typicalSizeCm": 40,
+      "distribution": "本州中部以南の岩礁",
+      "habitat": "岩礁帯に定住",
+      "taste": "冬は磯臭さが抜け上品",
+      "cookingMethods": [
+        "刺身",
+        "塩焼き",
+        "鍋",
+        "煮付け"
+      ],
+      "aliases": [
+        "ヒダリマキ",
+        "ションベンタレ"
+      ],
+      "description": "斜めの縞が鷹の羽のよう。夏は磯臭いが冬は美味。",
+      "imageAsset": null
+    },
+    {
       "id": "mahata",
       "name": "マハタ",
       "kana": "まはた",
@@ -1849,6 +2795,38 @@
         "カンナギ(老成)"
       ],
       "description": "ハタ類の代表格。皮と身の間のゼラチン質が絶品。大型は超高級。",
+      "imageAsset": null
+    },
+    {
+      "id": "murasoi",
+      "name": "ムラソイ",
+      "kana": "むらそい",
+      "scientificName": "Sebastes pachycephalus",
+      "family": "メバル科",
+      "category": "rockfish",
+      "categoryLabel": "根魚",
+      "accentColor": "#7A6C5D",
+      "seasonMonths": [
+        12,
+        1,
+        2,
+        3
+      ],
+      "typicalSizeCm": 30,
+      "distribution": "本州以南の岩礁",
+      "habitat": "岩礁帯に定住",
+      "taste": "締まった白身で刺身向き",
+      "cookingMethods": [
+        "刺身",
+        "煮付け",
+        "唐揚げ",
+        "味噌汁"
+      ],
+      "aliases": [
+        "ソイ",
+        "クロソイ(近縁)"
+      ],
+      "description": "岩礁の隙間に潜む根魚。煮付けや唐揚げが美味。",
       "imageAsset": null
     },
     {
@@ -1982,6 +2960,99 @@
       "imageAsset": null
     },
     {
+      "id": "honokasago",
+      "name": "オニカサゴ",
+      "kana": "おにかさご",
+      "scientificName": "Scorpaenopsis cirrosa",
+      "family": "フサカサゴ科",
+      "category": "deep",
+      "categoryLabel": "底魚・深海魚",
+      "accentColor": "#4B3F72",
+      "seasonMonths": [
+        11,
+        12,
+        1
+      ],
+      "typicalSizeCm": 30,
+      "distribution": "本州中部以南のやや深場",
+      "habitat": "水深のある海底・深海",
+      "taste": "上品で締まった白身。良い出汁",
+      "cookingMethods": [
+        "刺身",
+        "鍋",
+        "煮付け",
+        "唐揚げ"
+      ],
+      "aliases": [
+        "オコゼ(混称)",
+        "イソカサゴ"
+      ],
+      "description": "背びれに毒棘を持つので扱い注意。鍋や刺身が美味。",
+      "imageAsset": null
+    },
+    {
+      "id": "kagamidai",
+      "name": "カガミダイ",
+      "kana": "かがみだい",
+      "scientificName": "Zenopsis nebulosa",
+      "family": "マトウダイ科",
+      "category": "deep",
+      "categoryLabel": "底魚・深海魚",
+      "accentColor": "#4B3F72",
+      "seasonMonths": [
+        11,
+        12,
+        1
+      ],
+      "typicalSizeCm": 50,
+      "distribution": "日本各地のやや深場",
+      "habitat": "水深のある海底・深海",
+      "taste": "淡白で上品な白身",
+      "cookingMethods": [
+        "ムニエル",
+        "刺身",
+        "ソテー",
+        "鍋"
+      ],
+      "aliases": [
+        "ギンマト"
+      ],
+      "description": "銀白色でマトウダイに似る。バターソテーが美味。",
+      "imageAsset": null
+    },
+    {
+      "id": "kanagashira",
+      "name": "カナガシラ",
+      "kana": "かながしら",
+      "scientificName": "Lepidotrigla microptera",
+      "family": "ホウボウ科",
+      "category": "deep",
+      "categoryLabel": "底魚・深海魚",
+      "accentColor": "#4B3F72",
+      "seasonMonths": [
+        11,
+        12,
+        1,
+        2
+      ],
+      "typicalSizeCm": 30,
+      "distribution": "本州中部以南の砂泥底",
+      "habitat": "水深のある海底・深海",
+      "taste": "淡白で上品。良い出汁が出る",
+      "cookingMethods": [
+        "煮付け",
+        "塩焼き",
+        "味噌汁",
+        "天ぷら"
+      ],
+      "aliases": [
+        "カナ",
+        "ガッチョ"
+      ],
+      "description": "ホウボウの近縁で赤い体。祝い膳の尾頭付きにも使われる。",
+      "imageAsset": null
+    },
+    {
       "id": "ankou",
       "name": "キアンコウ",
       "kana": "きあんこう",
@@ -2107,6 +3178,67 @@
       "imageAsset": null
     },
     {
+      "id": "kuromutsu",
+      "name": "クロムツ",
+      "kana": "くろむつ",
+      "scientificName": "Scombrops gilberti",
+      "family": "ムツ科",
+      "category": "deep",
+      "categoryLabel": "底魚・深海魚",
+      "accentColor": "#4B3F72",
+      "seasonMonths": [
+        11,
+        12,
+        1,
+        2
+      ],
+      "typicalSizeCm": 60,
+      "distribution": "本州中部以南の深海",
+      "habitat": "水深のある海底・深海",
+      "taste": "脂がのった濃厚な白身",
+      "cookingMethods": [
+        "刺身",
+        "煮付け",
+        "塩焼き",
+        "鍋"
+      ],
+      "aliases": [
+        "ムツ(混称)"
+      ],
+      "description": "ムツに似るがより深海性。冬に脂がのり刺身・煮付けが絶品。",
+      "imageAsset": null
+    },
+    {
+      "id": "shiroamadai",
+      "name": "シロアマダイ",
+      "kana": "しろあまだい",
+      "scientificName": "Branchiostegus albus",
+      "family": "アマダイ科",
+      "category": "deep",
+      "categoryLabel": "底魚・深海魚",
+      "accentColor": "#4B3F72",
+      "seasonMonths": [
+        11,
+        12,
+        1
+      ],
+      "typicalSizeCm": 45,
+      "distribution": "本州中部以南の砂泥底",
+      "habitat": "水深のある海底・深海",
+      "taste": "アマダイ最高峰の上品な甘み",
+      "cookingMethods": [
+        "刺身",
+        "若狭焼き",
+        "蒸し物",
+        "椀種"
+      ],
+      "aliases": [
+        "シラカワ"
+      ],
+      "description": "アマダイ類で最も高価。「シラカワ」と呼ばれ幻の高級魚。",
+      "imageAsset": null
+    },
+    {
       "id": "hatahata",
       "name": "ハタハタ",
       "kana": "はたはた",
@@ -2173,6 +3305,39 @@
       "imageAsset": null
     },
     {
+      "id": "matoudai",
+      "name": "マトウダイ",
+      "kana": "まとうだい",
+      "scientificName": "Zeus faber",
+      "family": "マトウダイ科",
+      "category": "deep",
+      "categoryLabel": "底魚・深海魚",
+      "accentColor": "#4B3F72",
+      "seasonMonths": [
+        11,
+        12,
+        1,
+        2
+      ],
+      "typicalSizeCm": 40,
+      "distribution": "日本各地のやや深場",
+      "habitat": "水深のある海底・深海",
+      "taste": "上品で締まった白身。ムニエル絶品",
+      "cookingMethods": [
+        "ムニエル",
+        "刺身",
+        "ソテー",
+        "鍋"
+      ],
+      "aliases": [
+        "マト",
+        "バト",
+        "クルマダイ"
+      ],
+      "description": "体側に的のような黒点。フランス料理で「サンピエール」と呼ぶ高級魚。",
+      "imageAsset": null
+    },
+    {
       "id": "mutsu",
       "name": "ムツ",
       "kana": "むつ",
@@ -2233,6 +3398,101 @@
         "メブト"
       ],
       "description": "全身が滑る粘液で覆われる。冬に脂がのり刺身が美味。",
+      "imageAsset": null
+    },
+    {
+      "id": "mehikari",
+      "name": "メヒカリ",
+      "kana": "めひかり",
+      "scientificName": "Chlorophthalmus albatrossis",
+      "family": "アオメエソ科",
+      "category": "deep",
+      "categoryLabel": "底魚・深海魚",
+      "accentColor": "#4B3F72",
+      "seasonMonths": [
+        10,
+        11,
+        12,
+        1
+      ],
+      "typicalSizeCm": 15,
+      "distribution": "本州中部以南の深海",
+      "habitat": "水深のある海底・深海",
+      "taste": "脂がのり骨まで柔らか",
+      "cookingMethods": [
+        "唐揚げ",
+        "天ぷら",
+        "干物",
+        "南蛮漬け"
+      ],
+      "aliases": [
+        "アオメエソ",
+        "トロボッチ"
+      ],
+      "description": "大きな青緑の目が光る。福島・宮崎の名物で丸ごと食べる。",
+      "imageAsset": null
+    },
+    {
+      "id": "mero",
+      "name": "メロ",
+      "kana": "めろ",
+      "scientificName": "Dissostichus eleginoides",
+      "family": "ノトテニア科",
+      "category": "deep",
+      "categoryLabel": "底魚・深海魚",
+      "accentColor": "#4B3F72",
+      "seasonMonths": [
+        12,
+        1,
+        2
+      ],
+      "typicalSizeCm": 200,
+      "distribution": "南半球の深海",
+      "habitat": "水深のある海底・深海",
+      "taste": "非常に脂がのり口どけが良い",
+      "cookingMethods": [
+        "西京焼き",
+        "煮付け",
+        "ムニエル",
+        "ソテー"
+      ],
+      "aliases": [
+        "銀ムツ",
+        "マゼランアイナメ"
+      ],
+      "description": "「銀ムツ」の名で流通。脂が濃厚で加熱するととろける高級魚。",
+      "imageAsset": null
+    },
+    {
+      "id": "amago",
+      "name": "アマゴ",
+      "kana": "あまご",
+      "scientificName": "Oncorhynchus masou ishikawae",
+      "family": "サケ科",
+      "category": "freshwater",
+      "categoryLabel": "川魚・淡水魚",
+      "accentColor": "#5C8A3A",
+      "seasonMonths": [
+        3,
+        4,
+        5,
+        6
+      ],
+      "typicalSizeCm": 25,
+      "distribution": "西日本の渓流",
+      "habitat": "河川・湖沼・汽水域",
+      "taste": "上品で繊細な白身",
+      "cookingMethods": [
+        "塩焼き",
+        "天ぷら",
+        "甘露煮",
+        "刺身(養殖)"
+      ],
+      "aliases": [
+        "アメゴ",
+        "エノハ"
+      ],
+      "description": "ヤマメの近縁で朱点があるのが特徴。西日本・太平洋側に分布。",
       "imageAsset": null
     },
     {
@@ -2299,6 +3559,128 @@
         "キリクチ"
       ],
       "description": "渓流の最上流に棲む。「渓流の王者」。焼いた骨で作る骨酒も名物。",
+      "imageAsset": null
+    },
+    {
+      "id": "ugui",
+      "name": "ウグイ",
+      "kana": "うぐい",
+      "scientificName": "Tribolodon hakonensis",
+      "family": "コイ科",
+      "category": "freshwater",
+      "categoryLabel": "川魚・淡水魚",
+      "accentColor": "#5C8A3A",
+      "seasonMonths": [
+        4,
+        5,
+        6
+      ],
+      "typicalSizeCm": 30,
+      "distribution": "全国の河川",
+      "habitat": "河川・湖沼・汽水域",
+      "taste": "小骨は多いが素朴な旨み",
+      "cookingMethods": [
+        "塩焼き",
+        "甘露煮",
+        "天ぷら"
+      ],
+      "aliases": [
+        "ハヤ",
+        "アカハラ"
+      ],
+      "description": "繁殖期に腹が赤くなる。渓流・河川釣りでおなじみ。",
+      "imageAsset": null
+    },
+    {
+      "id": "oikawa",
+      "name": "オイカワ",
+      "kana": "おいかわ",
+      "scientificName": "Opsariichthys platypus",
+      "family": "コイ科",
+      "category": "freshwater",
+      "categoryLabel": "川魚・淡水魚",
+      "accentColor": "#5C8A3A",
+      "seasonMonths": [
+        6,
+        7,
+        8
+      ],
+      "typicalSizeCm": 15,
+      "distribution": "本州以南の河川",
+      "habitat": "河川・湖沼・汽水域",
+      "taste": "淡白で天ぷら向き",
+      "cookingMethods": [
+        "天ぷら",
+        "南蛮漬け",
+        "甘露煮"
+      ],
+      "aliases": [
+        "ヤマベ",
+        "ハエ",
+        "シラハエ"
+      ],
+      "description": "雄は繁殖期に青緑と赤の美しい婚姻色になる。",
+      "imageAsset": null
+    },
+    {
+      "id": "karafutomasu",
+      "name": "カラフトマス",
+      "kana": "からふとます",
+      "scientificName": "Oncorhynchus gorbuscha",
+      "family": "サケ科",
+      "category": "freshwater",
+      "categoryLabel": "川魚・淡水魚",
+      "accentColor": "#5C8A3A",
+      "seasonMonths": [
+        8,
+        9
+      ],
+      "typicalSizeCm": 60,
+      "distribution": "北太平洋",
+      "habitat": "河川・湖沼・汽水域",
+      "taste": "淡泊であっさり",
+      "cookingMethods": [
+        "塩焼き",
+        "缶詰",
+        "ムニエル",
+        "燻製"
+      ],
+      "aliases": [
+        "セッパリマス",
+        "ピンクサーモン"
+      ],
+      "description": "産卵期の雄は背が盛り上がる。缶詰の原料としておなじみ。",
+      "imageAsset": null
+    },
+    {
+      "id": "gengorobuna",
+      "name": "ゲンゴロウブナ",
+      "kana": "げんごろうぶな",
+      "scientificName": "Carassius cuvieri",
+      "family": "コイ科",
+      "category": "freshwater",
+      "categoryLabel": "川魚・淡水魚",
+      "accentColor": "#5C8A3A",
+      "seasonMonths": [
+        12,
+        1,
+        2
+      ],
+      "typicalSizeCm": 40,
+      "distribution": "本州以西の湖沼",
+      "habitat": "河川・湖沼・汽水域",
+      "taste": "淡白で寒鮒は旨みが増す",
+      "cookingMethods": [
+        "刺身",
+        "甘露煮",
+        "鮒寿司",
+        "洗い"
+      ],
+      "aliases": [
+        "ヘラブナ",
+        "マブナ"
+      ],
+      "description": "滋賀の「鮒寿司」はなれずしの原点で日本の発酵食の源流。",
       "imageAsset": null
     },
     {
@@ -2524,6 +3906,128 @@
       "imageAsset": null
     },
     {
+      "id": "himemasu",
+      "name": "ヒメマス",
+      "kana": "ひめます",
+      "scientificName": "Oncorhynchus nerka",
+      "family": "サケ科",
+      "category": "freshwater",
+      "categoryLabel": "川魚・淡水魚",
+      "accentColor": "#5C8A3A",
+      "seasonMonths": [
+        9,
+        10,
+        11
+      ],
+      "typicalSizeCm": 30,
+      "distribution": "北日本の湖",
+      "habitat": "河川・湖沼・汽水域",
+      "taste": "上品で脂がのる",
+      "cookingMethods": [
+        "塩焼き",
+        "刺身",
+        "ムニエル",
+        "フライ"
+      ],
+      "aliases": [
+        "チップ",
+        "カバチェッポ"
+      ],
+      "description": "ベニザケの陸封型。阿寒湖・十和田湖・支笏湖の名物。",
+      "imageAsset": null
+    },
+    {
+      "id": "biwamasu",
+      "name": "ビワマス",
+      "kana": "びわます",
+      "scientificName": "Oncorhynchus masou rhodurus",
+      "family": "サケ科",
+      "category": "freshwater",
+      "categoryLabel": "川魚・淡水魚",
+      "accentColor": "#5C8A3A",
+      "seasonMonths": [
+        6,
+        7,
+        8
+      ],
+      "typicalSizeCm": 50,
+      "distribution": "琵琶湖固有",
+      "habitat": "河川・湖沼・汽水域",
+      "taste": "脂がのり上品な桜色の身",
+      "cookingMethods": [
+        "刺身",
+        "ルイベ",
+        "塩焼き",
+        "ビワマス丼"
+      ],
+      "aliases": [
+        "アメノウオ"
+      ],
+      "description": "琵琶湖固有種。雨の日に川を遡上するので「アメノウオ」。",
+      "imageAsset": null
+    },
+    {
+      "id": "benizake",
+      "name": "ベニザケ",
+      "kana": "べにざけ",
+      "scientificName": "Oncorhynchus nerka",
+      "family": "サケ科",
+      "category": "freshwater",
+      "categoryLabel": "川魚・淡水魚",
+      "accentColor": "#5C8A3A",
+      "seasonMonths": [
+        6,
+        7,
+        8
+      ],
+      "typicalSizeCm": 70,
+      "distribution": "北太平洋",
+      "habitat": "河川・湖沼・汽水域",
+      "taste": "身が鮮紅色で濃厚な旨み",
+      "cookingMethods": [
+        "塩焼き",
+        "ムニエル",
+        "燻製",
+        "スモークサーモン"
+      ],
+      "aliases": [
+        "紅鮭",
+        "ヒメマス(陸封)"
+      ],
+      "description": "身が最も赤いサケ。塩焼きやスモークで人気。陸封型はヒメマス。",
+      "imageAsset": null
+    },
+    {
+      "id": "honmoroko",
+      "name": "ホンモロコ",
+      "kana": "ほんもろこ",
+      "scientificName": "Gnathopogon caerulescens",
+      "family": "コイ科",
+      "category": "freshwater",
+      "categoryLabel": "川魚・淡水魚",
+      "accentColor": "#5C8A3A",
+      "seasonMonths": [
+        1,
+        2,
+        3
+      ],
+      "typicalSizeCm": 10,
+      "distribution": "琵琶湖固有",
+      "habitat": "河川・湖沼・汽水域",
+      "taste": "上品で骨まで柔らかい",
+      "cookingMethods": [
+        "塩焼き",
+        "天ぷら",
+        "南蛮漬け",
+        "佃煮"
+      ],
+      "aliases": [
+        "モロコ"
+      ],
+      "description": "琵琶湖の高級小魚。子持ちの素焼きが珍重される。",
+      "imageAsset": null
+    },
+    {
       "id": "yamame",
       "name": "ヤマメ",
       "kana": "やまめ",
@@ -2617,6 +4121,35 @@
         "ホンダマ"
       ],
       "description": "ヘモグロビンを持ち身が赤い。江戸前寿司の花形。ひもも珍重される。",
+      "imageAsset": null
+    },
+    {
+      "id": "akanishi",
+      "name": "アカニシ",
+      "kana": "あかにし",
+      "scientificName": "Rapana venosa",
+      "family": "アッキガイ科",
+      "category": "shellfish",
+      "categoryLabel": "貝類",
+      "accentColor": "#B08968",
+      "seasonMonths": [
+        5,
+        6,
+        7
+      ],
+      "typicalSizeCm": 15,
+      "distribution": "内湾の岩礁・砂泥",
+      "habitat": "干潟・砂泥底・岩礁",
+      "taste": "こりこりで甘みがある",
+      "cookingMethods": [
+        "刺身",
+        "つぼ焼き",
+        "和え物"
+      ],
+      "aliases": [
+        "ニシ貝"
+      ],
+      "description": "サザエの代用にもなる大型巻貝。殻の内側が赤い。",
       "imageAsset": null
     },
     {
@@ -2810,6 +4343,68 @@
       "imageAsset": null
     },
     {
+      "id": "tairagi",
+      "name": "タイラギ",
+      "kana": "たいらぎ",
+      "scientificName": "Atrina pectinata",
+      "family": "ハボウキガイ科",
+      "category": "shellfish",
+      "categoryLabel": "貝類",
+      "accentColor": "#B08968",
+      "seasonMonths": [
+        12,
+        1,
+        2
+      ],
+      "typicalSizeCm": 30,
+      "distribution": "内湾の砂泥底",
+      "habitat": "干潟・砂泥底・岩礁",
+      "taste": "大きな貝柱が甘く濃厚",
+      "cookingMethods": [
+        "刺身",
+        "寿司",
+        "バター焼き",
+        "天ぷら"
+      ],
+      "aliases": [
+        "タイラガイ",
+        "エボシガイ"
+      ],
+      "description": "砂に立って生息する三角の二枚貝。貝柱が大きく高級寿司ネタ。",
+      "imageAsset": null
+    },
+    {
+      "id": "tokobushi",
+      "name": "トコブシ",
+      "kana": "とこぶし",
+      "scientificName": "Sulculus diversicolor",
+      "family": "ミミガイ科",
+      "category": "shellfish",
+      "categoryLabel": "貝類",
+      "accentColor": "#B08968",
+      "seasonMonths": [
+        5,
+        6,
+        7
+      ],
+      "typicalSizeCm": 7,
+      "distribution": "本州中部以南の岩礁",
+      "habitat": "干潟・砂泥底・岩礁",
+      "taste": "アワビに似た磯の旨み",
+      "cookingMethods": [
+        "煮貝",
+        "刺身",
+        "酒蒸し",
+        "塩茹で"
+      ],
+      "aliases": [
+        "ナガレコ",
+        "フクダメ"
+      ],
+      "description": "アワビを小さくしたような巻貝。煮ると柔らかく正月の縁起物。",
+      "imageAsset": null
+    },
+    {
       "id": "torigai",
       "name": "トリガイ",
       "kana": "とりがい",
@@ -2867,6 +4462,36 @@
         "地はまぐり"
       ],
       "description": "対になる殻しか合わないことから夫婦円満の縁起物。桃の節句に欠かせない。",
+      "imageAsset": null
+    },
+    {
+      "id": "baigai",
+      "name": "バイ",
+      "kana": "ばい",
+      "scientificName": "Babylonia japonica",
+      "family": "エゾバイ科",
+      "category": "shellfish",
+      "categoryLabel": "貝類",
+      "accentColor": "#B08968",
+      "seasonMonths": [
+        5,
+        6,
+        7
+      ],
+      "typicalSizeCm": 8,
+      "distribution": "本州の砂泥底",
+      "habitat": "干潟・砂泥底・岩礁",
+      "taste": "こりこりでほろ苦い旨み",
+      "cookingMethods": [
+        "煮付け",
+        "塩茹で",
+        "刺身"
+      ],
+      "aliases": [
+        "バイ貝",
+        "ツバイ"
+      ],
+      "description": "唾液腺に毒があり除去して食べる。煮付けが定番。",
       "imageAsset": null
     },
     {
@@ -2968,6 +4593,66 @@
       "imageAsset": null
     },
     {
+      "id": "mategai",
+      "name": "マテガイ",
+      "kana": "まてがい",
+      "scientificName": "Solen strictus",
+      "family": "マテガイ科",
+      "category": "shellfish",
+      "categoryLabel": "貝類",
+      "accentColor": "#B08968",
+      "seasonMonths": [
+        3,
+        4,
+        5
+      ],
+      "typicalSizeCm": 12,
+      "distribution": "内湾の砂干潟",
+      "habitat": "干潟・砂泥底・岩礁",
+      "taste": "甘みが強く上品",
+      "cookingMethods": [
+        "酒蒸し",
+        "バター焼き",
+        "塩茹で",
+        "天ぷら"
+      ],
+      "aliases": [
+        "マテ貝"
+      ],
+      "description": "細長い筒状の貝。塩を入れると穴から飛び出す潮干狩りの人気者。",
+      "imageAsset": null
+    },
+    {
+      "id": "mirukui",
+      "name": "ミルクイ",
+      "kana": "みるくい",
+      "scientificName": "Tresus keenae",
+      "family": "バカガイ科",
+      "category": "shellfish",
+      "categoryLabel": "貝類",
+      "accentColor": "#B08968",
+      "seasonMonths": [
+        3,
+        4,
+        5
+      ],
+      "typicalSizeCm": 15,
+      "distribution": "内湾の砂泥底",
+      "habitat": "干潟・砂泥底・岩礁",
+      "taste": "こりこりで濃厚な甘み。最高級",
+      "cookingMethods": [
+        "刺身",
+        "寿司",
+        "焼き"
+      ],
+      "aliases": [
+        "ミルガイ",
+        "本ミル"
+      ],
+      "description": "太い水管を食べる。「ミル貝」として超高級。近年は希少。",
+      "imageAsset": null
+    },
+    {
       "id": "shijimi",
       "name": "ヤマトシジミ",
       "kana": "やまとしじみ",
@@ -3033,6 +4718,37 @@
       "imageAsset": null
     },
     {
+      "id": "akaika",
+      "name": "アカイカ",
+      "kana": "あかいか",
+      "scientificName": "Ommastrephes bartramii",
+      "family": "アカイカ科",
+      "category": "cephalopod",
+      "categoryLabel": "イカ・タコ",
+      "accentColor": "#9C5A63",
+      "seasonMonths": [
+        7,
+        8,
+        9,
+        10
+      ],
+      "typicalSizeCm": 45,
+      "distribution": "北太平洋の外洋",
+      "habitat": "沿岸〜沖合の中層・底層",
+      "taste": "淡泊で柔らかい",
+      "cookingMethods": [
+        "刺身",
+        "天ぷら",
+        "さきいか"
+      ],
+      "aliases": [
+        "ムラサキイカ",
+        "バカイカ"
+      ],
+      "description": "外洋性の大型イカ。刺身のほかさきいか等の加工品原料として重要。",
+      "imageAsset": null
+    },
+    {
       "id": "iidako",
       "name": "イイダコ",
       "kana": "いいだこ",
@@ -3061,6 +4777,37 @@
         "コモチダコ"
       ],
       "description": "冬に卵を持つ雌が珍重され、卵が飯粒に見えることが名の由来。",
+      "imageAsset": null
+    },
+    {
+      "id": "monkouika",
+      "name": "カミナリイカ",
+      "kana": "かみなりいか",
+      "scientificName": "Sepia lycidas",
+      "family": "コウイカ科",
+      "category": "cephalopod",
+      "categoryLabel": "イカ・タコ",
+      "accentColor": "#9C5A63",
+      "seasonMonths": [
+        12,
+        1,
+        2,
+        3
+      ],
+      "typicalSizeCm": 30,
+      "distribution": "本州中部以南の砂泥底",
+      "habitat": "沿岸〜沖合の中層・底層",
+      "taste": "もっちりと濃厚な甘み",
+      "cookingMethods": [
+        "刺身",
+        "寿司",
+        "天ぷら"
+      ],
+      "aliases": [
+        "モンゴウイカ",
+        "クツイカ"
+      ],
+      "description": "背に紋がある大型のコウイカ。高級で「モンゴウイカ」として流通。",
       "imageAsset": null
     },
     {
@@ -3129,6 +4876,36 @@
       "imageAsset": null
     },
     {
+      "id": "kobushime",
+      "name": "コブシメ",
+      "kana": "こぶしめ",
+      "scientificName": "Sepia latimanus",
+      "family": "コウイカ科",
+      "category": "cephalopod",
+      "categoryLabel": "イカ・タコ",
+      "accentColor": "#9C5A63",
+      "seasonMonths": [
+        2,
+        3,
+        4
+      ],
+      "typicalSizeCm": 50,
+      "distribution": "南西諸島の岩礁・藻場",
+      "habitat": "沿岸〜沖合の中層・底層",
+      "taste": "大型で濃厚な甘み",
+      "cookingMethods": [
+        "刺身",
+        "寿司",
+        "天ぷら",
+        "炒め物"
+      ],
+      "aliases": [
+        "クブシミ"
+      ],
+      "description": "沖縄最大のコウイカ。もっちり濃厚で沖縄料理に欠かせない。",
+      "imageAsset": null
+    },
+    {
       "id": "surumeika",
       "name": "スルメイカ",
       "kana": "するめいか",
@@ -3160,6 +4937,37 @@
         "トンキュウ"
       ],
       "description": "日本で漁獲量最多のイカ。刺身から加工品まで用途が広い。肝も塩辛に使う。",
+      "imageAsset": null
+    },
+    {
+      "id": "sodeika",
+      "name": "ソデイカ",
+      "kana": "そでいか",
+      "scientificName": "Thysanoteuthis rhombus",
+      "family": "ソデイカ科",
+      "category": "cephalopod",
+      "categoryLabel": "イカ・タコ",
+      "accentColor": "#9C5A63",
+      "seasonMonths": [
+        12,
+        1,
+        2,
+        3
+      ],
+      "typicalSizeCm": 100,
+      "distribution": "暖海の外洋",
+      "habitat": "沿岸〜沖合の中層・底層",
+      "taste": "とろけるような甘みで大型",
+      "cookingMethods": [
+        "刺身",
+        "寿司",
+        "天ぷら"
+      ],
+      "aliases": [
+        "タルイカ",
+        "アカイカ(誤称)"
+      ],
+      "description": "非常に大型で沖縄・日本海で漁獲。回転寿司のイカにもよく使われる。",
       "imageAsset": null
     },
     {
@@ -3261,6 +5069,36 @@
       "imageAsset": null
     },
     {
+      "id": "yanagidako",
+      "name": "ヤナギダコ",
+      "kana": "やなぎだこ",
+      "scientificName": "Octopus conispadiceus",
+      "family": "マダコ科",
+      "category": "cephalopod",
+      "categoryLabel": "イカ・タコ",
+      "accentColor": "#9C5A63",
+      "seasonMonths": [
+        12,
+        1,
+        2
+      ],
+      "typicalSizeCm": 100,
+      "distribution": "北日本の砂泥底",
+      "habitat": "沿岸〜沖合の中層・底層",
+      "taste": "柔らかく淡泊",
+      "cookingMethods": [
+        "刺身",
+        "煮だこ",
+        "おでん",
+        "酢の物"
+      ],
+      "aliases": [
+        "ヤナギ"
+      ],
+      "description": "北海道で多く獲れる。加工だこ・おでん種の原料として重要。",
+      "imageAsset": null
+    },
+    {
       "id": "yariika",
       "name": "ヤリイカ",
       "kana": "やりいか",
@@ -3294,6 +5132,35 @@
       "imageAsset": null
     },
     {
+      "id": "asahigani",
+      "name": "アサヒガニ",
+      "kana": "あさひがに",
+      "scientificName": "Ranina ranina",
+      "family": "アサヒガニ科",
+      "category": "crustacean",
+      "categoryLabel": "エビ・カニ",
+      "accentColor": "#C1666B",
+      "seasonMonths": [
+        7,
+        8,
+        9
+      ],
+      "typicalSizeCm": 15,
+      "distribution": "南日本の砂底",
+      "habitat": "海底の砂泥・岩礁",
+      "taste": "繊細な甘みの身",
+      "cookingMethods": [
+        "茹でガニ",
+        "味噌汁",
+        "蒸しガニ"
+      ],
+      "aliases": [
+        "アサヒ"
+      ],
+      "description": "前後に歩く珍しいカニ。南日本の高級ガニ。",
+      "imageAsset": null
+    },
+    {
       "id": "iseebi",
       "name": "イセエビ",
       "kana": "いせえび",
@@ -3323,6 +5190,38 @@
         "伊勢海老"
       ],
       "description": "祝い事に欠かせない縁起物。長いひげと立派な体。禁漁期があり資源管理される。",
+      "imageAsset": null
+    },
+    {
+      "id": "uchiwaebi",
+      "name": "ウチワエビ",
+      "kana": "うちわえび",
+      "scientificName": "Ibacus ciliatus",
+      "family": "セミエビ科",
+      "category": "crustacean",
+      "categoryLabel": "エビ・カニ",
+      "accentColor": "#C1666B",
+      "seasonMonths": [
+        11,
+        12,
+        1,
+        2
+      ],
+      "typicalSizeCm": 20,
+      "distribution": "本州中部以南の砂泥底",
+      "habitat": "海底の砂泥・岩礁",
+      "taste": "イセエビに劣らぬ甘み",
+      "cookingMethods": [
+        "刺身",
+        "味噌汁",
+        "塩焼き",
+        "鍋"
+      ],
+      "aliases": [
+        "パタパタ",
+        "ゾウリエビ(近縁)"
+      ],
+      "description": "うちわ状の平たい体。西日本で味噌汁の具として珍重。",
       "imageAsset": null
     },
     {
@@ -3456,6 +5355,36 @@
       "imageAsset": null
     },
     {
+      "id": "shibaebi",
+      "name": "シバエビ",
+      "kana": "しばえび",
+      "scientificName": "Metapenaeus joyneri",
+      "family": "クルマエビ科",
+      "category": "crustacean",
+      "categoryLabel": "エビ・カニ",
+      "accentColor": "#C1666B",
+      "seasonMonths": [
+        9,
+        10,
+        11
+      ],
+      "typicalSizeCm": 15,
+      "distribution": "本州中部以南の内湾",
+      "habitat": "海底の砂泥・岩礁",
+      "taste": "上品な甘みでかき揚げに最適",
+      "cookingMethods": [
+        "かき揚げ",
+        "天ぷら",
+        "すり身",
+        "塩茹で"
+      ],
+      "aliases": [
+        "シラサエビ"
+      ],
+      "description": "江戸前の小型エビ。かき揚げやすり身の定番。",
+      "imageAsset": null
+    },
+    {
       "id": "shako",
       "name": "シャコ",
       "kana": "しゃこ",
@@ -3522,6 +5451,35 @@
       "imageAsset": null
     },
     {
+      "id": "semiebi",
+      "name": "セミエビ",
+      "kana": "せみえび",
+      "scientificName": "Scyllarides squammosus",
+      "family": "セミエビ科",
+      "category": "crustacean",
+      "categoryLabel": "エビ・カニ",
+      "accentColor": "#C1666B",
+      "seasonMonths": [
+        6,
+        7,
+        8
+      ],
+      "typicalSizeCm": 30,
+      "distribution": "南日本の岩礁",
+      "habitat": "海底の砂泥・岩礁",
+      "taste": "濃厚な甘みで最高級",
+      "cookingMethods": [
+        "刺身",
+        "具足煮",
+        "味噌汁"
+      ],
+      "aliases": [
+        "セミ"
+      ],
+      "description": "イセエビ以上とも言われる高級エビ。漁獲が少なく希少。",
+      "imageAsset": null
+    },
+    {
       "id": "tarabagani",
       "name": "タラバガニ",
       "kana": "たらばがに",
@@ -3551,6 +5509,234 @@
         "タラバ"
       ],
       "description": "実はヤドカリの仲間で脚は左右4対。太い脚の身が魅力。カニ味噌は食用に向かない。",
+      "imageAsset": null
+    },
+    {
+      "id": "tenagaebi",
+      "name": "テナガエビ",
+      "kana": "てながえび",
+      "scientificName": "Macrobrachium nipponense",
+      "family": "テナガエビ科",
+      "category": "crustacean",
+      "categoryLabel": "エビ・カニ",
+      "accentColor": "#C1666B",
+      "seasonMonths": [
+        6,
+        7,
+        8
+      ],
+      "typicalSizeCm": 10,
+      "distribution": "本州以南の川・湖",
+      "habitat": "海底の砂泥・岩礁",
+      "taste": "香ばしく上品な旨み",
+      "cookingMethods": [
+        "唐揚げ",
+        "素揚げ",
+        "天ぷら"
+      ],
+      "aliases": [
+        "カワエビ"
+      ],
+      "description": "長い鋏を持つ淡水エビ。素揚げが香ばしく美味。",
+      "imageAsset": null
+    },
+    {
+      "id": "toyamaebi",
+      "name": "トヤマエビ",
+      "kana": "とやまえび",
+      "scientificName": "Pandalus hypsinotus",
+      "family": "タラバエビ科",
+      "category": "crustacean",
+      "categoryLabel": "エビ・カニ",
+      "accentColor": "#C1666B",
+      "seasonMonths": [
+        11,
+        12,
+        1,
+        2
+      ],
+      "typicalSizeCm": 20,
+      "distribution": "北日本の深海",
+      "habitat": "海底の砂泥・岩礁",
+      "taste": "濃厚な甘み",
+      "cookingMethods": [
+        "刺身",
+        "寿司",
+        "塩焼き"
+      ],
+      "aliases": [
+        "ボタンエビ(混称)"
+      ],
+      "description": "縞模様を持つ大型エビ。「ボタンエビ」として流通することも多い。",
+      "imageAsset": null
+    },
+    {
+      "id": "hanasakigani",
+      "name": "ハナサキガニ",
+      "kana": "はなさきがに",
+      "scientificName": "Paralithodes brevipes",
+      "family": "タラバガニ科",
+      "category": "crustacean",
+      "categoryLabel": "エビ・カニ",
+      "accentColor": "#C1666B",
+      "seasonMonths": [
+        7,
+        8,
+        9
+      ],
+      "typicalSizeCm": 15,
+      "distribution": "北海道東部の岩礁",
+      "habitat": "海底の砂泥・岩礁",
+      "taste": "濃厚で甘みが強い",
+      "cookingMethods": [
+        "茹でガニ",
+        "鉄砲汁",
+        "焼きガニ"
+      ],
+      "aliases": [
+        "花咲ガニ"
+      ],
+      "description": "根室の名物。茹でると花が咲くように赤くなるのが名の由来。",
+      "imageAsset": null
+    },
+    {
+      "id": "banameiebi",
+      "name": "バナメイエビ",
+      "kana": "ばなめいえび",
+      "scientificName": "Litopenaeus vannamei",
+      "family": "クルマエビ科",
+      "category": "crustacean",
+      "categoryLabel": "エビ・カニ",
+      "accentColor": "#C1666B",
+      "seasonMonths": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
+      ],
+      "typicalSizeCm": 20,
+      "distribution": "熱帯域(養殖)",
+      "habitat": "海底の砂泥・岩礁",
+      "taste": "クセがなく使いやすい",
+      "cookingMethods": [
+        "フライ",
+        "エビチリ",
+        "天ぷら",
+        "炒め物"
+      ],
+      "aliases": [
+        "白えび(誤称)"
+      ],
+      "description": "世界で最も養殖される食用エビ。安価で流通量が最多。",
+      "imageAsset": null
+    },
+    {
+      "id": "blacktiger",
+      "name": "ブラックタイガー",
+      "kana": "ぶらっくたいがー",
+      "scientificName": "Penaeus monodon",
+      "family": "クルマエビ科",
+      "category": "crustacean",
+      "categoryLabel": "エビ・カニ",
+      "accentColor": "#C1666B",
+      "seasonMonths": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
+      ],
+      "typicalSizeCm": 30,
+      "distribution": "東南アジア(養殖)",
+      "habitat": "海底の砂泥・岩礁",
+      "taste": "プリっとした食感と甘み",
+      "cookingMethods": [
+        "フライ",
+        "天ぷら",
+        "エビチリ",
+        "寿司"
+      ],
+      "aliases": [
+        "ウシエビ"
+      ],
+      "description": "大型で食べ応えがある。養殖エビの主力の一つ。",
+      "imageAsset": null
+    },
+    {
+      "id": "benizuwaigani",
+      "name": "ベニズワイガニ",
+      "kana": "べにずわいがに",
+      "scientificName": "Chionoecetes japonicus",
+      "family": "ケセンガニ科",
+      "category": "crustacean",
+      "categoryLabel": "エビ・カニ",
+      "accentColor": "#C1666B",
+      "seasonMonths": [
+        9,
+        10,
+        11,
+        12,
+        1,
+        2
+      ],
+      "typicalSizeCm": 15,
+      "distribution": "日本海の深海",
+      "habitat": "海底の砂泥・岩礁",
+      "taste": "水分は多いが甘みが強い",
+      "cookingMethods": [
+        "茹でガニ",
+        "かに飯",
+        "かに鍋"
+      ],
+      "aliases": [
+        "紅ズワイ"
+      ],
+      "description": "ズワイガニより深所に棲み安価。最初から真っ赤な体。",
+      "imageAsset": null
+    },
+    {
+      "id": "hokkaiebi",
+      "name": "ホッカイエビ",
+      "kana": "ほっかいえび",
+      "scientificName": "Pandalus latirostris",
+      "family": "タラバエビ科",
+      "category": "crustacean",
+      "categoryLabel": "エビ・カニ",
+      "accentColor": "#C1666B",
+      "seasonMonths": [
+        7,
+        8,
+        11
+      ],
+      "typicalSizeCm": 12,
+      "distribution": "北海道の藻場",
+      "habitat": "海底の砂泥・岩礁",
+      "taste": "茹でると濃厚な甘み",
+      "cookingMethods": [
+        "塩茹で",
+        "刺身",
+        "寿司"
+      ],
+      "aliases": [
+        "ホッカイシマエビ",
+        "シマエビ"
+      ],
+      "description": "北海道の藻場に棲む。茹でると縞模様が鮮やかになる。",
       "imageAsset": null
     },
     {
@@ -3681,6 +5867,37 @@
       "imageAsset": null
     },
     {
+      "id": "aburatsunozame",
+      "name": "アブラツノザメ",
+      "kana": "あぶらつのざめ",
+      "scientificName": "Squalus suckleyi",
+      "family": "ツノザメ科",
+      "category": "other",
+      "categoryLabel": "その他・特種",
+      "accentColor": "#8A7B4F",
+      "seasonMonths": [
+        11,
+        12,
+        1
+      ],
+      "typicalSizeCm": 100,
+      "distribution": "北日本の深海",
+      "habitat": "多様な環境",
+      "taste": "淡泊でくせのない白身",
+      "cookingMethods": [
+        "フライ",
+        "煮こごり",
+        "練り物",
+        "煮付け"
+      ],
+      "aliases": [
+        "アブラザメ",
+        "モロ"
+      ],
+      "description": "東北で「モロ」等として煮付けにされる。肝油の原料にも。",
+      "imageAsset": null
+    },
+    {
       "id": "utsubo",
       "name": "ウツボ",
       "kana": "うつぼ",
@@ -3710,6 +5927,101 @@
         "ナマダ"
       ],
       "description": "鋭い歯を持つ「海のギャング」。高知・和歌山で珍味として食べられる。皮のゼラチン質が特徴。",
+      "imageAsset": null
+    },
+    {
+      "id": "kitamurasakiuni",
+      "name": "キタムラサキウニ",
+      "kana": "きたむらさきうに",
+      "scientificName": "Mesocentrotus nudus",
+      "family": "ナガウニ科",
+      "category": "other",
+      "categoryLabel": "その他・特種",
+      "accentColor": "#8A7B4F",
+      "seasonMonths": [
+        4,
+        5,
+        6,
+        7
+      ],
+      "typicalSizeCm": 8,
+      "distribution": "北日本の岩礁",
+      "habitat": "多様な環境",
+      "taste": "大粒で濃厚な甘み",
+      "cookingMethods": [
+        "生うに",
+        "寿司",
+        "うに丼",
+        "塩うに"
+      ],
+      "aliases": [
+        "ノナ"
+      ],
+      "description": "北海道の主要ウニ。折(板)うにや塩うにで広く流通する。",
+      "imageAsset": null
+    },
+    {
+      "id": "shousaifugu",
+      "name": "ショウサイフグ",
+      "kana": "しょうさいふぐ",
+      "scientificName": "Takifugu vermicularis",
+      "family": "フグ科",
+      "category": "other",
+      "categoryLabel": "その他・特種",
+      "accentColor": "#8A7B4F",
+      "seasonMonths": [
+        10,
+        11,
+        12,
+        1
+      ],
+      "typicalSizeCm": 30,
+      "distribution": "本州中部以南の沿岸",
+      "habitat": "多様な環境",
+      "taste": "淡泊で上品。手頃なフグ",
+      "cookingMethods": [
+        "てっさ",
+        "鍋",
+        "唐揚げ",
+        "干物"
+      ],
+      "aliases": [
+        "ナゴヤフグ"
+      ],
+      "description": "トラフグより手頃な中型フグ。要調理免許。関東で人気。",
+      "imageAsset": null
+    },
+    {
+      "id": "suppon",
+      "name": "スッポン",
+      "kana": "すっぽん",
+      "scientificName": "Pelodiscus sinensis",
+      "family": "スッポン科",
+      "category": "other",
+      "categoryLabel": "その他・特種",
+      "accentColor": "#8A7B4F",
+      "seasonMonths": [
+        6,
+        7,
+        8,
+        11,
+        12
+      ],
+      "typicalSizeCm": 30,
+      "distribution": "本州以南の川・池(養殖)",
+      "habitat": "多様な環境",
+      "taste": "コラーゲン豊富で滋味深い",
+      "cookingMethods": [
+        "鍋(丸鍋)",
+        "スープ",
+        "唐揚げ",
+        "雑炊"
+      ],
+      "aliases": [
+        "マル",
+        "ドチガメ"
+      ],
+      "description": "亀の一種で滋養強壮の高級食材。丸鍋やスープが有名。",
       "imageAsset": null
     },
     {
@@ -3811,6 +6123,98 @@
       "imageAsset": null
     },
     {
+      "id": "bizenkurage",
+      "name": "ビゼンクラゲ",
+      "kana": "びぜんくらげ",
+      "scientificName": "Rhopilema esculentum",
+      "family": "ビゼンクラゲ科",
+      "category": "other",
+      "categoryLabel": "その他・特種",
+      "accentColor": "#8A7B4F",
+      "seasonMonths": [
+        7,
+        8,
+        9
+      ],
+      "typicalSizeCm": 50,
+      "distribution": "東シナ海・有明海",
+      "habitat": "多様な環境",
+      "taste": "こりこりの独特の食感",
+      "cookingMethods": [
+        "中華くらげ",
+        "酢の物",
+        "和え物"
+      ],
+      "aliases": [
+        "クラゲ",
+        "ヒゼンクラゲ"
+      ],
+      "description": "食用クラゲの最高級。塩とミョウバンで締めて中華食材にする。",
+      "imageAsset": null
+    },
+    {
+      "id": "hoshizame",
+      "name": "ホシザメ",
+      "kana": "ほしざめ",
+      "scientificName": "Mustelus manazo",
+      "family": "ドチザメ科",
+      "category": "other",
+      "categoryLabel": "その他・特種",
+      "accentColor": "#8A7B4F",
+      "seasonMonths": [
+        5,
+        6,
+        7
+      ],
+      "typicalSizeCm": 100,
+      "distribution": "本州以南の沿岸",
+      "habitat": "多様な環境",
+      "taste": "淡泊で臭みが少ない",
+      "cookingMethods": [
+        "湯引き",
+        "煮付け",
+        "フライ",
+        "酢味噌和え"
+      ],
+      "aliases": [
+        "サメ",
+        "フカ"
+      ],
+      "description": "瀬戸内で「ふか」として親しまれる。臭みが少なく食べやすい。",
+      "imageAsset": null
+    },
+    {
+      "id": "hoya",
+      "name": "ホヤ",
+      "kana": "ほや",
+      "scientificName": "Halocynthia roretzi",
+      "family": "マボヤ科",
+      "category": "other",
+      "categoryLabel": "その他・特種",
+      "accentColor": "#8A7B4F",
+      "seasonMonths": [
+        5,
+        6,
+        7
+      ],
+      "typicalSizeCm": 15,
+      "distribution": "北日本の岩礁(養殖)",
+      "habitat": "多様な環境",
+      "taste": "独特の磯の香りと五味",
+      "cookingMethods": [
+        "刺身",
+        "酢の物",
+        "塩辛",
+        "焼き"
+      ],
+      "aliases": [
+        "マボヤ",
+        "海のパイナップル"
+      ],
+      "description": "「海のパイナップル」。東北の初夏の珍味で好き嫌いが分かれる。",
+      "imageAsset": null
+    },
+    {
       "id": "maanago",
       "name": "マアナゴ",
       "kana": "まあなご",
@@ -3875,6 +6279,36 @@
       "imageAsset": null
     },
     {
+      "id": "mafugu",
+      "name": "マフグ",
+      "kana": "まふぐ",
+      "scientificName": "Takifugu porphyreus",
+      "family": "フグ科",
+      "category": "other",
+      "categoryLabel": "その他・特種",
+      "accentColor": "#8A7B4F",
+      "seasonMonths": [
+        12,
+        1,
+        2
+      ],
+      "typicalSizeCm": 45,
+      "distribution": "日本各地の沿岸",
+      "habitat": "多様な環境",
+      "taste": "締まった上品な白身。白子が美味",
+      "cookingMethods": [
+        "刺身",
+        "鍋",
+        "唐揚げ",
+        "白子焼き"
+      ],
+      "aliases": [
+        "ナメラフグ"
+      ],
+      "description": "皮に棘がなく滑らか。白子が絶品。要調理免許。",
+      "imageAsset": null
+    },
+    {
       "id": "manbou",
       "name": "マンボウ",
       "kana": "まんぼう",
@@ -3904,6 +6338,36 @@
         "キナンボ"
       ],
       "description": "世界最重量級の硬骨魚。産地では腸(はらわた)も珍味として食べる。鮮度落ちが早い。",
+      "imageAsset": null
+    },
+    {
+      "id": "murasakiuni",
+      "name": "ムラサキウニ",
+      "kana": "むらさきうに",
+      "scientificName": "Heliocidaris crassispina",
+      "family": "ナガウニ科",
+      "category": "other",
+      "categoryLabel": "その他・特種",
+      "accentColor": "#8A7B4F",
+      "seasonMonths": [
+        6,
+        7,
+        8
+      ],
+      "typicalSizeCm": 5,
+      "distribution": "本州以南の岩礁",
+      "habitat": "多様な環境",
+      "taste": "上品な甘みと磯の香り",
+      "cookingMethods": [
+        "生うに",
+        "寿司",
+        "うに丼"
+      ],
+      "aliases": [
+        "ノナ",
+        "ガンガゼ(別)"
+      ],
+      "description": "夏が旬。バフンウニより淡い色で生殖巣が大きめ。",
       "imageAsset": null
     },
     {
