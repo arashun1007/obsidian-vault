@@ -124,7 +124,7 @@ ctx.imageSmoothingEnabled = false;
 
 let sprites = {};
 let state, diver, fishes, rocks, weeds, bubbles, popups;
-let oxygen, bag, cuteBonus, cam, tGame, aim, struggle, resultData;
+let oxygen, bag, cuteBonus, cam, tGame, aim, struggle, resultData, catchCut;
 let hintShown, quote, careWord;
 let highScore = Number(localStorage.getItem("isomoguri_hs") || 0);
 
@@ -143,6 +143,12 @@ function initSprites() {
     img.onload = () => { sprites[id] = img; };
     img.src = src[id] || "assets/" + id + ".png";
   }
+  // カットイン用のアップ画像（無ければ通常スプライトを拡大表示）
+  for (const id of Object.keys(SPECIES)) {
+    const img = new Image();
+    img.onload = () => { sprites[id + "_big"] = img; };
+    img.src = src[id + "_big"] || "assets/" + id + "_big.png";
+  }
 }
 
 function spriteScale(id, shape) {
@@ -156,7 +162,7 @@ function reset() {
   oxygen = O2_MAX;
   bag = []; cuteBonus = 0;
   cam = 0; tGame = 0;
-  aim = null; struggle = null; resultData = null;
+  aim = null; struggle = null; resultData = null; catchCut = null;
   popups = []; bubbles = [];
   hintShown = false;
   quote = QUOTES[(Math.random() * QUOTES.length) | 0];
@@ -294,7 +300,7 @@ function fire() {
 function struggleOrCatch(f, quality) {
   if (quality === "crit") {
     f.alive = false; bag.push(f.sp);
-    popup(f.x, f.y, "会心！ " + f.sp.name + " +" + f.sp.pts, "#ffe066");
+    catchCut = { id: f.id, sp: f.sp, t: 1.5, dur: 1.5, crit: true };
     state = "dive"; return;
   }
   const mult = quality === "poor" ? 1.7 : 1.0;
@@ -308,7 +314,7 @@ function struggleTap() {
   if (struggle.taps >= struggle.need) {
     const f = struggle.f;
     f.alive = false; bag.push(f.sp);
-    popup(f.x, f.y, f.sp.name + " キープ！ +" + f.sp.pts, "#7bd88f");
+    catchCut = { id: f.id, sp: f.sp, t: 1.5, dur: 1.5, crit: false };
     struggle = null; state = "dive";
   }
 }
@@ -429,6 +435,7 @@ function update(dt) {
   bubbles = bubbles.filter(b => b.y > cam - 10 && b.y > 2);
   for (const p of popups) p.t -= dt;
   popups = popups.filter(p => p.t > 0);
+  if (catchCut) { catchCut.t -= dt; if (catchCut.t <= 0) catchCut = null; }
 
   // カメラ
   const targetCam = Math.max(0, Math.min(WORLD_H - VH, diver.y - 150));
@@ -563,6 +570,7 @@ function draw() {
   if (state === "title") drawTitle();
   if (state === "aim") drawGauge();
   if (state === "struggle") drawStruggle();
+  if (catchCut && state === "dive") drawCatch();
   if (state === "result") drawResult();
 }
 
@@ -634,26 +642,69 @@ function drawGauge() {
   ctx.fillText("タップで突く！", VW / 2, gy - 10);
 }
 
+// 魚のアップ（カットイン用）。_big が未ロードなら通常スプライトを拡大
+function drawBigFish(id, cx, cy, targetW, rot) {
+  const img = sprites[id + "_big"] || sprites[id];
+  const s = targetW / img.width;
+  ctx.save();
+  ctx.translate(Math.round(cx), Math.round(cy));
+  ctx.rotate(rot);
+  ctx.scale(s, s);
+  ctx.drawImage(img, -img.width / 2, -img.height / 2);
+  ctx.restore();
+}
+
 function drawStruggle() {
   const s = struggle;
-  const cx = VW / 2, cy = VH / 2 + 40;
-  ctx.fillStyle = "rgba(10,20,35,0.55)";
-  ctx.fillRect(0, cy - 55, VW, 110);
-  // 残り時間リング
-  ctx.strokeStyle = "#28374d"; ctx.lineWidth = 6;
-  ctx.beginPath(); ctx.arc(cx, cy, 34, 0, Math.PI * 2); ctx.stroke();
-  ctx.strokeStyle = "#ff8c5c";
-  ctx.beginPath(); ctx.arc(cx, cy, 34, -Math.PI / 2, -Math.PI / 2 + (s.timer / 3.5) * Math.PI * 2); ctx.stroke();
-  // 進捗
-  const p = s.taps / s.need;
-  ctx.fillStyle = "#28374d"; ctx.fillRect(cx - 40, cy + 44, 80, 8);
-  ctx.fillStyle = "#7bd88f"; ctx.fillRect(cx - 40, cy + 44, 80 * Math.min(1, p), 8);
-  ctx.font = "bold 13px monospace"; ctx.textAlign = "center";
-  const shake = Math.sin(tGame * 25) * 2;
+  const cx = VW / 2;
+  // カットイン帯
+  ctx.fillStyle = "rgba(10,20,35,0.75)";
+  ctx.fillRect(0, 92, VW, 216);
+  ctx.fillStyle = "#ff8c5c";
+  ctx.fillRect(0, 92, VW, 2); ctx.fillRect(0, 306, VW, 2);
+  // 魚のアップ（残り時間が減るほど激しく暴れる）
+  const rage = 2 - s.timer / 3.5;
+  const wob = Math.sin(tGame * 16) * 0.1 * rage;
+  const jx = Math.sin(tGame * 31) * 3 * rage;
+  const jy = Math.cos(tGame * 26) * 2.5 * rage;
+  drawBigFish(s.f.id, cx + jx, 172 + jy, Math.min(150, 105 * s.f.sp.size), wob);
+  ctx.font = "bold 10px monospace"; ctx.textAlign = "center";
   ctx.fillStyle = "#fff";
-  ctx.fillText("連打！", cx + shake, cy + 5);
-  ctx.font = "bold 9px monospace";
-  ctx.fillText(s.f.sp.name + "が暴れている！", cx, cy - 44);
+  ctx.fillText(s.f.sp.name + "が暴れている！", cx, 108);
+  // 残り時間リング＋連打
+  const cy = 262;
+  ctx.strokeStyle = "#28374d"; ctx.lineWidth = 6;
+  ctx.beginPath(); ctx.arc(cx, cy, 24, 0, Math.PI * 2); ctx.stroke();
+  ctx.strokeStyle = "#ff8c5c";
+  ctx.beginPath(); ctx.arc(cx, cy, 24, -Math.PI / 2, -Math.PI / 2 + (s.timer / 3.5) * Math.PI * 2); ctx.stroke();
+  const p = s.taps / s.need;
+  ctx.fillStyle = "#28374d"; ctx.fillRect(cx - 40, cy + 32, 80, 8);
+  ctx.fillStyle = "#7bd88f"; ctx.fillRect(cx - 40, cy + 32, 80 * Math.min(1, p), 8);
+  const shake = Math.sin(tGame * 25) * 2;
+  ctx.font = "bold 12px monospace";
+  ctx.fillStyle = "#fff";
+  ctx.fillText("連打！", cx + shake, cy + 4);
+}
+
+// キープ成功のカットイン
+function drawCatch() {
+  const c = catchCut;
+  const fade = Math.min(1, c.t / 0.35);              // 消える時フェード
+  const pop = Math.min(1, (c.dur - c.t) / 0.15);     // 出る時ポップ
+  ctx.globalAlpha = fade;
+  const cx = VW / 2, cy = 150;
+  ctx.fillStyle = "rgba(10,25,20,0.78)";
+  ctx.fillRect(0, cy - 64, VW, 128);
+  const col = c.crit ? "#ffe066" : "#7bd88f";
+  ctx.fillStyle = col;
+  ctx.fillRect(0, cy - 64, VW, 2); ctx.fillRect(0, cy + 62, VW, 2);
+  const w = Math.min(140, 95 * c.sp.size) * (0.5 + 0.5 * pop);
+  drawBigFish(c.id, cx, cy - 10, w, Math.sin(tGame * 2.5) * 0.05);
+  ctx.font = "bold 12px monospace"; ctx.textAlign = "center";
+  ctx.fillStyle = col;
+  const label = (c.crit ? "会心！ " : "") + c.sp.name + " キープ！ +" + c.sp.pts + "pt";
+  ctx.fillText(label, cx, cy + 50);
+  ctx.globalAlpha = 1;
 }
 
 function drawResult() {
@@ -728,6 +779,16 @@ window.addEventListener("resize", fit);
 window.__dbg = {
   get: () => ({ diver, fishes, state, oxygen, bag }),
   warp: (x, y) => { diver.x = x; diver.y = y; diver.maxDepth = Math.max(diver.maxDepth, y); },
+  forceStruggle: (id) => {
+    const f = fishes.find(f => f.alive && f.id === id) || fishes[0];
+    struggle = { f, need: 10, taps: 3, timer: 2.2, quality: "good" };
+    state = "struggle";
+  },
+  forceCatch: (id, crit) => {
+    const f = fishes.find(f => f.alive && f.id === id) || fishes[0];
+    catchCut = { id: f.id, sp: f.sp, t: 1.5, dur: 1.5, crit: !!crit };
+    state = "dive";
+  },
 };
 
 canvas.width = VW; canvas.height = VH;

@@ -240,6 +240,10 @@ def main():
             (RAW_DIR / f"{sid}_raw.png").write_bytes(png)
         out = postprocess(png, tw)
         out.save(OUT_DIR / f"{sid}.png")
+        # カットイン（格闘・キープ演出）用のアップ画像。ダイバーは使わないので省く
+        if sid != "diver":
+            big = postprocess(png, min(150, tw * 4))
+            big.save(OUT_DIR / f"{sid}_big.png")
         print(f"→ assets/{sid}.png ({out.width}x{out.height})")
 
     print("完了。ゲームをリロードすると生成アセットが使われます（無い分は仮ドット絵）。")
