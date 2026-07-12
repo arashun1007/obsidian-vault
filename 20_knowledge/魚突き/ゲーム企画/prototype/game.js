@@ -37,6 +37,99 @@ const QUOTES = [
   "ベタ凪の日に練習を。荒れた日に休息を。",
 ];
 
+// ---------- サウンド（依存なし・WebAudioで全部合成） ----------
+let soundOn = localStorage.getItem("isomoguri_snd") !== "0";
+let AC = null, bgmGain = null, sfxGain = null, bgmTimer = null, bgmStep = 0;
+
+const NOTE = (m) => 440 * Math.pow(2, (m - 69) / 12); // MIDIノート→Hz
+// 32ステップ（8分音符）ループ。Aマイナーペンタでゆったり漂う感じ。0=休符
+const BGM_MELODY = [
+  69, 0, 72, 74,  76, 0, 74, 72,  69, 0, 67, 0,   64, 0, 67, 0,
+  69, 0, 72, 74,  76, 0, 79, 76,  74, 72, 69, 67, 64, 0, 0, 0,
+];
+const BGM_BASS = [
+  45, 0, 0, 0,  41, 0, 0, 0,  43, 0, 0, 0,  40, 0, 43, 0,
+  45, 0, 0, 0,  41, 0, 0, 0,  43, 0, 43, 0, 45, 0, 0, 0,
+];
+const BGM_STEP_SEC = 0.27;
+
+function ensureAudio() { // 初回のタップ/クリックで呼ぶ（自動再生制限対策）
+  if (!soundOn) return;
+  if (!AC) {
+    AC = new (window.AudioContext || window.webkitAudioContext)();
+    const master = AC.createGain();
+    master.gain.value = 0.9;
+    master.connect(AC.destination);
+    bgmGain = AC.createGain(); bgmGain.gain.value = 0.55; bgmGain.connect(master);
+    sfxGain = AC.createGain(); sfxGain.gain.value = 0.8;  sfxGain.connect(master);
+    startBGM();
+  }
+  if (AC.state === "suspended") AC.resume();
+}
+
+function tone(freq, at, dur, type, vol, dest) {
+  const o = AC.createOscillator(), g = AC.createGain();
+  o.type = type; o.frequency.value = freq;
+  g.gain.setValueAtTime(vol, at);
+  g.gain.exponentialRampToValueAtTime(0.001, at + dur);
+  o.connect(g); g.connect(dest || sfxGain);
+  o.start(at); o.stop(at + dur + 0.03);
+}
+
+function startBGM() {
+  bgmStep = 0;
+  let next = AC.currentTime + 0.15;
+  bgmTimer = setInterval(() => {
+    if (!AC || AC.state !== "running") return;
+    while (next < AC.currentTime + 0.6) { // 0.6秒先まで予約
+      const i = bgmStep % 32;
+      if (BGM_MELODY[i]) tone(NOTE(BGM_MELODY[i]), next, BGM_STEP_SEC * 0.95, "square", 0.055, bgmGain);
+      if (BGM_BASS[i])   tone(NOTE(BGM_BASS[i]),   next, BGM_STEP_SEC * 2.2,  "triangle", 0.14, bgmGain);
+      bgmStep++; next += BGM_STEP_SEC;
+    }
+  }, 120);
+}
+
+function sweep(f0, f1, dur, type, vol) { // 周波数スライドの効果音
+  if (!AC || !soundOn) return;
+  const t = AC.currentTime;
+  const o = AC.createOscillator(), g = AC.createGain();
+  o.type = type;
+  o.frequency.setValueAtTime(f0, t);
+  o.frequency.exponentialRampToValueAtTime(Math.max(30, f1), t + dur);
+  g.gain.setValueAtTime(vol, t);
+  g.gain.exponentialRampToValueAtTime(0.001, t + dur);
+  o.connect(g); g.connect(sfxGain);
+  o.start(t); o.stop(t + dur + 0.03);
+}
+function blip(freq, dur, type, vol) {
+  if (!AC || !soundOn) return;
+  tone(freq, AC.currentTime, dur, type, vol);
+}
+function arp(freqs, step, dur) { // 上昇アルペジオ（キャッチ音）
+  if (!AC || !soundOn) return;
+  const t = AC.currentTime;
+  freqs.forEach((f, i) => tone(f, t + i * step, dur, "square", 0.12));
+}
+const sfx = {
+  ui:    () => blip(660, 0.07, "square", 0.1),
+  shoot: () => sweep(950, 220, 0.13, "sawtooth", 0.13),
+  tap:   () => blip(500 + Math.random() * 90, 0.05, "square", 0.11),
+  crit:  () => arp([880, 1108, 1318, 1760], 0.06, 0.16),
+  keep:  () => arp([659, 830, 988], 0.09, 0.16),
+  miss:  () => sweep(320, 140, 0.16, "square", 0.1),
+  bara:  () => sweep(520, 110, 0.4, "sawtooth", 0.12),
+  warn:  () => { blip(880, 0.09, "square", 0.1); if (AC) tone(880, AC.currentTime + 0.15, 0.09, "square", 0.1); },
+  sad:   () => { // ハコフグごめんね（下がるワウワウ）
+    if (!AC || !soundOn) return;
+    const t = AC.currentTime;
+    tone(392, t, 0.2, "triangle", 0.16);
+    tone(370, t + 0.22, 0.2, "triangle", 0.16);
+    tone(311, t + 0.44, 0.45, "triangle", 0.16);
+  },
+  surface: () => arp([523, 659, 784, 1046], 0.08, 0.2),
+};
+
 // ---------- ドット絵（仮アセット。後でfal生成に差し替え） ----------
 const OUTLINE = "#1a1f2e";
 const MAPS = {
@@ -165,7 +258,8 @@ function initSprites() {
     img.src = src[id] || "assets/" + id + ".png";
   }
   // カットイン用のアップ画像（無ければ通常スプライトを拡大表示）
-  for (const id of Object.keys(SPECIES)) {
+  // hakofugu_sad はハコフグを突いた時の「ごめんね」演出専用
+  for (const id of [...Object.keys(SPECIES), "hakofugu_sad"]) {
     const img = new Image();
     img.onload = () => { sprites[id + "_big"] = img; };
     img.src = src[id + "_big"] || "assets/" + id + "_big.png";
@@ -260,6 +354,7 @@ function toGame(e) {
 }
 function onDown(e) {
   e.preventDefault();
+  ensureAudio(); // ブラウザの自動再生制限はユーザー操作で解除される
   const p = toGame(e);
   ptr.down = true; ptr.x = p.x; ptr.y = p.y;
   ptr.downX = p.x; ptr.downY = p.y; ptr.downT = performance.now(); ptr.moved = 0;
@@ -278,14 +373,24 @@ function onUp(e) {
   const dt = performance.now() - ptr.downT;
   const isTap = dt < 280 && ptr.moved < 14;
   if (state === "title" && isTap) {
+    // サウンドON/OFFボタン（左上）
+    if (ptr.x >= 6 && ptr.x <= 40 && ptr.downY >= 6 && ptr.downY <= 22) {
+      soundOn = !soundOn;
+      localStorage.setItem("isomoguri_snd", soundOn ? "1" : "0");
+      if (soundOn) { ensureAudio(); sfx.ui(); }
+      else if (AC) AC.suspend();
+      return;
+    }
     // 図鑑ボタン
     if (ptr.x >= VW - 32 && ptr.x <= VW - 6 && ptr.downY >= 6 && ptr.downY <= 22) {
+      sfx.ui();
       state = "dex"; return;
     }
     // 海況ボタン（3段）のヒット判定
     for (let i = 0; i < 3; i++) {
       const by = 292 + i * 34;
       if (ptr.x >= 35 && ptr.x <= VW - 35 && ptr.downY >= by && ptr.downY <= by + 28) {
+        sfx.ui();
         mode = MODES[MODE_KEYS[i]];
         state = "dive";
         diver.vy = 75; diver.angle = Math.PI / 2; // ジャックナイフで潜行開始
@@ -328,14 +433,17 @@ function fire() {
   const off = Math.abs(v - 0.5);
   aim = null;
   const spearDone = (fn) => { struggleOrCatch(f, fn); };
+  sfx.shoot();
   if (!f.alive || Math.hypot(f.x - diver.x, f.y - diver.y) > SPEAR_RANGE * 1.4) {
+    sfx.miss();
     popup(diver.x, diver.y - 20, "外した…", "#cfd8e3");
     state = "dive"; return;
   }
-  if (f.sp.cute) { // ハコフグは突いたら問答無用でマイナス
+  if (f.sp.cute) { // ハコフグは突いたら問答無用でマイナス。悲しいカットイン
     f.alive = false;
     catchFish(f);
-    popup(f.x, f.y, "ハコフグ…ごめん… -100", "#f2994a");
+    sfx.sad();
+    catchCut = { id: "hakofugu_sad", sp: f.sp, t: 2.2, dur: 2.2, sad: true };
     state = "dive"; return;
   }
   if (off < CRIT * mode.gauge)      spearDone("crit");
@@ -343,6 +451,7 @@ function fire() {
   else if (off < Math.min(0.48, POOR * mode.gauge)) spearDone("poor");
   else {
     flee(f, 2.0);
+    sfx.miss();
     popup(f.x, f.y, "外した！", "#cfd8e3");
     state = "dive";
   }
@@ -350,6 +459,7 @@ function fire() {
 function struggleOrCatch(f, quality) {
   if (quality === "crit") {
     f.alive = false; catchFish(f);
+    sfx.crit();
     catchCut = { id: f.id, sp: f.sp, t: 1.5, dur: 1.5, crit: true };
     state = "dive"; return;
   }
@@ -362,10 +472,12 @@ function struggleOrCatch(f, quality) {
 function struggleTap() {
   if (!struggle) return;
   struggle.taps++;
+  sfx.tap();
   oxygen = Math.max(0, oxygen - 0.5);
   if (struggle.taps >= struggle.need) {
     const f = struggle.f;
     f.alive = false; catchFish(f);
+    sfx.keep();
     catchCut = { id: f.id, sp: f.sp, t: 1.5, dur: 1.5, crit: false };
     struggle = null; state = "dive";
   }
@@ -396,6 +508,7 @@ function endRun(blackout) {
   total = Math.floor(total * mode.score);
   if (total > highScore) { highScore = total; localStorage.setItem("isomoguri_hs", String(highScore)); }
   localStorage.setItem("isomoguri_dex", JSON.stringify(dex));
+  if (!blackout) sfx.surface(); else sfx.bara();
   resultData = { total, note, t: performance.now() };
   state = "result";
 }
@@ -403,6 +516,8 @@ function endRun(blackout) {
 function update(dt) {
   tGame += dt;
   const ts = state === "aim" ? 0.25 : 1;   // エイム中は時間スロー
+  // エイム集中中はBGMを絞る（水中の静けさ演出）
+  if (bgmGain) bgmGain.gain.value = state === "aim" ? 0.18 : 0.55;
 
   if (state === "dive" || state === "aim" || state === "struggle") {
     // 酸素
@@ -411,6 +526,7 @@ function update(dt) {
     if (oxygen <= 0) { endRun(true); return; }
     if (!hintShown && oxygen < O2_MAX * 0.3) {
       hintShown = true;
+      sfx.warn();
       popup(diver.x, diver.y - 25, "そろそろ浮上！", "#ff8c8c");
     }
 
@@ -453,6 +569,7 @@ function update(dt) {
       if (struggle.timer <= 0) {
         const f = struggle.f;
         f.wound = true; flee(f, 2.5);
+        sfx.bara();
         popup(f.x, f.y, "バラした！", "#ff8c8c");
         struggle = null; state = "dive";
       }
@@ -678,6 +795,13 @@ function drawTitle() {
   ctx.textAlign = "center"; ctx.font = "bold 8px monospace";
   ctx.fillStyle = "#9ad8f0";
   ctx.fillText("図鑑", VW - 19, 17);
+  // サウンドボタン（左上）
+  ctx.fillStyle = "rgba(20,40,60,0.8)";
+  ctx.fillRect(6, 6, 34, 16);
+  ctx.strokeStyle = soundOn ? "#7bd88f" : "#5a6a7a"; ctx.lineWidth = 0.5;
+  ctx.strokeRect(6.5, 6.5, 33, 15);
+  ctx.fillStyle = soundOn ? "#7bd88f" : "#5a6a7a";
+  ctx.fillText(soundOn ? "♪ON" : "♪OFF", 23, 17);
 
   ctx.textAlign = "center";
   ctx.fillStyle = "#ffe066";
@@ -737,7 +861,9 @@ function drawGauge() {
 
 // 魚のアップ（カットイン用）。_big が未ロードなら通常スプライトを拡大
 function drawBigFish(id, cx, cy, targetW, rot) {
-  const img = sprites[id + "_big"] || sprites[id];
+  // _sad等の派生スプライトが未ロードなら元の魚にフォールバック
+  const base = id.split("_")[0];
+  const img = sprites[id + "_big"] || sprites[id] || sprites[base + "_big"] || sprites[base];
   const s = targetW / img.width;
   ctx.save();
   ctx.translate(Math.round(cx), Math.round(cy));
@@ -779,24 +905,37 @@ function drawStruggle() {
   ctx.fillText("連打！", cx + shake, cy + 4);
 }
 
-// キープ成功のカットイン
+// キープ成功／ハコフグごめんね のカットイン
 function drawCatch() {
   const c = catchCut;
   const fade = Math.min(1, c.t / 0.35);              // 消える時フェード
   const pop = Math.min(1, (c.dur - c.t) / 0.15);     // 出る時ポップ
   ctx.globalAlpha = fade;
   const cx = VW / 2, cy = 150;
-  ctx.fillStyle = "rgba(10,25,20,0.78)";
+  ctx.fillStyle = c.sad ? "rgba(15,20,42,0.82)" : "rgba(10,25,20,0.78)";
   ctx.fillRect(0, cy - 64, VW, 128);
-  const col = c.crit ? "#ffe066" : "#7bd88f";
+  const col = c.sad ? "#9ad8f0" : c.crit ? "#ffe066" : "#7bd88f";
   ctx.fillStyle = col;
   ctx.fillRect(0, cy - 64, VW, 2); ctx.fillRect(0, cy + 62, VW, 2);
-  const w = Math.min(140, 95 * c.sp.size) * (0.5 + 0.5 * pop);
-  drawBigFish(c.id, cx, cy - 10, w, Math.sin(tGame * 2.5) * 0.05);
+  const w = Math.min(140, 95 * c.sp.size) * (0.5 + 0.5 * pop) * (c.sad ? 1.25 : 1);
+  // 悲しい時はゆっくり首を振る。嬉しい時は小さく揺れる
+  const rot = c.sad ? Math.sin(tGame * 1.6) * 0.06 : Math.sin(tGame * 2.5) * 0.05;
+  drawBigFish(c.id, cx, cy - 10, w, rot);
+  if (c.sad) { // 涙のしずくを落とす
+    ctx.fillStyle = "#bfe7ff";
+    const ty = (tGame * 40) % 46;
+    ctx.beginPath(); ctx.arc(cx - 24, cy - 8 + ty, 2.2, 0, Math.PI * 2); ctx.fill();
+  }
   ctx.font = "bold 12px monospace"; ctx.textAlign = "center";
   ctx.fillStyle = col;
-  const label = (c.crit ? "会心！ " : "") + c.sp.name + " キープ！ +" + c.sp.pts + "pt";
+  const label = c.sad
+    ? "ハコフグ…ごめん… " + c.sp.pts + "pt"
+    : (c.crit ? "会心！ " : "") + c.sp.name + " キープ！ +" + c.sp.pts + "pt";
   ctx.fillText(label, cx, cy + 50);
+  if (c.sad) {
+    ctx.font = "bold 8px monospace"; ctx.fillStyle = "#7f9db8";
+    ctx.fillText("（ハコフグは見つめるとボーナス）", cx, cy + 58 + 2);
+  }
   ctx.globalAlpha = 1;
 }
 
@@ -922,6 +1061,11 @@ window.__dbg = {
     catchCut = { id: f.id, sp: f.sp, t: 1.5, dur: 1.5, crit: !!crit };
     state = "dive";
   },
+  forceSad: () => {
+    catchCut = { id: "hakofugu_sad", sp: SPECIES.hakofugu, t: 2.2, dur: 2.2, sad: true };
+    state = "dive";
+  },
+  audio: () => ({ soundOn, hasAC: !!AC, acState: AC && AC.state }),
 };
 
 canvas.width = VW; canvas.height = VH;
