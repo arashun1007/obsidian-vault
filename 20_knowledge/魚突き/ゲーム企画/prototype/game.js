@@ -9,7 +9,7 @@ const WORLD_H = 2000;              // 20m（1m = 100px）
 const PX_PER_M = 100;
 const O2_MAX = 60;                 // 秒
 const SPEAR_RANGE = 85;
-const CRIT = 0.07, GOOD = 0.18, POOR = 0.35; // ゲージ中央からの距離（標準時）
+const CRIT = 0.05, GOOD = 0.12, POOR = 0.26; // ゲージ中央からの距離（標準時）
 
 // 海況＝プレイヤーが選ぶ難易度（企画書 §5）
 const MODES = {
@@ -268,6 +268,7 @@ let sprites = {};
 let state, diver, fishes, rocks, weeds, bubbles, popups;
 let oxygen, bag, cuteBonus, cam, camX, tGame, aim, struggle, resultData, catchCut;
 let hintShown, quote, careWord;
+let lastStruggleEnd = 0;
 let highScore = Number(localStorage.getItem("isomoguri_hs") || 0);
 let dex = JSON.parse(localStorage.getItem("isomoguri_dex") || "{}"); // { fishId: { caught: N, seen: N } }
 
@@ -452,6 +453,7 @@ function nearestFish() {
   return best;
 }
 function tryAim() {
+  if (performance.now() - lastStruggleEnd < 150) return;
   const f = nearestFish();
   if (!f) return;
   aim = { target: f, t: 0 };
@@ -510,6 +512,7 @@ function struggleTap() {
     sfx.keep();
     catchCut = { id: f.id, sp: f.sp, t: 1.5, dur: 1.5, crit: false };
     struggle = null; state = "dive";
+    lastStruggleEnd = performance.now();
   }
 }
 function flee(f, mult) {

@@ -58,7 +58,7 @@ SPRITES = {
     "hirame":  ("flounder (hirame), flat bottom-dwelling fish with both eyes on one side, mottled brown coloring", 36),
     "kawahagi": ("filefish (kawahagi), small yellowish fish with papillae texture, cute small mouth, streamlined", 24),
     "takanohadai": ("false snapper (takanohadai), silvery grey fish with black bands, small mouth, unremarkable", 32),
-    "aobudai": ("Japanese parrotfish (aobudai), greenish-blue fish with rounded mouth, venomous spines", 32),
+    "aobudai": ("Japanese parrotfish (aobudai), deep blue-green fish with rounded mouth, venomous spines, mostly blue coloring", 32),
     "madai":   ("red seabream (madai), striking red and white fish with elegant red stripes, beautiful fins, treasure fish", 38),
 }
 
