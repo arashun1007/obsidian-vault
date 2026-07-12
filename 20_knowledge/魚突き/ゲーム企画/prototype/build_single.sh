@@ -66,7 +66,20 @@ head = """<meta name="theme-color" content="#06263f">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="apple-touch-icon" href="icon-192.png">
-<link rel="manifest" href="manifest.json">"""
+<link rel="manifest" href="manifest.json">
+<meta name="description" content="素潜りで魚を突くミニゲーム。ヌシを狙え。記録を塗り替えろ。">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="いそもぐり">
+<meta property="og:title" content="いそもぐり">
+<meta property="og:description" content="素潜りで魚を突くミニゲーム。ヌシを狙え。記録を塗り替えろ。">
+<meta property="og:url" content="https://isomoguri.arai10070223.workers.dev/">
+<meta property="og:image" content="https://isomoguri.arai10070223.workers.dev/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="いそもぐり">
+<meta name="twitter:description" content="素潜りで魚を突くミニゲーム。ヌシを狙え。記録を塗り替えろ。">
+<meta name="twitter:image" content="https://isomoguri.arai10070223.workers.dev/og-image.png">"""
 sw = """<script>
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
