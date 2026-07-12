@@ -4,6 +4,7 @@
 
 // ---------- 定数 ----------
 const VW = 240, VH = 400;          // 論理解像度
+const WORLD_W = 560;               // 横に約2.3画面分
 const WORLD_H = 2000;              // 20m（1m = 100px）
 const PX_PER_M = 100;
 const O2_MAX = 60;                 // 秒
@@ -105,16 +106,22 @@ const SPECIES = {
               depth: [3, 11], speed: 26, flee: 70, taps: 8,  school: 4, count: 2 },
   kasago:   { name: "カサゴ",   pts: 130,  shape: "rock", size: 1.0,
               colors: { b: "#b05039", d: "#7c2f1d", l: "#e8b48f" },
-              depth: [9, 19], speed: 3,  flee: 0,  taps: 6,  sit: true, count: 4 },
+              depth: [6, 20], speed: 3,  flee: 0,  taps: 6,  sit: true, onRock: true, count: 4 },
   nizadai:  { name: "ニザダイ", pts: 30,   shape: "fish", size: 1.1,
               colors: { b: "#8a8f98", d: "#4a4f58", l: "#c5c9d0" },
               depth: [4, 15], speed: 20, flee: 55, taps: 8,  school: 5, count: 1 },
   ishidai:  { name: "イシダイ", pts: 400,  shape: "fish", size: 1.25, stripes: true,
               colors: { b: "#e8e4d8", d: "#22242a", l: "#ffffff" },
-              depth: [9, 19], speed: 30, flee: 85, taps: 14, count: 2 },
+              depth: [5, 13], speed: 30, flee: 85, taps: 14, count: 2 },
   hakofugu: { name: "ハコフグ", pts: -100, shape: "box",  size: 0.95, cute: true,
               colors: { b: "#f2c94c", d: "#3a3a1a", l: "#fdf3c8" },
               depth: [3, 13], speed: 6,  flee: 25, taps: 0,  count: 2 },
+  hiramasa: { name: "ヒラマサ", pts: 600,  shape: "fish", size: 1.6,
+              colors: { b: "#c9d6de", d: "#e8c93e", l: "#eef4f8" },
+              depth: [2, 8],  speed: 55, flee: 95, taps: 15, school: 2, count: 1 },
+  kue:      { name: "クエ",     pts: 800,  shape: "rock", size: 1.9,
+              colors: { b: "#6b5d4f", d: "#443a30", l: "#a89880" },
+              depth: [14, 20], speed: 8, flee: 40, taps: 18, sit: true, onRock: true, count: 1 },
 };
 
 // ---------- 状態 ----------
@@ -124,7 +131,7 @@ ctx.imageSmoothingEnabled = false;
 
 let sprites = {};
 let state, diver, fishes, rocks, weeds, bubbles, popups;
-let oxygen, bag, cuteBonus, cam, tGame, aim, struggle, resultData, catchCut;
+let oxygen, bag, cuteBonus, cam, camX, tGame, aim, struggle, resultData, catchCut;
 let hintShown, quote, careWord;
 let highScore = Number(localStorage.getItem("isomoguri_hs") || 0);
 
@@ -158,10 +165,10 @@ function spriteScale(id, shape) {
 
 function reset() {
   state = "title";
-  diver = { x: VW / 2, y: 8, vx: 0, vy: 0, angle: Math.PI / 2, maxDepth: 0 };
+  diver = { x: WORLD_W / 2, y: 8, vx: 0, vy: 0, angle: Math.PI / 2, maxDepth: 0 };
   oxygen = O2_MAX;
   bag = []; cuteBonus = 0;
-  cam = 0; tGame = 0;
+  cam = 0; camX = WORLD_W / 2 - VW / 2; tGame = 0;
   aim = null; struggle = null; resultData = null; catchCut = null;
   popups = []; bubbles = [];
   hintShown = false;
@@ -174,21 +181,22 @@ function reset() {
 function spawnTerrain() {
   rocks = []; weeds = [];
   // 海底の岩盤
-  for (let x = -10; x < VW + 10; x += 18) {
+  for (let x = -10; x < WORLD_W + 10; x += 18) {
     rocks.push({ x, y: WORLD_H - 20 + Math.random() * 25, r: 16 + Math.random() * 14 });
   }
-  // 中層の根（左右交互）
+  // 中層の根（各層に2クラスタ、横位置ランダム）
   for (let y = 500; y < WORLD_H - 150; y += 260) {
-    const left = (y / 260) % 2 < 1;
-    const bx = left ? 10 : VW - 10;
-    for (let i = 0; i < 4; i++) {
-      rocks.push({ x: bx + (left ? 1 : -1) * i * 14 + (Math.random() * 10 - 5),
-                   y: y + Math.random() * 40, r: 10 + Math.random() * 12 });
+    for (let c = 0; c < 2; c++) {
+      const bx = 30 + Math.random() * (WORLD_W - 60);
+      for (let i = 0; i < 4; i++) {
+        rocks.push({ x: bx + i * 14 - 21 + (Math.random() * 10 - 5),
+                     y: y + Math.random() * 40, r: 10 + Math.random() * 12 });
+      }
+      if (Math.random() < 0.8) weeds.push({ x: bx, y: y - 10, h: 40 + Math.random() * 30 });
     }
-    if (Math.random() < 0.8) weeds.push({ x: bx + (left ? 1 : -1) * 20, y: y - 10, h: 40 + Math.random() * 30 });
   }
-  for (let i = 0; i < 8; i++) {
-    weeds.push({ x: 20 + Math.random() * (VW - 40), y: WORLD_H - 25, h: 45 + Math.random() * 40 });
+  for (let i = 0; i < 18; i++) {
+    weeds.push({ x: 20 + Math.random() * (WORLD_W - 40), y: WORLD_H - 25, h: 45 + Math.random() * 40 });
   }
 }
 
@@ -196,14 +204,24 @@ function spawnFish() {
   fishes = [];
   for (const [id, sp] of Object.entries(SPECIES)) {
     for (let n = 0; n < sp.count; n++) {
-      const dep = sp.depth[0] + Math.random() * (sp.depth[1] - sp.depth[0]);
-      const hy = dep * PX_PER_M;
-      const hx = 25 + Math.random() * (VW - 50);
+      let hx, hy;
+      if (sp.onRock) {
+        // 深度帯に合う岩の上に付く（カサゴ・クエ。中層に浮かせない）
+        const cands = rocks.filter(r =>
+          r.y >= sp.depth[0] * PX_PER_M && r.y <= Math.min(sp.depth[1] * PX_PER_M + 100, WORLD_H));
+        const r = cands[(Math.random() * cands.length) | 0];
+        hx = r.x; hy = r.y - r.r - 5;
+      } else {
+        const dep = sp.depth[0] + Math.random() * (sp.depth[1] - sp.depth[0]);
+        hy = dep * PX_PER_M;
+        hx = 25 + Math.random() * (WORLD_W - 50);
+      }
       const members = sp.school || 1;
+      const jx = sp.onRock ? 8 : 40, jy = sp.onRock ? 4 : 30;
       for (let m = 0; m < members; m++) {
         fishes.push({
           id, sp,
-          x: hx + (Math.random() * 40 - 20), y: hy + (Math.random() * 30 - 15),
+          x: hx + (Math.random() * jx - jx / 2), y: hy + (Math.random() * jy - jy / 2),
           hx, hy, vx: 0, vy: 0, dir: Math.random() < 0.5 ? 1 : -1,
           wt: Math.random() * 2, fleeT: 0, cuteT: 0, cuteDone: false,
           alive: true, wound: false,
@@ -323,7 +341,7 @@ function flee(f, mult) {
   const a = Math.atan2(f.y - diver.y, f.x - diver.x);
   f.vx = Math.cos(a) * f.sp.speed * 3 * (mult || 1);
   f.vy = Math.sin(a) * f.sp.speed * 3 * (mult || 1);
-  f.hx = Math.max(20, Math.min(VW - 20, f.x + f.vx * 3));
+  f.hx = Math.max(20, Math.min(WORLD_W - 20, f.x + f.vx * 3));
   f.hy = Math.max(150, Math.min(WORLD_H - 40, f.y + f.vy * 3));
 }
 function gaugeValue(t) { // 0→1→0 の往復（周期1.1秒）
@@ -358,18 +376,26 @@ function update(dt) {
     // ダイバー移動（ホールドで指の方向へ）
     if (state === "dive") {
       if (ptr.down && ptr.moved > 6) {
-        const wx = ptr.x, wy = ptr.y + cam;
+        const wx = ptr.x + camX, wy = ptr.y + cam;
         const a = Math.atan2(wy - diver.y, wx - diver.x);
         diver.vx += Math.cos(a) * 230 * dt;
         diver.vy += Math.sin(a) * 230 * dt;
-        diver.angle = a;
       }
       diver.vx *= Math.pow(0.02, dt); diver.vy *= Math.pow(0.02, dt);
       diver.vy += 6 * dt; // ウエイトでわずかに沈む
       const sp = Math.hypot(diver.vx, diver.vy);
       const max = 115;
       if (sp > max) { diver.vx *= max / sp; diver.vy *= max / sp; }
-      diver.x = Math.max(8, Math.min(VW - 8, diver.x + diver.vx * dt));
+      // 体の向きは実際に進んでいる方向へ滑らかに追従
+      // （入力方向に即時に向けると、潜行中に上を向く等の不自然さが出る）
+      if (sp > 14) {
+        const ta = Math.atan2(diver.vy, diver.vx);
+        let dA = ta - diver.angle;
+        while (dA > Math.PI) dA -= Math.PI * 2;
+        while (dA < -Math.PI) dA += Math.PI * 2;
+        diver.angle += dA * Math.min(1, dt * 7);
+      }
+      diver.x = Math.max(8, Math.min(WORLD_W - 8, diver.x + diver.vx * dt));
       diver.y = Math.max(4, Math.min(WORLD_H - 10, diver.y + diver.vy * dt));
       diver.maxDepth = Math.max(diver.maxDepth, diver.y);
       if (diver.y <= 12 && diver.maxDepth > 60) { endRun(false); return; }
@@ -414,7 +440,7 @@ function update(dt) {
         }
       }
       f.x += f.vx * dt * ts; f.y += f.vy * dt * ts;
-      f.x = Math.max(10, Math.min(VW - 10, f.x));
+      f.x = Math.max(10, Math.min(WORLD_W - 10, f.x));
       f.y = Math.max(140, Math.min(WORLD_H - 30, f.y));
       if (Math.abs(f.vx) > 1) f.dir = f.vx < 0 ? 1 : -1;
       // ハコフグ観賞ボーナス
@@ -440,6 +466,8 @@ function update(dt) {
   // カメラ
   const targetCam = Math.max(0, Math.min(WORLD_H - VH, diver.y - 150));
   cam += (targetCam - cam) * Math.min(1, dt * 6);
+  const targetCamX = Math.max(0, Math.min(WORLD_W - VW, diver.x - VW / 2));
+  camX += (targetCamX - camX) * Math.min(1, dt * 6);
 }
 
 function popup(x, y, txt, color) { popups.push({ x, y, txt, color, t: 1.6 }); }
@@ -462,14 +490,14 @@ function draw() {
   ctx.fillRect(0, 0, VW, VH);
 
   ctx.save();
-  ctx.translate(0, -Math.round(cam));
+  ctx.translate(-Math.round(camX), -Math.round(cam));
 
   // 水面と光
   ctx.fillStyle = "rgba(255,255,255,0.5)";
-  ctx.fillRect(0, 0, VW, 3);
+  ctx.fillRect(0, 0, WORLD_W, 3);
   if (cam < 420) {
     ctx.fillStyle = "rgba(255,255,255,0.07)";
-    for (let i = 0; i < 4; i++) {
+    for (let i = 0; i < 10; i++) {
       const rx = 30 + i * 60 + Math.sin(tGame * 0.4 + i) * 8;
       ctx.beginPath();
       ctx.moveTo(rx, 0); ctx.lineTo(rx + 26, 0);

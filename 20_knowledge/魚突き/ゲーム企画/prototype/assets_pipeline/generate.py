@@ -44,6 +44,10 @@ SPRITES = {
     "nizadai":  ("sawtail surgeonfish (nizadai), plain grey fish with small tail spikes", 34),
     "ishidai":  ("striped beakfish (ishidai), white fish with bold black vertical stripes and parrot-like beak", 38),
     "hakofugu": ("yellow boxfish (hakofugu), cube-shaped bright yellow fish with black dots, very cute", 28),
+    "hiramasa": ("yellowtail amberjack (hiramasa), sleek silver torpedo-shaped fish with a yellow horizontal "
+                 "stripe from nose to tail and yellow fins, streamlined fast predator", 46),
+    "kue":      ("longtooth grouper (kue), huge chunky brown-grey grouper with mottled darker vertical bands, "
+                 "big mouth with thick lips, heavy body", 48),
     "diver":    ("freediver spearfisher in black wetsuit, dive mask and snorkel, long yellow freediving fins, "
                  "weight belt, holding small flashlight in left hand and a very long wooden pole spear, "
                  "horizontal swimming pose facing left", 52),
