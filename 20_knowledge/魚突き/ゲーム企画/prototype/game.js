@@ -749,7 +749,7 @@ function draw() {
   // ダイバー＋手銛
   ctx.save();
   ctx.translate(Math.round(diver.x), Math.round(diver.y));
-  ctx.rotate(diver.angle + Math.PI);
+  ctx.rotate(diver.angle);
   if (Math.cos(diver.angle) > 0) ctx.scale(1, -1);
   // 手銛（長尺）
   ctx.strokeStyle = "#d9c8a0"; ctx.lineWidth = 1.5;
