@@ -134,4 +134,16 @@ evaluate("update(0.2)");
 tap(150, 200);
 assert.notEqual(evaluate("state"), "aim");
 
+// ランキング画面：タイトルの「順位」ボタンで開き、外タップで戻る。
+// （このサンドボックスはオフライン扱いなので rankView はエラー表示になるだけ）
+evaluate("reset()");
+now += 600;
+tap(190, 14); // 順位ボタン（VW-64..VW-38, y6..22）
+assert.equal(evaluate("state"), "rank");
+assert.ok(evaluate("rankView && rankView.error !== undefined"));
+tap(120, 380); // 下部の帯（名前登録）。promptが無い環境では何も起きない
+assert.equal(evaluate("state"), "rank");
+tap(120, 200); // 帯の外 → タイトルへ
+assert.equal(evaluate("state"), "title");
+
 console.log("game input regression tests: ok");

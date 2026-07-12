@@ -129,6 +129,69 @@ function saveJSON(key, value) {
   try { store.setItem(key, JSON.stringify(value)); } catch (_) {}
 }
 
+// ---------- ランキング（同一オリジンの /api/ と通信） ----------
+const NAME_MAX = 10;
+let playerName = store.getItem("isomoguri_name") || "";
+let bigFish = loadJSON("isomoguri_bigfish", { cm: 0, id: "" }); // 生涯最大の1匹
+let sentBest = loadJSON("isomoguri_sent", { s: 0, c: 0, n: "" }); // 送信済みのベスト
+let rankView = null; // null | {loading:1} | {error:msg} | {data}
+const NET_OK = typeof fetch === "function" &&
+  typeof location !== "undefined" && /^https?:$/.test(location.protocol || "");
+
+function playerId() {
+  let id = store.getItem("isomoguri_pid");
+  if (!id) {
+    id = Date.now().toString(36) + Math.random().toString(36).slice(2, 12);
+    store.setItem("isomoguri_pid", id);
+  }
+  return id;
+}
+
+function submitScore() {
+  if (!NET_OK || !playerName) return;
+  // ベスト更新も名前変更も無ければ送らない（通信とKV書き込みの節約）
+  if (highScore <= sentBest.s && bigFish.cm <= sentBest.c && playerName === sentBest.n) return;
+  const payload = { id: playerId(), name: playerName, score: highScore, cm: bigFish.cm, fish: bigFish.id };
+  fetch("api/score", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify(payload),
+  }).then(r => (r.ok ? r.json() : null)).then(res => {
+    if (res && res.ok) {
+      sentBest = { s: highScore, c: bigFish.cm, n: playerName };
+      saveJSON("isomoguri_sent", sentBest);
+    }
+  }).catch(() => {});
+}
+
+function fetchRanking() {
+  if (!NET_OK) { rankView = { error: "オフラインのため見られません" }; return; }
+  rankView = { loading: 1 };
+  fetch("api/ranking?id=" + playerId())
+    .then(r => {
+      if (r.status === 503) throw "notready";
+      if (!r.ok) throw "net";
+      return r.json();
+    })
+    .then(d => { rankView = { data: d }; })
+    .catch(e => {
+      rankView = { error: e === "notready" ? "ランキングは準備中。もうすこし待ってね。"
+                                           : "取得できなかった。電波の良い場所でもう一度。" };
+    });
+}
+
+function askName() {
+  if (typeof prompt !== "function") return false;
+  const raw = prompt("ランキングに載せるニックネーム（10文字まで）", playerName);
+  if (raw === null) return false;
+  const name = raw.replace(/\s+/g, " ").trim().slice(0, NAME_MAX);
+  if (!name || name === playerName) return false;
+  playerName = name;
+  store.setItem("isomoguri_name", name);
+  submitScore();
+  return true;
+}
+
 function localDateKey(date = new Date()) {
   const y = date.getFullYear();
   const m = String(date.getMonth() + 1).padStart(2, "0");
@@ -642,6 +705,12 @@ function onUp(e) {
       sfx.ui();
       state = "dex"; return;
     }
+    // ランキングボタン
+    if (g.x >= VW - 64 && g.x <= VW - 38 && g.downY >= 6 && g.downY <= 22) {
+      sfx.ui();
+      fetchRanking();
+      state = "rank"; return;
+    }
     // 海況ボタン（3段）のヒット判定
     for (let i = 0; i < 3; i++) {
       const by = 292 + i * 34;
@@ -655,6 +724,15 @@ function onUp(e) {
     return;
   }
   if (g.startedState === "dex" && state === "dex" && isTap) { state = "title"; return; }
+  if (g.startedState === "rank" && state === "rank" && isTap) {
+    // 下部の帯＝名前の登録・変更。それ以外はタイトルへ戻る
+    if (g.y >= VH - 48 && g.y <= VH - 16) {
+      sfx.ui();
+      if (askName()) fetchRanking();
+      return;
+    }
+    state = "title"; return;
+  }
   if (g.startedState === "result" && state === "result" && isTap && performance.now() - resultData.t > 800) {
     if (g.x < 52 && g.y < 32) reset();
     else beginDive();
@@ -850,6 +928,11 @@ function catchFish(f, quality) {
     if (!bestCatch || award > bestCatch.award) {
       bestCatch = { id: f.id, sp: f.sp, cm: f.cm, award, nushi: !!f.nushi };
     }
+    // 生涯最大の1匹（ランキング「ヌシの部」用）
+    if (f.cm > bigFish.cm) {
+      bigFish = { cm: f.cm, id: f.id };
+      saveJSON("isomoguri_bigfish", bigFish);
+    }
   } else {
     breakCombo();
   }
@@ -906,6 +989,7 @@ function endRun(blackout) {
   saveJSON("isomoguri_progress", progress);
   saveJSON("isomoguri_dex", dex);
   if (!blackout) sfx.surface(); else sfx.bara();
+  submitScore();
   resultData = {
     total, note, isNew, rank: resultRank(total, blackout), blackout,
     bonusTotal: comboBonus + dailyBonus + discoveryBonus + surfaceBonus + sizeBonus,
@@ -1193,6 +1277,7 @@ function draw() {
   drawHUD();
   if (state === "title") drawTitle();
   if (state === "dex") drawDex();
+  if (state === "rank") drawRank();
   if (state === "aim") drawGauge();
   if (state === "struggle") drawStruggle();
   if (catchCut && state === "dive") drawCatch();
@@ -1204,7 +1289,7 @@ function draw() {
 }
 
 function drawHUD() {
-  if (state === "title" || state === "dex" || state === "result") return;
+  if (state === "title" || state === "dex" || state === "result" || state === "rank") return;
   // 酸素
   ctx.fillStyle = "rgba(10,20,35,0.7)";
   ctx.fillRect(6, 6, 106, 12);
@@ -1249,6 +1334,13 @@ function drawTitle() {
   ctx.textAlign = "center"; ctx.font = "bold 8px monospace";
   ctx.fillStyle = "#9ad8f0";
   ctx.fillText("図鑑", VW - 19, 17);
+  // ランキングボタン
+  ctx.fillStyle = "rgba(20,40,60,0.8)";
+  ctx.fillRect(VW - 64, 6, 26, 16);
+  ctx.strokeStyle = "#ffe066"; ctx.lineWidth = 0.5;
+  ctx.strokeRect(VW - 63.5, 6.5, 25, 15);
+  ctx.fillStyle = "#ffe066";
+  ctx.fillText("順位", VW - 51, 17);
   // サウンドボタン（左上）
   ctx.fillStyle = "rgba(20,40,60,0.8)";
   ctx.fillRect(6, 6, 34, 16);
@@ -1607,6 +1699,82 @@ function drawDex() {
   ctx.fillStyle = "#cfd8e3";
   ctx.textAlign = "center"; ctx.font = "bold 8px monospace";
   ctx.fillText("タップで戻る", VW / 2, VH - 20);
+}
+
+function drawRank() {
+  ctx.fillStyle = "rgba(4,18,34,0.92)";
+  ctx.fillRect(0, 0, VW, VH);
+  ctx.textAlign = "center";
+  ctx.fillStyle = "#ffe066"; ctx.font = "bold 16px monospace";
+  ctx.fillText("ランキング", VW / 2, 30);
+
+  ctx.font = "bold 8px monospace";
+  if (!rankView || rankView.loading) {
+    ctx.fillStyle = "#9ad8f0";
+    ctx.fillText("取得中…", VW / 2, 90);
+  } else if (rankView.error) {
+    ctx.fillStyle = "#ff8c8c";
+    wrapText(rankView.error, VW / 2, 90, 190, 12);
+  } else {
+    const d = rankView.data;
+    const medal = ["#ffe066", "#cfd8e3", "#e0a06a"];
+
+    // スコアの部
+    ctx.textAlign = "left"; ctx.fillStyle = "#9ad8f0";
+    ctx.fillText("― スコアの部 ―", 20, 56);
+    let y = 72;
+    const scores = (d.score || []).slice(0, 8);
+    if (!scores.length) { ctx.fillStyle = "#7f9db8"; ctx.fillText("まだ誰もいない。一番乗りのチャンス。", 20, y); y += 14; }
+    scores.forEach((p, i) => {
+      ctx.fillStyle = medal[i] || "#fff";
+      ctx.fillText(`${i + 1}. ${p.n}`, 24, y);
+      ctx.textAlign = "right";
+      ctx.fillText(`${p.s}pt`, VW - 24, y);
+      ctx.textAlign = "left";
+      y += 13;
+    });
+
+    // ヌシの部（生涯最大の1匹）
+    y += 10;
+    ctx.fillStyle = "#9ad8f0";
+    ctx.fillText("― ヌシの部（最大の1匹） ―", 20, y);
+    y += 16;
+    const fishes5 = (d.fish || []).slice(0, 5);
+    if (!fishes5.length) { ctx.fillStyle = "#7f9db8"; ctx.fillText("まだ記録なし。", 24, y); y += 14; }
+    fishes5.forEach((p, i) => {
+      const spName = SPECIES[p.f] ? SPECIES[p.f].name : "";
+      ctx.fillStyle = medal[i] || "#fff";
+      ctx.fillText(`${i + 1}. ${p.n}`, 24, y);
+      ctx.textAlign = "right";
+      ctx.fillText(`${spName} ${p.c}cm`, VW - 24, y);
+      ctx.textAlign = "left";
+      y += 13;
+    });
+
+    // 自分の順位
+    y += 12;
+    ctx.textAlign = "center";
+    if (playerName) {
+      const mine = [];
+      if (d.me && d.me.score) mine.push(`スコア ${d.me.score}位`);
+      if (d.me && d.me.fish) mine.push(`ヌシ ${d.me.fish}位`);
+      ctx.fillStyle = "#7bd88f";
+      ctx.fillText(mine.length ? `${playerName}：${mine.join("　")}（全${d.total}人）`
+                               : "記録を出すとここに順位が出る", VW / 2, y);
+    } else {
+      ctx.fillStyle = "#ffe066";
+      ctx.fillText("名前を登録すると参加できます", VW / 2, y);
+    }
+  }
+
+  // 名前登録・変更ボタン（下部の帯）
+  ctx.fillStyle = "rgba(20,40,60,0.94)"; ctx.fillRect(30, VH - 48, VW - 60, 32);
+  ctx.strokeStyle = "#ffe066"; ctx.lineWidth = 1; ctx.strokeRect(30.5, VH - 47.5, VW - 61, 31);
+  ctx.textAlign = "center"; ctx.fillStyle = "#ffe066"; ctx.font = "bold 9px monospace";
+  ctx.fillText(playerName ? `名前をかえる（いま：${playerName}）` : "ニックネームを登録する", VW / 2, VH - 29);
+
+  ctx.fillStyle = "#7f9db8"; ctx.font = "bold 8px monospace";
+  ctx.fillText("ほかの場所をタップで戻る", VW / 2, VH - 6);
 }
 
 function wrapText(txt, cx, y, maxW, lh) {

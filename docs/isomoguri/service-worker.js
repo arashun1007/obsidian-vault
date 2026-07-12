@@ -1,4 +1,4 @@
-const CACHE_NAME = 'isomoguri-cache-v1';
+const CACHE_NAME = 'isomoguri-cache-v2';
 const ASSETS = [
   './',
   './index.html',
@@ -30,10 +30,25 @@ self.addEventListener('activate', event => {
 });
 
 self.addEventListener('fetch', event => {
-  event.respondWith(
-    caches.match(event.request)
-      .then(response => {
-        return response || fetch(event.request);
-      })
-  );
+  const req = event.request;
+  if (req.method !== 'GET') return;               // スコア送信(POST)は素通し
+  const url = new URL(req.url);
+  if (url.pathname.includes('/api/')) return;     // ランキングは常に最新を取る
+
+  const isPage = req.mode === 'navigate' ||
+    url.pathname.endsWith('/') || url.pathname.endsWith('/index.html');
+  if (isPage) {
+    // ページ本体はネット優先（更新を確実に届ける）。オフライン時だけキャッシュ
+    event.respondWith(
+      fetch(req).then(res => {
+        const copy = res.clone();
+        caches.open(CACHE_NAME).then(cache => cache.put(req, copy));
+        return res;
+      }).catch(() => caches.match(req))
+    );
+  } else {
+    event.respondWith(
+      caches.match(req).then(response => response || fetch(req))
+    );
+  }
 });

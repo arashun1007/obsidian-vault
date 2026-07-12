@@ -1,10 +1,15 @@
 // Cloudflare（wrangler deploy）用の設定。
-// ゲーム（docs/isomoguri）だけを静的サイトとして配信する。
+// ゲーム（docs/isomoguri）を静的配信し、worker/index.js がランキングAPIを担当する。
 // vault本体（日記・日報など）は配信対象に含めないこと。
 {
   "name": "isomoguri",
   "compatibility_date": "2026-07-12",
+  "main": "worker/index.js",
   "assets": {
-    "directory": "./docs/isomoguri"
+    "directory": "./docs/isomoguri",
+    "binding": "ASSETS"
   }
+  // ランキング用KVを作成したら、下の行のコメントを外してidを貼り替える。
+  // ダッシュボード: Storage & Databases → KV → Create namespace（名前は isomoguri-rank）
+  // ,"kv_namespaces": [{ "binding": "RANK", "id": "ここにKVのIDを貼る" }]
 }
