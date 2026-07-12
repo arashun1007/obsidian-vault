@@ -1,4 +1,4 @@
-// いそもぐり（仮） MVPプロトタイプ
+// いそもぐり
 // 依存なし・Canvas 2D・縦画面 1ダイブ=1ラン
 "use strict";
 
@@ -10,6 +10,10 @@ const PX_PER_M = 100;
 const O2_MAX = 60;                 // 秒
 const SPEAR_RANGE = 85;
 const CRIT = 0.05, GOOD = 0.12, POOR = 0.26; // ゲージ中央からの距離（標準時）
+const TARGET_TAP_RADIUS = 28;
+const AIM_MIN_TIME = 0.16;
+const TAP_GUARD_MS = 420;
+const DAILY_REWARD = 300;
 
 // 海況＝プレイヤーが選ぶ難易度（企画書 §5）
 const MODES = {
@@ -36,6 +40,31 @@ const QUOTES = [
   "車の鍵、防水ケースに入れた？",
   "ベタ凪の日に練習を。荒れた日に休息を。",
 ];
+
+function loadJSON(key, fallback) {
+  try {
+    const raw = localStorage.getItem(key);
+    return raw ? JSON.parse(raw) : fallback;
+  } catch (_) {
+    return fallback;
+  }
+}
+
+function saveJSON(key, value) {
+  try { localStorage.setItem(key, JSON.stringify(value)); } catch (_) {}
+}
+
+function localDateKey(date = new Date()) {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+}
+
+function daySerial(key) {
+  const [y, m, d] = key.split("-").map(Number);
+  return Math.floor(Date.UTC(y, m - 1, d) / 86400000);
+}
 
 // ---------- サウンド（依存なし・WebAudioで全部合成） ----------
 let soundOn = localStorage.getItem("isomoguri_snd") !== "0";
@@ -212,7 +241,7 @@ function makeSprite(map, colors, opt = {}) {
   return c;
 }
 
-// ---------- 魚種テーブル（MVP: 6種） ----------
+// ---------- 魚種テーブル ----------
 const SPECIES = {
   mebaru:   { name: "メバル",   pts: 120,  shape: "rock", size: 1.0,
               colors: { b: "#7a5a48", d: "#5c4234", l: "#c9b29a" },
@@ -259,6 +288,40 @@ const SPECIES = {
 };
 for (const [id, sp] of Object.entries(SPECIES)) sp.id = id; // リザルトで図柄を引くため
 
+const DAILY_TARGET_IDS = ["mebaru", "mejina", "kasago", "nizadai", "kawahagi", "akahata"];
+
+function dailyTargetFor(key) {
+  let hash = 2166136261;
+  for (const ch of key) {
+    hash ^= ch.charCodeAt(0);
+    hash = Math.imul(hash, 16777619);
+  }
+  return DAILY_TARGET_IDS[(hash >>> 0) % DAILY_TARGET_IDS.length];
+}
+
+function freshDaily(key) {
+  return { date: key, targetId: dailyTargetFor(key), goal: 2, progress: 0, completed: false };
+}
+
+function ensureDaily() {
+  const key = localDateKey();
+  if (!daily || daily.date !== key || !SPECIES[daily.targetId]) {
+    daily = freshDaily(key);
+    saveJSON("isomoguri_daily", daily);
+  }
+}
+
+function recordDiveStart() {
+  ensureDaily();
+  if (progress.lastDay !== daily.date) {
+    const gap = progress.lastDay ? daySerial(daily.date) - daySerial(progress.lastDay) : 0;
+    progress.streak = gap === 1 ? progress.streak + 1 : 1;
+    progress.lastDay = daily.date;
+  }
+  progress.dives++;
+  saveJSON("isomoguri_progress", progress);
+}
+
 // ---------- 状態 ----------
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
@@ -266,11 +329,18 @@ ctx.imageSmoothingEnabled = false;
 
 let sprites = {};
 let state, diver, fishes, rocks, weeds, bubbles, popups;
-let oxygen, bag, cuteBonus, cam, camX, tGame, aim, struggle, resultData, catchCut;
+let oxygen, bag, cuteBonus, comboBonus, dailyBonus, discoveryBonus, surfaceBonus;
+let combo, runBestCombo, cam, camX, tGame, aim, struggle, resultData, catchCut, shotFx;
 let hintShown, quote, careWord;
-let lastStruggleEnd = 0;
+let tapGuardUntil = 0, screenShake = 0, flash = 0;
 let highScore = Number(localStorage.getItem("isomoguri_hs") || 0);
-let dex = JSON.parse(localStorage.getItem("isomoguri_dex") || "{}"); // { fishId: { caught: N, seen: N } }
+let dex = loadJSON("isomoguri_dex", {}); // { fishId: { caught: N, seen: N } }
+let progress = Object.assign(
+  { dives: 0, totalCaught: 0, streak: 0, lastDay: "", bestCombo: 0 },
+  loadJSON("isomoguri_progress", {})
+);
+let daily = loadJSON("isomoguri_daily", null);
+ensureDaily();
 
 // 描画時の基準幅（生成アセットはこの幅に揃えて表示する）
 const BASE_W = { fish: 16, rock: 14, box: 11, diver: 24 };
@@ -279,7 +349,8 @@ function initSprites() {
   for (const [id, sp] of Object.entries(SPECIES)) {
     sprites[id] = makeSprite(MAPS[sp.shape], sp.colors, { stripes: sp.stripes });
   }
-  sprites.diver = makeSprite(MAPS.diver, DIVER_COLORS);
+  // 生成済み素材に合わせ、仮スプライトも顔が右になるよう正規化する。
+  sprites.diver = makeSprite(MAPS.diver.map(row => [...row].reverse().join("")), DIVER_COLORS);
   // fal生成アセットがあれば差し替え（無ければ仮ドット絵のまま）
   const src = window.__ASSETS || {};
   for (const id of [...Object.keys(SPECIES), "diver"]) {
@@ -302,19 +373,30 @@ function spriteScale(id, shape) {
 }
 
 function reset() {
+  ensureDaily();
   state = "title";
   diver = { x: WORLD_W / 2, y: 8, vx: 0, vy: 0, angle: Math.PI / 2, maxDepth: 0 };
   oxygen = O2_MAX;
-  bag = []; cuteBonus = 0;
+  bag = []; cuteBonus = 0; comboBonus = 0; dailyBonus = 0; discoveryBonus = 0; surfaceBonus = 0;
+  combo = 0; runBestCombo = 0;
   cam = 0; camX = WORLD_W / 2 - VW / 2; tGame = 0;
-  aim = null; struggle = null; resultData = null; catchCut = null;
+  aim = null; struggle = null; resultData = null; catchCut = null; shotFx = null;
   popups = []; bubbles = [];
   hintShown = false;
+  tapGuardUntil = 0; screenShake = 0; flash = 0;
   current = Math.random() < 0.5 ? -1 : 1;
   quote = QUOTES[(Math.random() * QUOTES.length) | 0];
   careWord = QUOTES[(Math.random() * 2) | 0]; // 先頭2つはケアワード
   spawnTerrain();
   spawnFish();
+}
+
+function beginDive() {
+  reset();
+  recordDiveStart();
+  state = "dive";
+  diver.vy = 75;
+  diver.angle = Math.PI / 2;
 }
 
 function spawnTerrain() {
@@ -342,9 +424,7 @@ function spawnTerrain() {
 function spawnFish() {
   fishes = [];
   for (const [id, sp] of Object.entries(SPECIES)) {
-    // 図鑑: この種を見た
     if (!dex[id]) dex[id] = { caught: 0, seen: 0 };
-    if (dex[id].seen === 0) dex[id].seen = 1;
 
     for (let n = 0; n < sp.count; n++) {
       let hx, hy;
@@ -375,37 +455,81 @@ function spawnFish() {
 }
 
 // ---------- 入力 ----------
-let ptr = { down: false, x: 0, y: 0, downX: 0, downY: 0, downT: 0, moved: 0 };
+let ptr = {
+  down: false, id: null, x: 0, y: 0, downX: 0, downY: 0,
+  downT: 0, moved: 0, startedState: null, consumed: false,
+};
 
 function toGame(e) {
   const r = canvas.getBoundingClientRect();
-  const t = e.touches ? e.touches[0] || e.changedTouches[0] : e;
-  return { x: (t.clientX - r.left) / r.width * VW, y: (t.clientY - r.top) / r.height * VH };
+  return { x: (e.clientX - r.left) / r.width * VW, y: (e.clientY - r.top) / r.height * VH };
 }
+
+function armTapGuard(now = performance.now()) {
+  tapGuardUntil = Math.max(tapGuardUntil, now + TAP_GUARD_MS);
+}
+
 function onDown(e) {
+  if (ptr.down || (e.button !== undefined && e.button !== 0)) return;
   e.preventDefault();
-  ensureAudio(); // ブラウザの自動再生制限はユーザー操作で解除される
+  ensureAudio();
   const p = toGame(e);
-  ptr.down = true; ptr.x = p.x; ptr.y = p.y;
-  ptr.downX = p.x; ptr.downY = p.y; ptr.downT = performance.now(); ptr.moved = 0;
-  if (state === "struggle") struggleTap();
+  const now = performance.now();
+  ptr.down = true; ptr.id = e.pointerId; ptr.x = p.x; ptr.y = p.y;
+  ptr.downX = p.x; ptr.downY = p.y; ptr.downT = now; ptr.moved = 0;
+  ptr.startedState = state; ptr.consumed = false;
+  if (canvas.setPointerCapture && e.pointerId !== undefined) {
+    try { canvas.setPointerCapture(e.pointerId); } catch (_) {}
+  }
+  if (state === "struggle") {
+    ptr.consumed = true;
+    struggleTap();
+    return;
+  }
+  // キープ演出中と連打直後は、タップが続く限り受付再開を先送りする。
+  if (state === "dive" && (catchCut || now < tapGuardUntil)) {
+    ptr.consumed = true;
+    armTapGuard(now);
+  }
 }
+
 function onMove(e) {
+  if (!ptr.down || (ptr.id !== null && e.pointerId !== ptr.id)) return;
   e.preventDefault();
-  if (!ptr.down) return;
   const p = toGame(e);
   ptr.moved += Math.hypot(p.x - ptr.x, p.y - ptr.y);
   ptr.x = p.x; ptr.y = p.y;
 }
+
+function finishPointer(e) {
+  if (!ptr.down || (ptr.id !== null && e.pointerId !== ptr.id)) return null;
+  const p = toGame(e);
+  ptr.x = p.x; ptr.y = p.y;
+  const gesture = {
+    startedState: ptr.startedState,
+    consumed: ptr.consumed,
+    x: p.x, y: p.y,
+    downX: ptr.downX, downY: ptr.downY,
+    elapsed: performance.now() - ptr.downT,
+    moved: ptr.moved,
+  };
+  ptr.down = false; ptr.id = null; ptr.startedState = null; ptr.consumed = false;
+  if (canvas.releasePointerCapture && e.pointerId !== undefined) {
+    try { canvas.releasePointerCapture(e.pointerId); } catch (_) {}
+  }
+  return gesture;
+}
+
 function onUp(e) {
   e.preventDefault();
-  ensureAudio(); // iOS Safariはtouchendでないと音声が解禁されないことがある
-  ptr.down = false;
-  const dt = performance.now() - ptr.downT;
-  const isTap = dt < 280 && ptr.moved < 14;
-  if (state === "title" && isTap) {
+  ensureAudio();
+  const g = finishPointer(e);
+  if (!g || g.consumed) return;
+  const isTap = g.elapsed < 280 && g.moved < 14;
+  // 入力開始時と終了時の状態が同じ時だけ処理し、1回の指離しを次の状態へ持ち越さない。
+  if (g.startedState === "title" && state === "title" && isTap) {
     // サウンドON/OFFボタン（左上）
-    if (ptr.x >= 6 && ptr.x <= 40 && ptr.downY >= 6 && ptr.downY <= 22) {
+    if (g.x >= 6 && g.x <= 40 && g.downY >= 6 && g.downY <= 22) {
       soundOn = !soundOn;
       localStorage.setItem("isomoguri_snd", soundOn ? "1" : "0");
       if (soundOn) { ensureAudio(); sfx.ui(); }
@@ -413,34 +537,43 @@ function onUp(e) {
       return;
     }
     // 図鑑ボタン
-    if (ptr.x >= VW - 32 && ptr.x <= VW - 6 && ptr.downY >= 6 && ptr.downY <= 22) {
+    if (g.x >= VW - 32 && g.x <= VW - 6 && g.downY >= 6 && g.downY <= 22) {
       sfx.ui();
       state = "dex"; return;
     }
     // 海況ボタン（3段）のヒット判定
     for (let i = 0; i < 3; i++) {
       const by = 292 + i * 34;
-      if (ptr.x >= 35 && ptr.x <= VW - 35 && ptr.downY >= by && ptr.downY <= by + 28) {
+      if (g.x >= 35 && g.x <= VW - 35 && g.downY >= by && g.downY <= by + 28) {
         sfx.ui();
         mode = MODES[MODE_KEYS[i]];
-        state = "dive";
-        diver.vy = 75; diver.angle = Math.PI / 2; // ジャックナイフで潜行開始
+        beginDive();
         return;
       }
     }
     return;
   }
-  if (state === "dex" && isTap) { state = "title"; return; }
-  if (state === "result" && isTap && performance.now() - resultData.t > 800) { reset(); return; }
-  if (state === "dive" && isTap) tryAim();
-  else if (state === "aim" && isTap) fire();
+  if (g.startedState === "dex" && state === "dex" && isTap) { state = "title"; return; }
+  if (g.startedState === "result" && state === "result" && isTap && performance.now() - resultData.t > 800) {
+    if (g.x < 52 && g.y < 32) reset();
+    else beginDive();
+    return;
+  }
+  if (g.startedState === "dive" && state === "dive" && isTap) tryAim(g.x + camX, g.y + cam);
+  else if (g.startedState === "aim" && state === "aim" && isTap && aim.t >= AIM_MIN_TIME) fire();
 }
-canvas.addEventListener("mousedown", onDown);
-canvas.addEventListener("mousemove", onMove);
-canvas.addEventListener("mouseup", onUp);
-canvas.addEventListener("touchstart", onDown, { passive: false });
-canvas.addEventListener("touchmove", onMove, { passive: false });
-canvas.addEventListener("touchend", onUp, { passive: false });
+
+function onCancel(e) {
+  if (!ptr.down || (ptr.id !== null && e.pointerId !== ptr.id)) return;
+  e.preventDefault();
+  ptr.down = false; ptr.id = null; ptr.startedState = null; ptr.consumed = false;
+}
+
+canvas.addEventListener("pointerdown", onDown);
+canvas.addEventListener("pointermove", onMove);
+canvas.addEventListener("pointerup", onUp);
+canvas.addEventListener("pointercancel", onCancel);
+canvas.addEventListener("contextmenu", e => e.preventDefault());
 
 // ---------- 突き ----------
 function nearestFish() {
@@ -452,11 +585,32 @@ function nearestFish() {
   }
   return best;
 }
-function tryAim() {
-  if (performance.now() - lastStruggleEnd < 150) return;
-  const f = nearestFish();
+
+function fishAt(wx, wy) {
+  let best = null, bestTapD = Infinity;
+  for (const f of fishes) {
+    if (!f.alive || Math.hypot(f.x - diver.x, f.y - diver.y) > SPEAR_RANGE) continue;
+    const tapD = Math.hypot(f.x - wx, f.y - wy);
+    const hitR = TARGET_TAP_RADIUS + f.sp.size * 5;
+    if (tapD <= hitR && tapD < bestTapD) { best = f; bestTapD = tapD; }
+  }
+  return best;
+}
+
+function turnToward(currentAngle, targetAngle, amount) {
+  let d = targetAngle - currentAngle;
+  while (d > Math.PI) d -= Math.PI * 2;
+  while (d < -Math.PI) d += Math.PI * 2;
+  return currentAngle + d * Math.min(1, amount);
+}
+
+function tryAim(wx, wy) {
+  if (performance.now() < tapGuardUntil || catchCut) return;
+  const f = fishAt(wx, wy);
   if (!f) return;
   aim = { target: f, t: 0 };
+  diver.vx *= 0.3; diver.vy *= 0.3;
+  diver.angle = Math.atan2(f.y - diver.y, f.x - diver.x);
   state = "aim";
 }
 function fire() {
@@ -465,23 +619,29 @@ function fire() {
   const off = Math.abs(v - 0.5);
   aim = null;
   const spearDone = (fn) => { struggleOrCatch(f, fn); };
+  shotFx = { x1: diver.x, y1: diver.y, x2: f.x, y2: f.y, t: 0.16, dur: 0.16 };
+  screenShake = Math.max(screenShake, 2.5);
   sfx.shoot();
+  haptic(12);
   if (!f.alive || Math.hypot(f.x - diver.x, f.y - diver.y) > SPEAR_RANGE * 1.4) {
+    breakCombo();
     sfx.miss();
     popup(diver.x, diver.y - 20, "外した…", "#cfd8e3");
     state = "dive"; return;
   }
   if (f.sp.cute) { // ハコフグは突いたら問答無用でマイナス。悲しいカットイン
     f.alive = false;
-    catchFish(f);
+    const reward = catchFish(f, "poor");
     sfx.sad();
-    catchCut = { id: "hakofugu_sad", sp: f.sp, t: 2.2, dur: 2.2, sad: true };
+    catchCut = { id: "hakofugu_sad", sp: f.sp, t: 2.2, dur: 2.2, sad: true, award: reward.award };
+    armTapGuard();
     state = "dive"; return;
   }
   if (off < CRIT * mode.gauge)      spearDone("crit");
   else if (off < GOOD * mode.gauge) spearDone("good");
   else if (off < Math.min(0.48, POOR * mode.gauge)) spearDone("poor");
   else {
+    breakCombo();
     flee(f, 2.0);
     sfx.miss();
     popup(f.x, f.y, "外した！", "#cfd8e3");
@@ -490,9 +650,13 @@ function fire() {
 }
 function struggleOrCatch(f, quality) {
   if (quality === "crit") {
-    f.alive = false; catchFish(f);
+    f.alive = false;
+    const reward = catchFish(f, quality);
     sfx.crit();
-    catchCut = { id: f.id, sp: f.sp, t: 1.5, dur: 1.5, crit: true };
+    haptic([18, 35, 28]);
+    flash = 0.22; screenShake = Math.max(screenShake, 4);
+    catchCut = { id: f.id, sp: f.sp, t: 1.5, dur: 1.5, crit: true, ...reward };
+    armTapGuard();
     state = "dive"; return;
   }
   const mult = quality === "poor" ? 1.7 : 1.0;
@@ -505,16 +669,26 @@ function struggleTap() {
   if (!struggle) return;
   struggle.taps++;
   sfx.tap();
+  haptic(7);
   oxygen = Math.max(0, oxygen - 0.5);
   if (struggle.taps >= struggle.need) {
     const f = struggle.f;
-    f.alive = false; catchFish(f);
+    const quality = struggle.quality;
+    f.alive = false;
+    const reward = catchFish(f, quality);
     sfx.keep();
-    catchCut = { id: f.id, sp: f.sp, t: 1.5, dur: 1.5, crit: false };
+    haptic(22);
+    catchCut = { id: f.id, sp: f.sp, t: 1.5, dur: 1.5, crit: false, ...reward };
     struggle = null; state = "dive";
-    lastStruggleEnd = performance.now();
+    armTapGuard();
   }
 }
+
+function haptic(pattern) {
+  if (navigator.vibrate) navigator.vibrate(pattern);
+}
+
+function breakCombo() { combo = 0; }
 function flee(f, mult) {
   f.fleeT = 1.5;
   const a = Math.atan2(f.y - diver.y, f.x - diver.x);
@@ -527,22 +701,88 @@ function gaugeValue(t) { // 0→1→0 の往復（周期1.1秒）
   const c = (t % 1.1) / 1.1;
   return c < 0.5 ? c * 2 : (1 - c) * 2;
 }
-function catchFish(f) {
+function catchFish(f, quality) {
+  const wasNew = !dex[f.id] || dex[f.id].caught === 0;
   bag.push(f.sp);
   if (!dex[f.id]) dex[f.id] = { caught: 0, seen: 0 };
+  dex[f.id].seen = 1;
   dex[f.id].caught++;
+
+  let chainBonus = 0, o2Bonus = 0, discovery = 0, mission = 0;
+  if (f.sp.pts > 0) {
+    combo++;
+    runBestCombo = Math.max(runBestCombo, combo);
+    progress.bestCombo = Math.max(progress.bestCombo, combo);
+    const multiplier = 1 + Math.min(4, combo - 1) * 0.2;
+    chainBonus = Math.floor(f.sp.pts * (multiplier - 1));
+    comboBonus += chainBonus;
+    if (wasNew) {
+      discovery = 150;
+      discoveryBonus += discovery;
+      popup(f.x, f.y - 18, "新発見 +150", "#9ad8f0");
+    }
+    if (quality === "crit") {
+      o2Bonus = 1.5;
+      oxygen = Math.min(O2_MAX, oxygen + o2Bonus);
+    }
+  } else {
+    breakCombo();
+  }
+
+  if (!daily.completed && f.id === daily.targetId) {
+    daily.progress = Math.min(daily.goal, daily.progress + 1);
+    if (daily.progress >= daily.goal) {
+      daily.completed = true;
+      mission = DAILY_REWARD;
+      dailyBonus += mission;
+      popup(f.x, f.y - 30, "本日の狙い達成 +300", "#ffe066");
+    }
+    saveJSON("isomoguri_daily", daily);
+  }
+
+  progress.totalCaught++;
+  saveJSON("isomoguri_progress", progress);
+  saveJSON("isomoguri_dex", dex);
+  return {
+    award: f.sp.pts + chainBonus,
+    chainBonus,
+    combo,
+    o2Bonus,
+    discovery,
+    mission,
+  };
 }
 
 // ---------- 更新 ----------
+function rawRunScore() {
+  return bag.reduce((sum, sp) => sum + sp.pts, 0) + cuteBonus + comboBonus + dailyBonus + discoveryBonus + surfaceBonus;
+}
+
+function resultRank(total, blackout) {
+  if (blackout) return "D";
+  if (total >= 1800) return "S";
+  if (total >= 1000) return "A";
+  if (total >= 450) return "B";
+  return "C";
+}
+
 function endRun(blackout) {
-  let total = bag.reduce((s, sp) => s + sp.pts, 0) + cuteBonus;
+  surfaceBonus = blackout ? 0 : Math.floor((diver.maxDepth / PX_PER_M) * Math.max(0, oxygen) * 0.6);
+  let total = rawRunScore();
   let note = null;
   if (blackout) { total = Math.floor(total / 2); note = "ブラックアウト！ 獲物の半分を失った…"; }
   total = Math.floor(total * mode.score);
-  if (total > highScore) { highScore = total; localStorage.setItem("isomoguri_hs", String(highScore)); }
-  localStorage.setItem("isomoguri_dex", JSON.stringify(dex));
+  const isNew = total > highScore;
+  if (isNew) { highScore = total; localStorage.setItem("isomoguri_hs", String(highScore)); }
+  progress.bestScore = Math.max(progress.bestScore || 0, total);
+  saveJSON("isomoguri_progress", progress);
+  saveJSON("isomoguri_dex", dex);
   if (!blackout) sfx.surface(); else sfx.bara();
-  resultData = { total, note, t: performance.now() };
+  resultData = {
+    total, note, isNew, rank: resultRank(total, blackout), blackout,
+    bonusTotal: comboBonus + dailyBonus + discoveryBonus + surfaceBonus,
+    t: performance.now(),
+  };
   state = "result";
 }
 
@@ -576,16 +816,14 @@ function update(dt) {
       const sp = Math.hypot(diver.vx, diver.vy);
       const max = 115;
       if (sp > max) { diver.vx *= max / sp; diver.vy *= max / sp; }
-      // 体の向きは実際に進んでいる方向へ滑らかに追従
-      // （入力方向に即時に向けると、潜行中に上を向く等の不自然さが出る）
-      if (sp > 14) {
-        const ta = Math.atan2(diver.vy, diver.vx);
-        let dA = ta - diver.angle;
-        while (dA > Math.PI) dA -= Math.PI * 2;
-        while (dA < -Math.PI) dA += Math.PI * 2;
-        diver.angle += dA * Math.min(1, dt * 7);
+      // 流れも含めた実移動方向へ、頭から進むように追従する。
+      const motionVx = diver.vx + current * mode.drift;
+      const motionSp = Math.hypot(motionVx, diver.vy);
+      if (motionSp > 14) {
+        const ta = Math.atan2(diver.vy, motionVx);
+        diver.angle = turnToward(diver.angle, ta, dt * 7);
       }
-      diver.x = Math.max(8, Math.min(WORLD_W - 8, diver.x + (diver.vx + current * mode.drift) * dt));
+      diver.x = Math.max(8, Math.min(WORLD_W - 8, diver.x + motionVx * dt));
       diver.y = Math.max(4, Math.min(WORLD_H - 10, diver.y + diver.vy * dt));
       diver.maxDepth = Math.max(diver.maxDepth, diver.y);
       if (diver.y <= 12 && diver.maxDepth > 60) { endRun(false); return; }
@@ -595,6 +833,9 @@ function update(dt) {
       const f = aim.target;
       if (!f.alive || Math.hypot(f.x - diver.x, f.y - diver.y) > SPEAR_RANGE * 1.4) {
         aim = null; state = "dive";
+      } else {
+        const ta = Math.atan2(f.y - diver.y, f.x - diver.x);
+        diver.angle = turnToward(diver.angle, ta, dt * 12);
       }
     }
     if (state === "struggle") {
@@ -602,9 +843,11 @@ function update(dt) {
       if (struggle.timer <= 0) {
         const f = struggle.f;
         f.wound = true; flee(f, 2.5);
+        breakCombo();
         sfx.bara();
         popup(f.x, f.y, "バラした！", "#ff8c8c");
         struggle = null; state = "dive";
+        armTapGuard();
       }
     }
 
@@ -645,7 +888,14 @@ function update(dt) {
     }
 
     // 泡
-    if (Math.random() < dt * 2.5) bubbles.push({ x: diver.x + 4, y: diver.y - 4, r: 1 + Math.random() * 2 });
+    if (Math.random() < dt * 2.5) {
+      const back = diver.angle + Math.PI;
+      bubbles.push({
+        x: diver.x + Math.cos(back) * 8,
+        y: diver.y + Math.sin(back) * 8,
+        r: 1 + Math.random() * 2,
+      });
+    }
   }
 
   for (const b of bubbles) { b.y -= 35 * dt; b.x += Math.sin(b.y / 12) * 0.3; }
@@ -653,6 +903,9 @@ function update(dt) {
   for (const p of popups) p.t -= dt;
   popups = popups.filter(p => p.t > 0);
   if (catchCut) { catchCut.t -= dt; if (catchCut.t <= 0) catchCut = null; }
+  if (shotFx) { shotFx.t -= dt; if (shotFx.t <= 0) shotFx = null; }
+  screenShake = Math.max(0, screenShake - dt * 18);
+  flash = Math.max(0, flash - dt);
 
   // カメラ
   const targetCam = Math.max(0, Math.min(WORLD_H - VH, diver.y - 150));
@@ -681,7 +934,9 @@ function draw() {
   ctx.fillRect(0, 0, VW, VH);
 
   ctx.save();
-  ctx.translate(-Math.round(camX), -Math.round(cam));
+  const shakeX = screenShake ? (Math.random() - 0.5) * screenShake : 0;
+  const shakeY = screenShake ? (Math.random() - 0.5) * screenShake : 0;
+  ctx.translate(-Math.round(camX) + shakeX, -Math.round(cam) + shakeY);
 
   // 水面と光
   ctx.fillStyle = "rgba(255,255,255,0.5)";
@@ -722,6 +977,7 @@ function draw() {
   for (const f of fishes) {
     if (!f.alive) continue;
     if (f.y < cam - 20 || f.y > cam + VH + 20) continue;
+    if (dex[f.id] && dex[f.id].seen === 0) dex[f.id].seen = 1;
     const img = sprites[f.id];
     const s = f.sp.size * spriteScale(f.id, f.sp.shape);
     ctx.save();
@@ -733,6 +989,14 @@ function draw() {
       ctx.fillStyle = "rgba(255,255,180," + (0.5 + Math.sin(tGame * 8) * 0.3) + ")";
       ctx.fillRect(f.x - 1, f.y - 1, 2, 2);
     }
+  }
+
+  // 突きの一瞬だけ射線を残し、どの魚へ突いたかを明確にする。
+  if (shotFx) {
+    ctx.globalAlpha = Math.max(0, shotFx.t / shotFx.dur);
+    ctx.strokeStyle = "#f5ead0"; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(shotFx.x1, shotFx.y1); ctx.lineTo(shotFx.x2, shotFx.y2); ctx.stroke();
+    ctx.globalAlpha = 1;
   }
 
   // 照準（射程内の最寄りの魚）
@@ -753,12 +1017,13 @@ function draw() {
   ctx.save();
   ctx.translate(Math.round(diver.x), Math.round(diver.y));
   ctx.rotate(diver.angle);
-  if (Math.cos(diver.angle) > 0) ctx.scale(1, -1);
+  // 左へ進む時だけ腹側を反転し、180度回転で上下逆さになるのを防ぐ。
+  if (Math.cos(diver.angle) < 0) ctx.scale(1, -1);
   // 手銛（長尺）
   ctx.strokeStyle = "#d9c8a0"; ctx.lineWidth = 1.5;
-  ctx.beginPath(); ctx.moveTo(-40, 1); ctx.lineTo(6, 1); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(-5, 1); ctx.lineTo(42, 1); ctx.stroke();
   ctx.strokeStyle = "#cfd8e3";
-  ctx.beginPath(); ctx.moveTo(-40, 1); ctx.lineTo(-45, -1); ctx.moveTo(-40, 1); ctx.lineTo(-45, 3); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(42, 1); ctx.lineTo(47, -1); ctx.moveTo(42, 1); ctx.lineTo(47, 3); ctx.stroke();
   {
     const dImg = sprites.diver;
     const k = spriteScale("diver", "diver");
@@ -767,7 +1032,7 @@ function draw() {
   // ライトの光
   ctx.fillStyle = "rgba(255,240,160,0.15)";
   ctx.beginPath();
-  ctx.moveTo(-10, 2); ctx.lineTo(-55, -10); ctx.lineTo(-55, 16); ctx.closePath(); ctx.fill();
+  ctx.moveTo(10, 2); ctx.lineTo(58, -10); ctx.lineTo(58, 16); ctx.closePath(); ctx.fill();
   ctx.restore();
 
   // 泡
@@ -792,10 +1057,14 @@ function draw() {
   if (state === "struggle") drawStruggle();
   if (catchCut && state === "dive") drawCatch();
   if (state === "result") drawResult();
+  if (flash > 0) {
+    ctx.fillStyle = `rgba(255,245,190,${Math.min(0.28, flash)})`;
+    ctx.fillRect(0, 0, VW, VH);
+  }
 }
 
 function drawHUD() {
-  if (state === "title" || state === "result") return;
+  if (state === "title" || state === "dex" || state === "result") return;
   // 酸素
   ctx.fillStyle = "rgba(10,20,35,0.7)";
   ctx.fillRect(6, 6, 106, 12);
@@ -809,12 +1078,24 @@ function drawHUD() {
   ctx.fillStyle = "rgba(10,20,35,0.7)"; ctx.fillRect(VW - 58, 6, 52, 12);
   ctx.fillStyle = "#fff";
   ctx.fillText((diver.y / PX_PER_M).toFixed(1) + " m", VW - 10, 15);
-  // 獲物
-  const pts = bag.reduce((s, sp) => s + sp.pts, 0) + cuteBonus;
+  // 本日の狙い
   ctx.textAlign = "left";
-  ctx.fillStyle = "rgba(10,20,35,0.7)"; ctx.fillRect(6, VH - 18, 120, 12);
+  ctx.fillStyle = "rgba(10,20,35,0.7)"; ctx.fillRect(6, 22, 112, 12);
+  drawFishIcon(daily.targetId, 16, 28, 14);
+  ctx.fillStyle = daily.completed ? "#7bd88f" : "#cfd8e3";
+  const dailyMark = daily.completed ? "達成" : `${daily.progress}/${daily.goal}`;
+  ctx.fillText(`本日 ${SPECIES[daily.targetId].name} ${dailyMark}`, 27, 31);
+  // 獲物
+  const pts = Math.floor(rawRunScore() * mode.score);
+  ctx.textAlign = "left";
+  ctx.fillStyle = "rgba(10,20,35,0.7)"; ctx.fillRect(6, VH - 18, VW - 12, 12);
   ctx.fillStyle = "#ffe066";
   ctx.fillText("袋 " + bag.length + "匹  " + pts + "pt", 10, VH - 9);
+  if (combo >= 2) {
+    const mult = (1 + Math.min(4, combo - 1) * 0.2).toFixed(1);
+    ctx.textAlign = "right"; ctx.fillStyle = "#7bd88f";
+    ctx.fillText(`連続 ${combo}  ×${mult}`, VW - 10, VH - 9);
+  }
 }
 
 function drawTitle() {
@@ -838,22 +1119,36 @@ function drawTitle() {
 
   ctx.textAlign = "center";
   ctx.fillStyle = "#ffe066";
-  ctx.font = "bold 22px monospace";
-  ctx.fillText("いそもぐり", VW / 2, 92);
+  ctx.font = "bold 24px monospace";
+  ctx.fillText("いそもぐり", VW / 2, 78);
   ctx.font = "bold 9px monospace";
   ctx.fillStyle = "#9ad8f0";
-  ctx.fillText("― 仮・MVPプロトタイプ ―", VW / 2, 110);
-  ctx.fillStyle = "#cfd8e3";
-  ctx.fillText("ドラッグ＝泳ぐ", VW / 2, 142);
-  ctx.fillText("枠が出た魚の近くでタップ＝構える", VW / 2, 156);
-  ctx.fillText("ゲージ中央でもう一度タップ＝突く", VW / 2, 170);
-  ctx.fillText("魚が暴れたら連打！", VW / 2, 184);
+  ctx.fillText("一息、一突き、無事浮上。", VW / 2, 98);
   ctx.fillStyle = "#ffe066";
-  ctx.fillText("ハイスコア " + highScore + "pt", VW / 2, 210);
+  ctx.fillText("ハイスコア " + highScore + "pt", VW / 2, 124);
+  ctx.font = "bold 8px monospace";
+  ctx.fillStyle = "#9ab0c4";
+  ctx.fillText(`潜水 ${progress.dives}　連続 ${progress.streak}日　最多 ${progress.bestCombo}連`, VW / 2, 140);
+
+  // 日替わりの短期目標
+  ctx.fillStyle = "rgba(20,40,60,0.9)";
+  ctx.fillRect(28, 154, VW - 56, 62);
+  ctx.strokeStyle = daily.completed ? "#7bd88f" : "#9ad8f0"; ctx.lineWidth = 1;
+  ctx.strokeRect(28.5, 154.5, VW - 57, 61);
+  drawFishIcon(daily.targetId, 57, 185, 40);
+  ctx.textAlign = "left";
+  ctx.font = "bold 8px monospace"; ctx.fillStyle = "#9ad8f0";
+  ctx.fillText("本日の狙い", 84, 171);
+  ctx.font = "bold 11px monospace";
+  ctx.fillStyle = daily.completed ? "#7bd88f" : "#fff";
+  ctx.fillText(`${SPECIES[daily.targetId].name} ×${daily.goal}`, 84, 188);
+  ctx.font = "bold 8px monospace";
+  ctx.fillText(daily.completed ? "達成済み ✓" : `${daily.progress}/${daily.goal}　報酬 +${DAILY_REWARD}pt`, 84, 204);
+  ctx.textAlign = "center";
   ctx.fillStyle = "#7f9db8";
-  wrapText(careWord, VW / 2, 232, 200, 11);
+  wrapText(careWord, VW / 2, 240, 200, 11);
   // 海況選択（タップで即潜行）
-  ctx.fillStyle = "#fff";
+  ctx.font = "bold 9px monospace"; ctx.fillStyle = "#fff";
   if (Math.sin(tGame * 3) > -0.2) ctx.fillText("海況をえらんで潜る", VW / 2, 284);
   const cols = ["#7bd88f", "#ffe066", "#ff8c5c"];
   for (let i = 0; i < 3; i++) {
@@ -877,19 +1172,22 @@ function drawTitle() {
 function drawGauge() {
   const v = gaugeValue(aim.t);
   const gx = 30, gw = VW - 60, gy = VH - 60;
+  const poor = Math.min(0.48, POOR * mode.gauge);
+  const good = Math.min(0.48, GOOD * mode.gauge);
+  const crit = Math.min(0.48, CRIT * mode.gauge);
   ctx.fillStyle = "rgba(10,20,35,0.8)";
   ctx.fillRect(gx - 4, gy - 4, gw + 8, 22);
   ctx.fillStyle = "#28374d"; ctx.fillRect(gx, gy, gw, 14);
   // 判定ゾーン
-  ctx.fillStyle = "#4a6a3a"; ctx.fillRect(gx + gw * (0.5 - POOR), gy, gw * POOR * 2, 14);
-  ctx.fillStyle = "#6fae4c"; ctx.fillRect(gx + gw * (0.5 - GOOD), gy, gw * GOOD * 2, 14);
-  ctx.fillStyle = "#ffe066"; ctx.fillRect(gx + gw * (0.5 - CRIT), gy, gw * CRIT * 2, 14);
+  ctx.fillStyle = "#4a6a3a"; ctx.fillRect(gx + gw * (0.5 - poor), gy, gw * poor * 2, 14);
+  ctx.fillStyle = "#6fae4c"; ctx.fillRect(gx + gw * (0.5 - good), gy, gw * good * 2, 14);
+  ctx.fillStyle = "#ffe066"; ctx.fillRect(gx + gw * (0.5 - crit), gy, gw * crit * 2, 14);
   // カーソル
   ctx.fillStyle = "#fff";
   ctx.fillRect(gx + gw * v - 1.5, gy - 3, 3, 20);
   ctx.font = "bold 9px monospace"; ctx.textAlign = "center";
   ctx.fillStyle = "#fff";
-  ctx.fillText("タップで突く！", VW / 2, gy - 10);
+  ctx.fillText(`${aim.target.sp.name}　一突き`, VW / 2, gy - 10);
 }
 
 // 魚のアップ（カットイン用）。_big が未ロードなら通常スプライトを拡大
@@ -961,13 +1259,23 @@ function drawCatch() {
   }
   ctx.font = "bold 12px monospace"; ctx.textAlign = "center";
   ctx.fillStyle = col;
+  const award = c.award === undefined ? c.sp.pts : c.award;
+  const points = award > 0 ? "+" + award : String(award);
   const label = c.sad
-    ? "ハコフグ…ごめん… " + c.sp.pts + "pt"
-    : (c.crit ? "会心！ " : "") + c.sp.name + " キープ！ +" + c.sp.pts + "pt";
-  ctx.fillText(label, cx, cy + 50);
+    ? "ハコフグ…ごめん… " + points + "pt"
+    : (c.crit ? "会心！ " : "") + c.sp.name + " キープ！ " + points + "pt";
+  ctx.fillText(label, cx, cy + 48);
   if (c.sad) {
     ctx.font = "bold 8px monospace"; ctx.fillStyle = "#7f9db8";
-    ctx.fillText("（ハコフグは見つめるとボーナス）", cx, cy + 58 + 2);
+    ctx.fillText("（ハコフグは見つめるとボーナス）", cx, cy + 60);
+  } else {
+    const detail = [];
+    if (c.combo >= 2) detail.push(`${c.combo}連続`);
+    if (c.o2Bonus) detail.push(`O2 +${c.o2Bonus.toFixed(1)}`);
+    if (detail.length) {
+      ctx.font = "bold 8px monospace"; ctx.fillStyle = "#cfd8e3";
+      ctx.fillText(detail.join("　"), cx, cy + 60);
+    }
   }
   ctx.globalAlpha = 1;
 }
@@ -983,17 +1291,28 @@ function drawFishIcon(id, cx, cy, w) {
 function drawResult() {
   ctx.fillStyle = "rgba(4,18,34,0.9)";
   ctx.fillRect(0, 0, VW, VH);
+
+  // 海況選択へ戻る小ボタン。画面の他の場所は同じ海へ直行する。
+  ctx.fillStyle = "rgba(20,40,60,0.9)"; ctx.fillRect(6, 6, 40, 16);
+  ctx.strokeStyle = "#7f9db8"; ctx.lineWidth = 0.5; ctx.strokeRect(6.5, 6.5, 39, 15);
+  ctx.font = "bold 8px monospace"; ctx.textAlign = "center"; ctx.fillStyle = "#9ad8f0";
+  ctx.fillText("海況", 26, 17);
+
   ctx.textAlign = "center";
   ctx.fillStyle = "#ffe066"; ctx.font = "bold 16px monospace";
-  ctx.fillText("― 浮上 ―", VW / 2, 32);
+  ctx.fillText(`― 浮上　漁果 ${resultData.rank} ―`, VW / 2, 30);
   ctx.font = "bold 9px monospace"; ctx.fillStyle = "#9ad8f0";
-  ctx.fillText("海況 " + mode.name + (mode.score > 1 ? "（スコア×" + mode.score + "）" : ""), VW / 2, 48);
+  ctx.fillText("海況 " + mode.name + (mode.score > 1 ? "（スコア×" + mode.score + "）" : ""), VW / 2, 45);
+  if (resultData.isNew) {
+    ctx.fillStyle = "#7bd88f";
+    ctx.fillText("NEW RECORD", VW / 2, 58);
+  }
 
   // 一番の獲物をどーんと見せる
   const best = bag.filter(sp => sp.pts > 0).sort((a, b) => b.pts - a.pts)[0];
-  let y;
+  let y = 154;
   if (best) {
-    const cy = 102;
+    const cy = 98;
     // 後光（ゆっくり回る光条）
     ctx.save();
     ctx.translate(VW / 2, cy);
@@ -1016,23 +1335,21 @@ function drawResult() {
     }
     ctx.globalAlpha = 1;
     ctx.font = "bold 9px monospace"; ctx.fillStyle = "#ffe066";
-    ctx.fillText("本日の一番　" + best.name + " " + best.pts + "pt", VW / 2, cy + 52);
-    y = cy + 68;
+    ctx.fillText("本日の一番　" + best.name + " " + best.pts + "pt", VW / 2, cy + 48);
   } else {
     // ボウズ：ダイバーがぷかぷか浮かぶ
     const img = sprites.diver;
     if (img) {
       ctx.save();
-      ctx.translate(VW / 2, 100 + Math.sin(tGame * 1.5) * 4);
+      ctx.translate(VW / 2, 99 + Math.sin(tGame * 1.5) * 4);
       ctx.rotate(Math.sin(tGame * 1.2) * 0.12);
-      const s = 64 / img.width;
+      const s = 56 / img.width;
       ctx.scale(s, s);
       ctx.drawImage(img, -img.width / 2, -img.height / 2);
       ctx.restore();
     }
     ctx.font = "bold 10px monospace"; ctx.fillStyle = "#fff";
-    ctx.fillText("ボウズ。海はそういう日もある。", VW / 2, 152);
-    y = 170;
+    ctx.fillText("ボウズ。海はそういう日もある。", VW / 2, 145);
   }
 
   // 集計（魚アイコン付き）
@@ -1041,9 +1358,11 @@ function drawResult() {
     const a = agg.get(sp.id) || { sp, n: 0, pts: 0 };
     a.n++; a.pts += sp.pts; agg.set(sp.id, a);
   }
-  const rowH = agg.size > 6 ? 13 : 16;
-  ctx.font = "bold 10px monospace";
-  for (const [id, a] of agg) {
+  const entries = [...agg.entries()].sort((a, b) => b[1].pts - a[1].pts);
+  const visibleEntries = entries.slice(0, 4);
+  const rowH = 14;
+  ctx.font = "bold 9px monospace";
+  for (const [id, a] of visibleEntries) {
     drawFishIcon(id, 46, y - 3, 18);
     ctx.textAlign = "left";
     ctx.fillStyle = a.pts < 0 ? "#f2994a" : "#fff";
@@ -1052,29 +1371,42 @@ function drawResult() {
     ctx.fillText(a.pts + "pt", VW - 40, y);
     y += rowH;
   }
-  if (cuteBonus > 0) {
-    drawFishIcon("hakofugu", 46, y - 3, 16);
-    ctx.textAlign = "left"; ctx.fillStyle = "#ffb3d9";
-    ctx.fillText("かわいいボーナス", 62, y);
-    ctx.textAlign = "right";
-    ctx.fillText("+" + cuteBonus + "pt", VW - 40, y);
+  if (entries.length > visibleEntries.length) {
+    ctx.textAlign = "left"; ctx.fillStyle = "#9ab0c4";
+    ctx.fillText(`ほか ${entries.length - visibleEntries.length}種`, 62, y);
     y += rowH;
   }
+
+  const allBonus = resultData.bonusTotal + cuteBonus;
+  if (allBonus > 0) {
+    ctx.textAlign = "left"; ctx.fillStyle = "#7bd88f";
+    ctx.fillText("技術・記録ボーナス", 62, y);
+    ctx.textAlign = "right"; ctx.fillText("+" + allBonus + "pt", VW - 40, y);
+    y += rowH;
+  }
+  if (runBestCombo >= 2) {
+    ctx.textAlign = "center"; ctx.fillStyle = "#9ad8f0";
+    ctx.fillText(`ベスト連続キープ ${runBestCombo}`, VW / 2, y);
+  }
+
   ctx.textAlign = "center";
   if (resultData.note) {
     ctx.font = "bold 9px monospace"; ctx.fillStyle = "#ff8c8c";
-    wrapText(resultData.note, VW / 2, y + 4, 210, 11); y += 26;
+    wrapText(resultData.note, VW / 2, 253, 210, 11);
   }
   ctx.fillStyle = "#ffe066"; ctx.font = "bold 15px monospace";
-  ctx.fillText("合計 " + resultData.total + " pt", VW / 2, y + 18);
+  ctx.fillText("合計 " + resultData.total + " pt", VW / 2, 278);
   ctx.font = "bold 9px monospace"; ctx.fillStyle = "#9ad8f0";
-  ctx.fillText("ハイスコア " + highScore + " pt", VW / 2, y + 34);
+  ctx.fillText("ハイスコア " + highScore + " pt", VW / 2, 295);
   // 名言
   ctx.fillStyle = "#cfd8e3";
-  wrapText("「" + quote + "」", VW / 2, Math.min(y + 62, VH - 58), 205, 13);
+  wrapText("「" + quote + "」", VW / 2, 319, 205, 13);
+
+  ctx.fillStyle = "rgba(20,40,60,0.94)"; ctx.fillRect(30, 362, VW - 60, 28);
+  ctx.strokeStyle = "#ffe066"; ctx.lineWidth = 1; ctx.strokeRect(30.5, 362.5, VW - 61, 27);
   if (Math.sin(tGame * 3) > -0.2) {
-    ctx.fillStyle = "#fff";
-    ctx.fillText("タップでもう一回", VW / 2, VH - 22);
+    ctx.fillStyle = "#ffe066"; ctx.font = "bold 10px monospace";
+    ctx.fillText("同じ海へ　もう一潜り", VW / 2, 380);
   }
 }
 
@@ -1085,23 +1417,23 @@ function drawDex() {
   ctx.fillStyle = "#ffe066"; ctx.font = "bold 16px monospace";
   ctx.fillText("図鑑", VW / 2, 30);
 
-  // Collection stats
-  let caught = 0, seen = 0;
-  for (const d of Object.values(dex)) { caught += d.caught; seen += d.seen; }
-  const species = Object.keys(dex).length;
+  let caught = 0;
+  for (const d of Object.values(dex)) caught += d.caught;
+  const totalSpecies = Object.keys(SPECIES).length;
+  const caughtSpecies = Object.values(dex).filter(d => d.caught > 0).length;
+  const seenSpecies = Object.values(dex).filter(d => d.seen > 0).length;
   ctx.font = "bold 9px monospace"; ctx.fillStyle = "#9ad8f0";
-  ctx.fillText(`捕獲 ${species}種 / 目撃 ${Object.values(dex).filter(d => d.seen > 0).length}種  (合計 ${caught}匹)`, VW / 2, 50);
+  ctx.fillText(`捕獲 ${caughtSpecies}/${totalSpecies}　目撃 ${seenSpecies}/${totalSpecies}　合計 ${caught}匹`, VW / 2, 50);
 
   // Fish list
   ctx.textAlign = "left"; ctx.font = "bold 8px monospace";
   let y = 75;
   for (const [id, entry] of Object.entries(SPECIES)) {
     const d = dex[id] || { caught: 0, seen: 0 };
-    if (d.seen === 0) continue;
-    const name = entry.name;
+    const name = d.seen > 0 ? entry.name : "？？？";
     const isCaught = d.caught > 0;
-    ctx.fillStyle = isCaught ? "#fff" : "#7f9db8";
-    const mark = isCaught ? "✓" : "◇";
+    ctx.fillStyle = isCaught ? "#fff" : d.seen > 0 ? "#7f9db8" : "#40566a";
+    const mark = isCaught ? "✓" : d.seen > 0 ? "◇" : "・";
     ctx.fillText(`${mark} ${name}`, 20, y);
     if (isCaught) {
       ctx.fillStyle = "#ffe066";
@@ -1143,26 +1475,24 @@ function fit() {
 }
 window.addEventListener("resize", fit);
 
-// 開発用フック（リリース時に削除）
-window.__dbg = {
-  get: () => ({ diver, fishes, state, oxygen, bag }),
-  warp: (x, y) => { diver.x = x; diver.y = y; diver.maxDepth = Math.max(diver.maxDepth, y); },
-  forceStruggle: (id) => {
-    const f = fishes.find(f => f.alive && f.id === id) || fishes[0];
-    struggle = { f, need: 10, taps: 3, timer: 2.2, dur: 3.5, quality: "good" };
-    state = "struggle";
-  },
-  forceCatch: (id, crit) => {
-    const f = fishes.find(f => f.alive && f.id === id) || fishes[0];
-    catchCut = { id: f.id, sp: f.sp, t: 1.5, dur: 1.5, crit: !!crit };
-    state = "dive";
-  },
-  forceSad: () => {
-    catchCut = { id: "hakofugu_sad", sp: SPECIES.hakofugu, t: 2.2, dur: 2.2, sad: true };
-    state = "dive";
-  },
-  audio: () => ({ soundOn, hasAC: !!AC, acState: AC && AC.state }),
-};
+// ローカル検証時だけ公開し、配布ファイルからゲーム状態を操作できないようにする。
+if (location.hostname === "127.0.0.1" || location.hostname === "localhost") {
+  window.__dbg = {
+    get: () => ({
+      diver: { x: diver.x, y: diver.y, vx: diver.vx, vy: diver.vy, angle: diver.angle },
+      state, oxygen, combo, tapGuardUntil,
+      aimId: aim && aim.target.id,
+      bag: bag.map(sp => sp.id),
+    }),
+    warp: (x, y) => { diver.x = x; diver.y = y; diver.maxDepth = Math.max(diver.maxDepth, y); },
+    forceStruggle: (id) => {
+      const f = fishes.find(f => f.alive && f.id === id) || fishes[0];
+      struggle = { f, need: 5, taps: 0, timer: 3, dur: 3, quality: "good" };
+      state = "struggle";
+    },
+    audio: () => ({ soundOn, hasAC: !!AC, acState: AC && AC.state }),
+  };
+}
 
 canvas.width = VW; canvas.height = VH;
 initSprites();
