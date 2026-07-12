@@ -95,11 +95,30 @@ const QUOTES = [
   "無理な深追いはしない。海は明日もある。",
   "車の鍵、防水ケースに入れた？",
   "ベタ凪の日に練習を。荒れた日に休息を。",
+  "波の声を聞く。海は今、何を言っている？",
+  "魚と同じ時間で呼吸する。急ぐな。",
+  "最後の一匹より、生きて帰ること。",
+  "濁りの先に、大物は隠れている。",
+  "潜れない日もある。それも海の判断だ。",
+  "指先で岩を読む。足跡は語る。",
+  "獲物の前に、己の限界を知れ。",
+  "浮上時、ゆっくり。焦りが事故を呼ぶ。",
+  "素晴らしい漁とは、無事に帰ること。",
+  "海の贈り物を、足りるだけ。",
 ];
+
+// localStorageが使えない環境（埋め込みサンドボックス等）ではメモリに退避
+const store = (() => {
+  try { const s = localStorage; s.getItem("__t"); return s; }
+  catch (_) {
+    const m = {};
+    return { getItem: k => (k in m ? m[k] : null), setItem: (k, v) => { m[k] = String(v); } };
+  }
+})();
 
 function loadJSON(key, fallback) {
   try {
-    const raw = localStorage.getItem(key);
+    const raw = store.getItem(key);
     return raw ? JSON.parse(raw) : fallback;
   } catch (_) {
     return fallback;
@@ -107,7 +126,7 @@ function loadJSON(key, fallback) {
 }
 
 function saveJSON(key, value) {
-  try { localStorage.setItem(key, JSON.stringify(value)); } catch (_) {}
+  try { store.setItem(key, JSON.stringify(value)); } catch (_) {}
 }
 
 function localDateKey(date = new Date()) {
@@ -123,7 +142,7 @@ function daySerial(key) {
 }
 
 // ---------- サウンド（依存なし・WebAudioで全部合成） ----------
-let soundOn = localStorage.getItem("isomoguri_snd") !== "0";
+let soundOn = store.getItem("isomoguri_snd") !== "0";
 let AC = null, bgmGain = null, sfxGain = null, bgmTimer = null, bgmStep = 0, unlockEl = null;
 // iOSのマナーモード（サイレントスイッチ）はWebAudioを消音するので、
 // 無音の<audio>をループ再生してオーディオセッションを「再生」カテゴリに切り替える
@@ -223,6 +242,13 @@ const sfx = {
     tone(311, t + 0.44, 0.45, "triangle", 0.16);
   },
   surface: () => arp([523, 659, 784, 1046], 0.08, 0.2),
+  record:  () => arp([784, 988, 1175, 1568], 0.07, 0.18),
+  nushi:   () => { // ヌシの気配（低く不穏なうねり）
+    if (!AC || !soundOn) return;
+    const t = AC.currentTime;
+    tone(98, t, 0.5, "triangle", 0.22);
+    tone(92, t + 0.5, 0.9, "triangle", 0.2);
+  },
 };
 
 // ---------- ドット絵（仮アセット。後でfal生成に差し替え） ----------
@@ -344,6 +370,12 @@ const SPECIES = {
 };
 for (const [id, sp] of Object.entries(SPECIES)) sp.id = id; // リザルトで図柄を引くため
 
+// 平均全長cm（サイズ個体差と自己記録の基準）
+const LEN = { mebaru: 25, mejina: 40, kasago: 27, nizadai: 38, ishidai: 55, hakofugu: 20,
+              hiramasa: 90, kue: 110, akahata: 35, hirame: 65, kawahagi: 24,
+              takanohadai: 42, aobudai: 45, madai: 70 };
+for (const [id, sp] of Object.entries(SPECIES)) sp.len = LEN[id] || 30;
+
 const DAILY_TARGET_IDS = ["mebaru", "mejina", "kasago", "nizadai", "kawahagi", "akahata"];
 
 function dailyTargetFor(key) {
@@ -385,11 +417,11 @@ ctx.imageSmoothingEnabled = false;
 
 let sprites = {};
 let state, diver, fishes, rocks, weeds, bubbles, popups;
-let oxygen, bag, cuteBonus, comboBonus, dailyBonus, discoveryBonus, surfaceBonus;
+let oxygen, bag, cuteBonus, comboBonus, dailyBonus, discoveryBonus, surfaceBonus, sizeBonus, bestCatch;
 let combo, runBestCombo, cam, camX, tGame, aim, struggle, resultData, catchCut, shotFx;
 let hintShown, quote, careWord;
 let tapGuardUntil = 0, screenShake = 0, flash = 0;
-let highScore = Number(localStorage.getItem("isomoguri_hs") || 0);
+let highScore = Number(store.getItem("isomoguri_hs") || 0);
 let dex = loadJSON("isomoguri_dex", {}); // { fishId: { caught: N, seen: N } }
 let progress = Object.assign(
   { dives: 0, totalCaught: 0, streak: 0, lastDay: "", bestCombo: 0 },
@@ -434,6 +466,7 @@ function reset() {
   diver = { x: WORLD_W / 2, y: 8, vx: 0, vy: 0, angle: Math.PI / 2, maxDepth: 0 };
   oxygen = O2_MAX;
   bag = []; cuteBonus = 0; comboBonus = 0; dailyBonus = 0; discoveryBonus = 0; surfaceBonus = 0;
+  sizeBonus = 0; bestCatch = null;
   combo = 0; runBestCombo = 0;
   cam = 0; camX = WORLD_W / 2 - VW / 2; tGame = 0;
   aim = null; struggle = null; resultData = null; catchCut = null; shotFx = null;
@@ -498,14 +531,26 @@ function spawnFish() {
       const members = sp.school || 1;
       const jx = sp.onRock ? 8 : 40, jy = sp.onRock ? 4 : 30;
       for (let m = 0; m < members; m++) {
+        // サイズ個体差（ペナルティ魚は固定）。得点と自己記録cmの元になる
+        const szMul = sp.pts > 0 ? 0.85 + Math.random() * 0.45 : 1;
         fishes.push({
-          id, sp,
+          id, sp, szMul, cm: Math.round(sp.len * szMul),
           x: hx + (Math.random() * jx - jx / 2), y: hy + (Math.random() * jy - jy / 2),
           hx, hy, vx: 0, vy: 0, dir: Math.random() < 0.5 ? 1 : -1,
           wt: Math.random() * 2, fleeT: 0, cuteT: 0, cuteDone: false,
-          alive: true, wound: false,
+          alive: true, wound: false, nushi: false, noticed: false,
         });
       }
+    }
+  }
+  // ヌシ：低確率で1匹だけ特大個体が出る（出会えたら大チャンス）
+  if (Math.random() < 0.22) {
+    const cands = fishes.filter(f => ["ishidai", "hiramasa", "madai", "kue", "akahata"].includes(f.id));
+    const f = cands[(Math.random() * cands.length) | 0];
+    if (f) {
+      f.nushi = true;
+      f.szMul = 1.7 + Math.random() * 0.35;
+      f.cm = Math.round(f.sp.len * f.szMul);
     }
   }
 }
@@ -587,7 +632,7 @@ function onUp(e) {
     // サウンドON/OFFボタン（左上）
     if (g.x >= 6 && g.x <= 40 && g.downY >= 6 && g.downY <= 22) {
       soundOn = !soundOn;
-      localStorage.setItem("isomoguri_snd", soundOn ? "1" : "0");
+      store.setItem("isomoguri_snd", soundOn ? "1" : "0");
       if (soundOn) { ensureAudio(); sfx.ui(); }
       else { if (AC) AC.suspend(); if (unlockEl) unlockEl.pause(); }
       return;
@@ -700,7 +745,9 @@ function fire() {
     breakCombo();
     flee(f, 2.0);
     sfx.miss();
-    popup(f.x, f.y, "外した！", "#cfd8e3");
+    // ギリギリ外しは「おしい！」でもう一回を誘う
+    const near = off < Math.min(0.48, POOR * mode.gauge) * 1.35;
+    popup(f.x, f.y, near ? "おしい！" : "外した！", near ? "#ffe066" : "#cfd8e3");
     state = "dive";
   }
 }
@@ -716,8 +763,9 @@ function struggleOrCatch(f, quality) {
     state = "dive"; return;
   }
   const mult = quality === "poor" ? 1.7 : 1.0;
-  const dur = (f.sp.stTime || 3.5) * mode.time;
-  struggle = { f, need: Math.max(3, Math.ceil(f.sp.taps * mult * mode.taps)),
+  const nushiMul = f.nushi ? 1.5 : 1;   // ヌシは大格闘
+  const dur = (f.sp.stTime || 3.5) * mode.time * (f.nushi ? 1.35 : 1);
+  struggle = { f, need: Math.max(3, Math.ceil(f.sp.taps * mult * mode.taps * nushiMul)),
                taps: 0, timer: dur, dur, quality };
   state = "struggle";
 }
@@ -734,7 +782,9 @@ function struggleTap() {
     const reward = catchFish(f, quality);
     sfx.keep();
     haptic(22);
-    catchCut = { id: f.id, sp: f.sp, t: 1.5, dur: 1.5, crit: false, ...reward };
+    if (f.nushi) { flash = 0.25; screenShake = Math.max(screenShake, 5); }
+    catchCut = { id: f.id, sp: f.sp, t: f.nushi ? 2.4 : 1.5, dur: f.nushi ? 2.4 : 1.5,
+                 crit: false, ...reward };
     struggle = null; state = "dive";
     armTapGuard();
   }
@@ -764,14 +814,19 @@ function catchFish(f, quality) {
   dex[f.id].seen = 1;
   dex[f.id].caught++;
 
-  let chainBonus = 0, o2Bonus = 0, discovery = 0, mission = 0;
+  let chainBonus = 0, o2Bonus = 0, discovery = 0, mission = 0, newRec = false;
+  let award = f.sp.pts;
   if (f.sp.pts > 0) {
+    // サイズとヌシで基礎点が変わる（大物ほど高い）
+    const base = Math.round(f.sp.pts * (f.szMul || 1) * (f.nushi ? 2 : 1) / 5) * 5;
+    sizeBonus += base - f.sp.pts;
     combo++;
     runBestCombo = Math.max(runBestCombo, combo);
     progress.bestCombo = Math.max(progress.bestCombo, combo);
     const multiplier = 1 + Math.min(4, combo - 1) * 0.2;
-    chainBonus = Math.floor(f.sp.pts * (multiplier - 1));
+    chainBonus = Math.floor(base * (multiplier - 1));
     comboBonus += chainBonus;
+    award = base + chainBonus;
     if (wasNew) {
       discovery = 150;
       discoveryBonus += discovery;
@@ -780,6 +835,20 @@ function catchFish(f, quality) {
     if (quality === "crit") {
       o2Bonus = 1.5;
       oxygen = Math.min(O2_MAX, oxygen + o2Bonus);
+    }
+    // 種ごとの自己記録（cm）。初捕獲は記録扱いにせず、更新時だけ祝う
+    const prevRec = dex[f.id].rec || 0;
+    if (f.cm > prevRec) {
+      dex[f.id].rec = f.cm;
+      if (prevRec > 0) {
+        newRec = true;
+        sfx.record();
+        screenShake = Math.max(screenShake, 3);
+        popup(f.x, f.y - 30, "自己記録！ " + f.cm + "cm", "#ffe066");
+      }
+    }
+    if (!bestCatch || award > bestCatch.award) {
+      bestCatch = { id: f.id, sp: f.sp, cm: f.cm, award, nushi: !!f.nushi };
     }
   } else {
     breakCombo();
@@ -800,18 +869,21 @@ function catchFish(f, quality) {
   saveJSON("isomoguri_progress", progress);
   saveJSON("isomoguri_dex", dex);
   return {
-    award: f.sp.pts + chainBonus,
+    award,
     chainBonus,
     combo,
     o2Bonus,
     discovery,
     mission,
+    cm: f.cm,
+    nushi: !!f.nushi,
+    newRec,
   };
 }
 
 // ---------- 更新 ----------
 function rawRunScore() {
-  return bag.reduce((sum, sp) => sum + sp.pts, 0) + cuteBonus + comboBonus + dailyBonus + discoveryBonus + surfaceBonus;
+  return bag.reduce((sum, sp) => sum + sp.pts, 0) + cuteBonus + comboBonus + dailyBonus + discoveryBonus + surfaceBonus + sizeBonus;
 }
 
 function resultRank(total, blackout) {
@@ -829,14 +901,14 @@ function endRun(blackout) {
   if (blackout) { total = Math.floor(total / 2); note = "ブラックアウト！ 獲物の半分を失った…"; }
   total = Math.floor(total * mode.score);
   const isNew = total > highScore;
-  if (isNew) { highScore = total; localStorage.setItem("isomoguri_hs", String(highScore)); }
+  if (isNew) { highScore = total; store.setItem("isomoguri_hs", String(highScore)); }
   progress.bestScore = Math.max(progress.bestScore || 0, total);
   saveJSON("isomoguri_progress", progress);
   saveJSON("isomoguri_dex", dex);
   if (!blackout) sfx.surface(); else sfx.bara();
   resultData = {
     total, note, isNew, rank: resultRank(total, blackout), blackout,
-    bonusTotal: comboBonus + dailyBonus + discoveryBonus + surfaceBonus,
+    bonusTotal: comboBonus + dailyBonus + discoveryBonus + surfaceBonus + sizeBonus,
     t: performance.now(),
   };
   state = "result";
@@ -933,6 +1005,12 @@ function update(dt) {
       f.x = Math.max(10, Math.min(WORLD_W - 10, f.x));
       f.y = Math.max(140, Math.min(WORLD_H - 30, f.y));
       if (Math.abs(f.vx) > 1) f.dir = f.vx < 0 ? 1 : -1;
+      // ヌシとの遭遇（一度だけ、不穏な音と気配）
+      if (f.nushi && !f.noticed && d < 190 && Math.abs(f.y - cam - VH / 2) < VH * 0.7) {
+        f.noticed = true;
+        sfx.nushi();
+        popup(f.x, f.y - 18, "……でかい。ヌシだ", "#ffe066");
+      }
       // ハコフグ観賞ボーナス
       if (f.sp.cute && !f.cuteDone && d < 45) {
         f.cuteT += dt;
@@ -1035,7 +1113,13 @@ function draw() {
     if (f.y < cam - 20 || f.y > cam + VH + 20) continue;
     if (dex[f.id] && dex[f.id].seen === 0) dex[f.id].seen = 1;
     const img = sprites[f.id];
-    const s = f.sp.size * spriteScale(f.id, f.sp.shape);
+    const s = f.sp.size * (f.szMul || 1) * spriteScale(f.id, f.sp.shape);
+    if (f.nushi) { // ヌシは金色の気配をまとう
+      ctx.fillStyle = "rgba(255,224,102," + (0.10 + 0.06 * Math.sin(tGame * 3)).toFixed(3) + ")";
+      ctx.beginPath();
+      ctx.arc(f.x, f.y, 18 * f.sp.size * f.szMul, 0, Math.PI * 2);
+      ctx.fill();
+    }
     ctx.save();
     ctx.translate(Math.round(f.x), Math.round(f.y + Math.sin(tGame * 2 + f.hx) * 1.5));
     ctx.scale(f.dir * s, s);
@@ -1063,7 +1147,7 @@ function draw() {
       if (blink) {
         ctx.strokeStyle = state === "aim" ? "#ffe066" : "rgba(255,224,102,0.6)";
         ctx.lineWidth = 1;
-        const r = 12 * tf.sp.size;
+        const r = 12 * tf.sp.size * (tf.szMul || 1);
         ctx.strokeRect(tf.x - r, tf.y - r * 0.7, r * 2, r * 1.4);
       }
     }
@@ -1301,10 +1385,22 @@ function drawCatch() {
   const cx = VW / 2, cy = 150;
   ctx.fillStyle = c.sad ? "rgba(15,20,42,0.82)" : "rgba(10,25,20,0.78)";
   ctx.fillRect(0, cy - 64, VW, 128);
-  const col = c.sad ? "#9ad8f0" : c.crit ? "#ffe066" : "#7bd88f";
+  const col = c.sad ? "#9ad8f0" : (c.nushi || c.crit) ? "#ffe066" : "#7bd88f";
   ctx.fillStyle = col;
   ctx.fillRect(0, cy - 64, VW, 2); ctx.fillRect(0, cy + 62, VW, 2);
-  const w = Math.min(140, 95 * c.sp.size) * (0.5 + 0.5 * pop) * (c.sad ? 1.25 : 1);
+  const w = Math.min(150, 95 * c.sp.size * (c.nushi ? 1.3 : 1)) * (0.5 + 0.5 * pop) * (c.sad ? 1.25 : 1);
+  // ヌシは金の後光
+  if (c.nushi) {
+    ctx.save();
+    ctx.translate(cx, cy - 10);
+    ctx.rotate(tGame * 0.5);
+    ctx.fillStyle = "rgba(255,224,102,0.12)";
+    for (let i = 0; i < 8; i++) {
+      ctx.rotate(Math.PI / 4);
+      ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(70, -11); ctx.lineTo(70, 11); ctx.closePath(); ctx.fill();
+    }
+    ctx.restore();
+  }
   // 悲しい時はゆっくり首を振る。嬉しい時は小さく揺れる
   const rot = c.sad ? Math.sin(tGame * 1.6) * 0.06 : Math.sin(tGame * 2.5) * 0.05;
   drawBigFish(c.id, cx, cy - 10, w, rot);
@@ -1319,17 +1415,21 @@ function drawCatch() {
   const points = award > 0 ? "+" + award : String(award);
   const label = c.sad
     ? "ハコフグ…ごめん… " + points + "pt"
-    : (c.crit ? "会心！ " : "") + c.sp.name + " キープ！ " + points + "pt";
+    : c.nushi
+    ? "ヌシを仕留めた！！ " + points + "pt"
+    : (c.crit ? "会心！ " : "") + c.sp.name + (c.cm ? " " + c.cm + "cm" : "") + " キープ！ " + points + "pt";
   ctx.fillText(label, cx, cy + 48);
   if (c.sad) {
     ctx.font = "bold 8px monospace"; ctx.fillStyle = "#7f9db8";
     ctx.fillText("（ハコフグは見つめるとボーナス）", cx, cy + 60);
   } else {
     const detail = [];
+    if (c.nushi) detail.push(`${c.sp.name} ${c.cm}cm`);
+    if (c.newRec) detail.push("自己記録！");
     if (c.combo >= 2) detail.push(`${c.combo}連続`);
     if (c.o2Bonus) detail.push(`O2 +${c.o2Bonus.toFixed(1)}`);
     if (detail.length) {
-      ctx.font = "bold 8px monospace"; ctx.fillStyle = "#cfd8e3";
+      ctx.font = "bold 8px monospace"; ctx.fillStyle = c.newRec ? "#ffe066" : "#cfd8e3";
       ctx.fillText(detail.join("　"), cx, cy + 60);
     }
   }
@@ -1364,8 +1464,8 @@ function drawResult() {
     ctx.fillText("NEW RECORD", VW / 2, 58);
   }
 
-  // 一番の獲物をどーんと見せる
-  const best = bag.filter(sp => sp.pts > 0).sort((a, b) => b.pts - a.pts)[0];
+  // 一番の獲物をどーんと見せる（サイズ・ヌシ込みの実獲得点で選ぶ）
+  const best = bestCatch;
   let y = 154;
   if (best) {
     const cy = 98;
@@ -1379,7 +1479,7 @@ function drawResult() {
       ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(78, -13); ctx.lineTo(78, 13); ctx.closePath(); ctx.fill();
     }
     ctx.restore();
-    drawBigFish(best.id, VW / 2, cy, Math.min(118, 78 * best.size),
+    drawBigFish(best.id, VW / 2, cy, Math.min(118, 78 * best.sp.size * (best.nushi ? 1.25 : 1)),
                 Math.sin(tGame * 2) * 0.06);
     // キラキラ
     ctx.fillStyle = "#ffe066";
@@ -1391,7 +1491,8 @@ function drawResult() {
     }
     ctx.globalAlpha = 1;
     ctx.font = "bold 9px monospace"; ctx.fillStyle = "#ffe066";
-    ctx.fillText("本日の一番　" + best.name + " " + best.pts + "pt", VW / 2, cy + 48);
+    ctx.fillText("本日の一番　" + (best.nushi ? "ヌシ・" : "") + best.sp.name + " " +
+                 best.cm + "cm " + best.award + "pt", VW / 2, cy + 48);
   } else {
     // ボウズ：ダイバーがぷかぷか浮かぶ
     const img = sprites.diver;
@@ -1492,6 +1593,10 @@ function drawDex() {
     const mark = isCaught ? "✓" : d.seen > 0 ? "◇" : "・";
     ctx.fillText(`${mark} ${name}`, 20, y);
     if (isCaught) {
+      if (d.rec) { // 自己記録cm
+        ctx.fillStyle = "#9ad8f0";
+        ctx.fillText(`記録${d.rec}cm`, 126, y);
+      }
       ctx.fillStyle = "#ffe066";
       ctx.fillText(`×${d.caught}`, VW - 40, y);
     }

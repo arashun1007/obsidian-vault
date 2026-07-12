@@ -56,5 +56,29 @@ echo "→ $OUT"
 if [ -n "$PUBLIC_OUT" ]; then
   mkdir -p "$(dirname "$PUBLIC_OUT")"
   cp "$OUT" "$PUBLIC_OUT"
-  echo "→ $PUBLIC_OUT"
+  # 公開版にはPWA用のマニフェスト・アイコン・Service Worker登録を差し込む
+  # （manifest.json / service-worker.js / icon-*.png は docs/isomoguri/ に置いてある）
+  python3 - "$PUBLIC_OUT" <<'PYEOF'
+import sys
+p = sys.argv[1]
+s = open(p, encoding="utf-8").read()
+head = """<meta name="theme-color" content="#06263f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="manifest" href="manifest.json">"""
+sw = """<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('service-worker.js')
+        .then(reg => console.log('Service Worker registered with scope:', reg.scope))
+        .catch(err => console.error('Service Worker registration failed:', err));
+    });
+  }
+</script>"""
+s = s.replace("<title>いそもぐり</title>", "<title>いそもぐり</title>\n" + head, 1)
+s = s.replace("</body>", sw + "\n</body>", 1)
+open(p, "w", encoding="utf-8").write(s)
+PYEOF
+  echo "→ $PUBLIC_OUT (PWA対応)"
 fi
