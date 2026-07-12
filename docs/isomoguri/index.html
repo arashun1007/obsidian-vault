@@ -4,6 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>いそもぐり</title>
+<meta name="theme-color" content="#06263f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="manifest" href="manifest.json">
 <style>
   html, body {
     margin: 0; padding: 0; background: #04121f;
@@ -1555,6 +1560,15 @@ initSprites();
 reset();
 fit();
 requestAnimationFrame(frame);
+</script>
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('service-worker.js')
+        .then(reg => console.log('Service Worker registered with scope:', reg.scope))
+        .catch(err => console.error('Service Worker registration failed:', err));
+    });
+  }
 </script>
 </body>
 </html>
