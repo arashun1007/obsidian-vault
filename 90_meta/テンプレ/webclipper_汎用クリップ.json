@@ -1,0 +1,31 @@
+{
+  "schemaVersion": "0.1.0",
+  "name": "汎用クリップ",
+  "behavior": "create",
+  "noteNameFormat": "{{title|safe_name}}",
+  "path": "00_inbox",
+  "properties": [
+    {
+      "name": "title",
+      "value": "{{title}}",
+      "type": "text"
+    },
+    {
+      "name": "source",
+      "value": "{{url}}",
+      "type": "text"
+    },
+    {
+      "name": "clipped",
+      "value": "{{date|date:\"YYYY-MM-DD\"}}",
+      "type": "date"
+    },
+    {
+      "name": "tags",
+      "value": "clip",
+      "type": "multitext"
+    }
+  ],
+  "triggers": [],
+  "noteContentFormat": "> [!info] クリップ元\n> {{url}}（クリップ日: {{date|date:\"YYYY-MM-DD\"}}）\n\n{{content}}\n"
+}
