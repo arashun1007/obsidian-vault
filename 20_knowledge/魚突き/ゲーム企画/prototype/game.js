@@ -4,11 +4,25 @@
 
 // ---------- 定数 ----------
 const VW = 240, VH = 400;          // 論理解像度
+const WORLD_W = 560;               // 横に約2.3画面分
 const WORLD_H = 2000;              // 20m（1m = 100px）
 const PX_PER_M = 100;
 const O2_MAX = 60;                 // 秒
 const SPEAR_RANGE = 85;
-const CRIT = 0.07, GOOD = 0.18, POOR = 0.35; // ゲージ中央からの距離
+const CRIT = 0.07, GOOD = 0.18, POOR = 0.35; // ゲージ中央からの距離（標準時）
+
+// 海況＝プレイヤーが選ぶ難易度（企画書 §5）
+const MODES = {
+  nagi:  { name: "ベタ凪",       desc: "判定甘め・練習向き",
+           gauge: 1.6,  taps: 0.7,  time: 1.2, flee: 0.85, o2: 1.0, drift: 0,  sway: 0, murk: 0, score: 1 },
+  uneri: { name: "ちょいうねり", desc: "標準。魚は少し敏感",
+           gauge: 1.0,  taps: 1.0,  time: 1.0, flee: 1.15, o2: 1.0, drift: 10, sway: 1, murk: 0, score: 1 },
+  arare: { name: "激荒れ",       desc: "濁り・流れ・スコア2倍",
+           gauge: 0.75, taps: 1.15, time: 0.9, flee: 1.3,  o2: 1.2, drift: 24, sway: 2, murk: 1, score: 2 },
+};
+const MODE_KEYS = ["nagi", "uneri", "arare"];
+let mode = MODES.nagi;
+let current = 1; // 激荒れの横流れの向き
 
 const QUOTES = [
   "忘れ物はない？ フィン、ウエイト、ナイフ、フロート。",
@@ -22,6 +36,99 @@ const QUOTES = [
   "車の鍵、防水ケースに入れた？",
   "ベタ凪の日に練習を。荒れた日に休息を。",
 ];
+
+// ---------- サウンド（依存なし・WebAudioで全部合成） ----------
+let soundOn = localStorage.getItem("isomoguri_snd") !== "0";
+let AC = null, bgmGain = null, sfxGain = null, bgmTimer = null, bgmStep = 0;
+
+const NOTE = (m) => 440 * Math.pow(2, (m - 69) / 12); // MIDIノート→Hz
+// 32ステップ（8分音符）ループ。Aマイナーペンタでゆったり漂う感じ。0=休符
+const BGM_MELODY = [
+  69, 0, 72, 74,  76, 0, 74, 72,  69, 0, 67, 0,   64, 0, 67, 0,
+  69, 0, 72, 74,  76, 0, 79, 76,  74, 72, 69, 67, 64, 0, 0, 0,
+];
+const BGM_BASS = [
+  45, 0, 0, 0,  41, 0, 0, 0,  43, 0, 0, 0,  40, 0, 43, 0,
+  45, 0, 0, 0,  41, 0, 0, 0,  43, 0, 43, 0, 45, 0, 0, 0,
+];
+const BGM_STEP_SEC = 0.27;
+
+function ensureAudio() { // 初回のタップ/クリックで呼ぶ（自動再生制限対策）
+  if (!soundOn) return;
+  if (!AC) {
+    AC = new (window.AudioContext || window.webkitAudioContext)();
+    const master = AC.createGain();
+    master.gain.value = 0.9;
+    master.connect(AC.destination);
+    bgmGain = AC.createGain(); bgmGain.gain.value = 0.55; bgmGain.connect(master);
+    sfxGain = AC.createGain(); sfxGain.gain.value = 0.8;  sfxGain.connect(master);
+    startBGM();
+  }
+  if (AC.state === "suspended") AC.resume();
+}
+
+function tone(freq, at, dur, type, vol, dest) {
+  const o = AC.createOscillator(), g = AC.createGain();
+  o.type = type; o.frequency.value = freq;
+  g.gain.setValueAtTime(vol, at);
+  g.gain.exponentialRampToValueAtTime(0.001, at + dur);
+  o.connect(g); g.connect(dest || sfxGain);
+  o.start(at); o.stop(at + dur + 0.03);
+}
+
+function startBGM() {
+  bgmStep = 0;
+  let next = AC.currentTime + 0.15;
+  bgmTimer = setInterval(() => {
+    if (!AC || AC.state !== "running") return;
+    while (next < AC.currentTime + 0.6) { // 0.6秒先まで予約
+      const i = bgmStep % 32;
+      if (BGM_MELODY[i]) tone(NOTE(BGM_MELODY[i]), next, BGM_STEP_SEC * 0.95, "square", 0.055, bgmGain);
+      if (BGM_BASS[i])   tone(NOTE(BGM_BASS[i]),   next, BGM_STEP_SEC * 2.2,  "triangle", 0.14, bgmGain);
+      bgmStep++; next += BGM_STEP_SEC;
+    }
+  }, 120);
+}
+
+function sweep(f0, f1, dur, type, vol) { // 周波数スライドの効果音
+  if (!AC || !soundOn) return;
+  const t = AC.currentTime;
+  const o = AC.createOscillator(), g = AC.createGain();
+  o.type = type;
+  o.frequency.setValueAtTime(f0, t);
+  o.frequency.exponentialRampToValueAtTime(Math.max(30, f1), t + dur);
+  g.gain.setValueAtTime(vol, t);
+  g.gain.exponentialRampToValueAtTime(0.001, t + dur);
+  o.connect(g); g.connect(sfxGain);
+  o.start(t); o.stop(t + dur + 0.03);
+}
+function blip(freq, dur, type, vol) {
+  if (!AC || !soundOn) return;
+  tone(freq, AC.currentTime, dur, type, vol);
+}
+function arp(freqs, step, dur) { // 上昇アルペジオ（キャッチ音）
+  if (!AC || !soundOn) return;
+  const t = AC.currentTime;
+  freqs.forEach((f, i) => tone(f, t + i * step, dur, "square", 0.12));
+}
+const sfx = {
+  ui:    () => blip(660, 0.07, "square", 0.1),
+  shoot: () => sweep(950, 220, 0.13, "sawtooth", 0.13),
+  tap:   () => blip(500 + Math.random() * 90, 0.05, "square", 0.11),
+  crit:  () => arp([880, 1108, 1318, 1760], 0.06, 0.16),
+  keep:  () => arp([659, 830, 988], 0.09, 0.16),
+  miss:  () => sweep(320, 140, 0.16, "square", 0.1),
+  bara:  () => sweep(520, 110, 0.4, "sawtooth", 0.12),
+  warn:  () => { blip(880, 0.09, "square", 0.1); if (AC) tone(880, AC.currentTime + 0.15, 0.09, "square", 0.1); },
+  sad:   () => { // ハコフグごめんね（下がるワウワウ）
+    if (!AC || !soundOn) return;
+    const t = AC.currentTime;
+    tone(392, t, 0.2, "triangle", 0.16);
+    tone(370, t + 0.22, 0.2, "triangle", 0.16);
+    tone(311, t + 0.44, 0.45, "triangle", 0.16);
+  },
+  surface: () => arp([523, 659, 784, 1046], 0.08, 0.2),
+};
 
 // ---------- ドット絵（仮アセット。後でfal生成に差し替え） ----------
 const OUTLINE = "#1a1f2e";
@@ -105,16 +212,22 @@ const SPECIES = {
               depth: [3, 11], speed: 26, flee: 70, taps: 8,  school: 4, count: 2 },
   kasago:   { name: "カサゴ",   pts: 130,  shape: "rock", size: 1.0,
               colors: { b: "#b05039", d: "#7c2f1d", l: "#e8b48f" },
-              depth: [9, 19], speed: 3,  flee: 0,  taps: 6,  sit: true, count: 4 },
+              depth: [6, 20], speed: 3,  flee: 0,  taps: 6,  sit: true, onRock: true, count: 4 },
   nizadai:  { name: "ニザダイ", pts: 30,   shape: "fish", size: 1.1,
               colors: { b: "#8a8f98", d: "#4a4f58", l: "#c5c9d0" },
               depth: [4, 15], speed: 20, flee: 55, taps: 8,  school: 5, count: 1 },
   ishidai:  { name: "イシダイ", pts: 400,  shape: "fish", size: 1.25, stripes: true,
               colors: { b: "#e8e4d8", d: "#22242a", l: "#ffffff" },
-              depth: [9, 19], speed: 30, flee: 85, taps: 14, count: 2 },
+              depth: [5, 13], speed: 30, flee: 85, taps: 14, count: 2 },
   hakofugu: { name: "ハコフグ", pts: -100, shape: "box",  size: 0.95, cute: true,
               colors: { b: "#f2c94c", d: "#3a3a1a", l: "#fdf3c8" },
               depth: [3, 13], speed: 6,  flee: 25, taps: 0,  count: 2 },
+  hiramasa: { name: "ヒラマサ", pts: 600,  shape: "fish", size: 1.6,
+              colors: { b: "#c9d6de", d: "#e8c93e", l: "#eef4f8" },
+              depth: [2, 8],  speed: 55, flee: 95, taps: 15, school: 2, count: 1 },
+  kue:      { name: "クエ",     pts: 800,  shape: "rock", size: 1.9,
+              colors: { b: "#6b5d4f", d: "#443a30", l: "#a89880" },
+              depth: [14, 20], speed: 8, flee: 40, taps: 16, stTime: 4.5, sit: true, onRock: true, count: 1 },
 };
 
 // ---------- 状態 ----------
@@ -124,9 +237,10 @@ ctx.imageSmoothingEnabled = false;
 
 let sprites = {};
 let state, diver, fishes, rocks, weeds, bubbles, popups;
-let oxygen, bag, cuteBonus, cam, tGame, aim, struggle, resultData;
+let oxygen, bag, cuteBonus, cam, camX, tGame, aim, struggle, resultData, catchCut;
 let hintShown, quote, careWord;
 let highScore = Number(localStorage.getItem("isomoguri_hs") || 0);
+let dex = JSON.parse(localStorage.getItem("isomoguri_dex") || "{}"); // { fishId: { caught: N, seen: N } }
 
 // 描画時の基準幅（生成アセットはこの幅に揃えて表示する）
 const BASE_W = { fish: 16, rock: 14, box: 11, diver: 24 };
@@ -143,6 +257,13 @@ function initSprites() {
     img.onload = () => { sprites[id] = img; };
     img.src = src[id] || "assets/" + id + ".png";
   }
+  // カットイン用のアップ画像（無ければ通常スプライトを拡大表示）
+  // hakofugu_sad はハコフグを突いた時の「ごめんね」演出専用
+  for (const id of [...Object.keys(SPECIES), "hakofugu_sad"]) {
+    const img = new Image();
+    img.onload = () => { sprites[id + "_big"] = img; };
+    img.src = src[id + "_big"] || "assets/" + id + "_big.png";
+  }
 }
 
 function spriteScale(id, shape) {
@@ -152,13 +273,14 @@ function spriteScale(id, shape) {
 
 function reset() {
   state = "title";
-  diver = { x: VW / 2, y: 8, vx: 0, vy: 0, angle: Math.PI / 2, maxDepth: 0 };
+  diver = { x: WORLD_W / 2, y: 8, vx: 0, vy: 0, angle: Math.PI / 2, maxDepth: 0 };
   oxygen = O2_MAX;
   bag = []; cuteBonus = 0;
-  cam = 0; tGame = 0;
-  aim = null; struggle = null; resultData = null;
+  cam = 0; camX = WORLD_W / 2 - VW / 2; tGame = 0;
+  aim = null; struggle = null; resultData = null; catchCut = null;
   popups = []; bubbles = [];
   hintShown = false;
+  current = Math.random() < 0.5 ? -1 : 1;
   quote = QUOTES[(Math.random() * QUOTES.length) | 0];
   careWord = QUOTES[(Math.random() * 2) | 0]; // 先頭2つはケアワード
   spawnTerrain();
@@ -168,36 +290,51 @@ function reset() {
 function spawnTerrain() {
   rocks = []; weeds = [];
   // 海底の岩盤
-  for (let x = -10; x < VW + 10; x += 18) {
+  for (let x = -10; x < WORLD_W + 10; x += 18) {
     rocks.push({ x, y: WORLD_H - 20 + Math.random() * 25, r: 16 + Math.random() * 14 });
   }
-  // 中層の根（左右交互）
+  // 中層の根（各層に2クラスタ、横位置ランダム）
   for (let y = 500; y < WORLD_H - 150; y += 260) {
-    const left = (y / 260) % 2 < 1;
-    const bx = left ? 10 : VW - 10;
-    for (let i = 0; i < 4; i++) {
-      rocks.push({ x: bx + (left ? 1 : -1) * i * 14 + (Math.random() * 10 - 5),
-                   y: y + Math.random() * 40, r: 10 + Math.random() * 12 });
+    for (let c = 0; c < 2; c++) {
+      const bx = 30 + Math.random() * (WORLD_W - 60);
+      for (let i = 0; i < 4; i++) {
+        rocks.push({ x: bx + i * 14 - 21 + (Math.random() * 10 - 5),
+                     y: y + Math.random() * 40, r: 10 + Math.random() * 12 });
+      }
+      if (Math.random() < 0.8) weeds.push({ x: bx, y: y - 10, h: 40 + Math.random() * 30 });
     }
-    if (Math.random() < 0.8) weeds.push({ x: bx + (left ? 1 : -1) * 20, y: y - 10, h: 40 + Math.random() * 30 });
   }
-  for (let i = 0; i < 8; i++) {
-    weeds.push({ x: 20 + Math.random() * (VW - 40), y: WORLD_H - 25, h: 45 + Math.random() * 40 });
+  for (let i = 0; i < 18; i++) {
+    weeds.push({ x: 20 + Math.random() * (WORLD_W - 40), y: WORLD_H - 25, h: 45 + Math.random() * 40 });
   }
 }
 
 function spawnFish() {
   fishes = [];
   for (const [id, sp] of Object.entries(SPECIES)) {
+    // 図鑑: この種を見た
+    if (!dex[id]) dex[id] = { caught: 0, seen: 0 };
+    if (dex[id].seen === 0) dex[id].seen = 1;
+
     for (let n = 0; n < sp.count; n++) {
-      const dep = sp.depth[0] + Math.random() * (sp.depth[1] - sp.depth[0]);
-      const hy = dep * PX_PER_M;
-      const hx = 25 + Math.random() * (VW - 50);
+      let hx, hy;
+      if (sp.onRock) {
+        // 深度帯に合う岩の上に付く（カサゴ・クエ。中層に浮かせない）
+        const cands = rocks.filter(r =>
+          r.y >= sp.depth[0] * PX_PER_M && r.y <= Math.min(sp.depth[1] * PX_PER_M + 100, WORLD_H));
+        const r = cands[(Math.random() * cands.length) | 0];
+        hx = r.x; hy = r.y - r.r - 5;
+      } else {
+        const dep = sp.depth[0] + Math.random() * (sp.depth[1] - sp.depth[0]);
+        hy = dep * PX_PER_M;
+        hx = 25 + Math.random() * (WORLD_W - 50);
+      }
       const members = sp.school || 1;
+      const jx = sp.onRock ? 8 : 40, jy = sp.onRock ? 4 : 30;
       for (let m = 0; m < members; m++) {
         fishes.push({
           id, sp,
-          x: hx + (Math.random() * 40 - 20), y: hy + (Math.random() * 30 - 15),
+          x: hx + (Math.random() * jx - jx / 2), y: hy + (Math.random() * jy - jy / 2),
           hx, hy, vx: 0, vy: 0, dir: Math.random() < 0.5 ? 1 : -1,
           wt: Math.random() * 2, fleeT: 0, cuteT: 0, cuteDone: false,
           alive: true, wound: false,
@@ -217,6 +354,7 @@ function toGame(e) {
 }
 function onDown(e) {
   e.preventDefault();
+  ensureAudio(); // ブラウザの自動再生制限はユーザー操作で解除される
   const p = toGame(e);
   ptr.down = true; ptr.x = p.x; ptr.y = p.y;
   ptr.downX = p.x; ptr.downY = p.y; ptr.downT = performance.now(); ptr.moved = 0;
@@ -235,10 +373,33 @@ function onUp(e) {
   const dt = performance.now() - ptr.downT;
   const isTap = dt < 280 && ptr.moved < 14;
   if (state === "title" && isTap) {
-    state = "dive";
-    diver.vy = 75; diver.angle = Math.PI / 2; // ジャックナイフで潜行開始
+    // サウンドON/OFFボタン（左上）
+    if (ptr.x >= 6 && ptr.x <= 40 && ptr.downY >= 6 && ptr.downY <= 22) {
+      soundOn = !soundOn;
+      localStorage.setItem("isomoguri_snd", soundOn ? "1" : "0");
+      if (soundOn) { ensureAudio(); sfx.ui(); }
+      else if (AC) AC.suspend();
+      return;
+    }
+    // 図鑑ボタン
+    if (ptr.x >= VW - 32 && ptr.x <= VW - 6 && ptr.downY >= 6 && ptr.downY <= 22) {
+      sfx.ui();
+      state = "dex"; return;
+    }
+    // 海況ボタン（3段）のヒット判定
+    for (let i = 0; i < 3; i++) {
+      const by = 292 + i * 34;
+      if (ptr.x >= 35 && ptr.x <= VW - 35 && ptr.downY >= by && ptr.downY <= by + 28) {
+        sfx.ui();
+        mode = MODES[MODE_KEYS[i]];
+        state = "dive";
+        diver.vy = 75; diver.angle = Math.PI / 2; // ジャックナイフで潜行開始
+        return;
+      }
+    }
     return;
   }
+  if (state === "dex" && isTap) { state = "title"; return; }
   if (state === "result" && isTap && performance.now() - resultData.t > 800) { reset(); return; }
   if (state === "dive" && isTap) tryAim();
   else if (state === "aim" && isTap) fire();
@@ -272,43 +433,52 @@ function fire() {
   const off = Math.abs(v - 0.5);
   aim = null;
   const spearDone = (fn) => { struggleOrCatch(f, fn); };
+  sfx.shoot();
   if (!f.alive || Math.hypot(f.x - diver.x, f.y - diver.y) > SPEAR_RANGE * 1.4) {
+    sfx.miss();
     popup(diver.x, diver.y - 20, "外した…", "#cfd8e3");
     state = "dive"; return;
   }
-  if (f.sp.cute) { // ハコフグは突いたら問答無用でマイナス
+  if (f.sp.cute) { // ハコフグは突いたら問答無用でマイナス。悲しいカットイン
     f.alive = false;
-    bag.push(f.sp);
-    popup(f.x, f.y, "ハコフグ…ごめん… -100", "#f2994a");
+    catchFish(f);
+    sfx.sad();
+    catchCut = { id: "hakofugu_sad", sp: f.sp, t: 2.2, dur: 2.2, sad: true };
     state = "dive"; return;
   }
-  if (off < CRIT)      spearDone("crit");
-  else if (off < GOOD) spearDone("good");
-  else if (off < POOR) spearDone("poor");
+  if (off < CRIT * mode.gauge)      spearDone("crit");
+  else if (off < GOOD * mode.gauge) spearDone("good");
+  else if (off < Math.min(0.48, POOR * mode.gauge)) spearDone("poor");
   else {
     flee(f, 2.0);
+    sfx.miss();
     popup(f.x, f.y, "外した！", "#cfd8e3");
     state = "dive";
   }
 }
 function struggleOrCatch(f, quality) {
   if (quality === "crit") {
-    f.alive = false; bag.push(f.sp);
-    popup(f.x, f.y, "会心！ " + f.sp.name + " +" + f.sp.pts, "#ffe066");
+    f.alive = false; catchFish(f);
+    sfx.crit();
+    catchCut = { id: f.id, sp: f.sp, t: 1.5, dur: 1.5, crit: true };
     state = "dive"; return;
   }
   const mult = quality === "poor" ? 1.7 : 1.0;
-  struggle = { f, need: Math.ceil(f.sp.taps * mult), taps: 0, timer: 3.5, quality };
+  const dur = (f.sp.stTime || 3.5) * mode.time;
+  struggle = { f, need: Math.max(3, Math.ceil(f.sp.taps * mult * mode.taps)),
+               taps: 0, timer: dur, dur, quality };
   state = "struggle";
 }
 function struggleTap() {
   if (!struggle) return;
   struggle.taps++;
+  sfx.tap();
   oxygen = Math.max(0, oxygen - 0.5);
   if (struggle.taps >= struggle.need) {
     const f = struggle.f;
-    f.alive = false; bag.push(f.sp);
-    popup(f.x, f.y, f.sp.name + " キープ！ +" + f.sp.pts, "#7bd88f");
+    f.alive = false; catchFish(f);
+    sfx.keep();
+    catchCut = { id: f.id, sp: f.sp, t: 1.5, dur: 1.5, crit: false };
     struggle = null; state = "dive";
   }
 }
@@ -317,12 +487,17 @@ function flee(f, mult) {
   const a = Math.atan2(f.y - diver.y, f.x - diver.x);
   f.vx = Math.cos(a) * f.sp.speed * 3 * (mult || 1);
   f.vy = Math.sin(a) * f.sp.speed * 3 * (mult || 1);
-  f.hx = Math.max(20, Math.min(VW - 20, f.x + f.vx * 3));
+  f.hx = Math.max(20, Math.min(WORLD_W - 20, f.x + f.vx * 3));
   f.hy = Math.max(150, Math.min(WORLD_H - 40, f.y + f.vy * 3));
 }
 function gaugeValue(t) { // 0→1→0 の往復（周期1.1秒）
   const c = (t % 1.1) / 1.1;
   return c < 0.5 ? c * 2 : (1 - c) * 2;
+}
+function catchFish(f) {
+  bag.push(f.sp);
+  if (!dex[f.id]) dex[f.id] = { caught: 0, seen: 0 };
+  dex[f.id].caught++;
 }
 
 // ---------- 更新 ----------
@@ -330,7 +505,10 @@ function endRun(blackout) {
   let total = bag.reduce((s, sp) => s + sp.pts, 0) + cuteBonus;
   let note = null;
   if (blackout) { total = Math.floor(total / 2); note = "ブラックアウト！ 獲物の半分を失った…"; }
+  total = Math.floor(total * mode.score);
   if (total > highScore) { highScore = total; localStorage.setItem("isomoguri_hs", String(highScore)); }
+  localStorage.setItem("isomoguri_dex", JSON.stringify(dex));
+  if (!blackout) sfx.surface(); else sfx.bara();
   resultData = { total, note, t: performance.now() };
   state = "result";
 }
@@ -338,32 +516,43 @@ function endRun(blackout) {
 function update(dt) {
   tGame += dt;
   const ts = state === "aim" ? 0.25 : 1;   // エイム中は時間スロー
+  // エイム集中中はBGMを絞る（水中の静けさ演出）
+  if (bgmGain) bgmGain.gain.value = state === "aim" ? 0.18 : 0.55;
 
   if (state === "dive" || state === "aim" || state === "struggle") {
     // 酸素
     const depthM = diver.y / PX_PER_M;
-    oxygen -= dt * (0.6 + depthM / 12);
+    oxygen -= dt * (0.6 + depthM / 12) * mode.o2;
     if (oxygen <= 0) { endRun(true); return; }
     if (!hintShown && oxygen < O2_MAX * 0.3) {
       hintShown = true;
+      sfx.warn();
       popup(diver.x, diver.y - 25, "そろそろ浮上！", "#ff8c8c");
     }
 
     // ダイバー移動（ホールドで指の方向へ）
     if (state === "dive") {
       if (ptr.down && ptr.moved > 6) {
-        const wx = ptr.x, wy = ptr.y + cam;
+        const wx = ptr.x + camX, wy = ptr.y + cam;
         const a = Math.atan2(wy - diver.y, wx - diver.x);
         diver.vx += Math.cos(a) * 230 * dt;
         diver.vy += Math.sin(a) * 230 * dt;
-        diver.angle = a;
       }
       diver.vx *= Math.pow(0.02, dt); diver.vy *= Math.pow(0.02, dt);
       diver.vy += 6 * dt; // ウエイトでわずかに沈む
       const sp = Math.hypot(diver.vx, diver.vy);
       const max = 115;
       if (sp > max) { diver.vx *= max / sp; diver.vy *= max / sp; }
-      diver.x = Math.max(8, Math.min(VW - 8, diver.x + diver.vx * dt));
+      // 体の向きは実際に進んでいる方向へ滑らかに追従
+      // （入力方向に即時に向けると、潜行中に上を向く等の不自然さが出る）
+      if (sp > 14) {
+        const ta = Math.atan2(diver.vy, diver.vx);
+        let dA = ta - diver.angle;
+        while (dA > Math.PI) dA -= Math.PI * 2;
+        while (dA < -Math.PI) dA += Math.PI * 2;
+        diver.angle += dA * Math.min(1, dt * 7);
+      }
+      diver.x = Math.max(8, Math.min(WORLD_W - 8, diver.x + (diver.vx + current * mode.drift) * dt));
       diver.y = Math.max(4, Math.min(WORLD_H - 10, diver.y + diver.vy * dt));
       diver.maxDepth = Math.max(diver.maxDepth, diver.y);
       if (diver.y <= 12 && diver.maxDepth > 60) { endRun(false); return; }
@@ -380,6 +569,7 @@ function update(dt) {
       if (struggle.timer <= 0) {
         const f = struggle.f;
         f.wound = true; flee(f, 2.5);
+        sfx.bara();
         popup(f.x, f.y, "バラした！", "#ff8c8c");
         struggle = null; state = "dive";
       }
@@ -392,7 +582,7 @@ function update(dt) {
       // 逃走
       if (f.fleeT > 0) {
         f.fleeT -= dt * ts;
-      } else if (f.sp.flee > 0 && d < f.sp.flee && Math.hypot(diver.vx, diver.vy) > 35) {
+      } else if (f.sp.flee > 0 && d < f.sp.flee * mode.flee && Math.hypot(diver.vx, diver.vy) > 35) {
         flee(f, 1);
       } else {
         // うろうろ
@@ -408,7 +598,7 @@ function update(dt) {
         }
       }
       f.x += f.vx * dt * ts; f.y += f.vy * dt * ts;
-      f.x = Math.max(10, Math.min(VW - 10, f.x));
+      f.x = Math.max(10, Math.min(WORLD_W - 10, f.x));
       f.y = Math.max(140, Math.min(WORLD_H - 30, f.y));
       if (Math.abs(f.vx) > 1) f.dir = f.vx < 0 ? 1 : -1;
       // ハコフグ観賞ボーナス
@@ -429,10 +619,13 @@ function update(dt) {
   bubbles = bubbles.filter(b => b.y > cam - 10 && b.y > 2);
   for (const p of popups) p.t -= dt;
   popups = popups.filter(p => p.t > 0);
+  if (catchCut) { catchCut.t -= dt; if (catchCut.t <= 0) catchCut = null; }
 
   // カメラ
   const targetCam = Math.max(0, Math.min(WORLD_H - VH, diver.y - 150));
   cam += (targetCam - cam) * Math.min(1, dt * 6);
+  const targetCamX = Math.max(0, Math.min(WORLD_W - VW, diver.x - VW / 2));
+  camX += (targetCamX - camX) * Math.min(1, dt * 6);
 }
 
 function popup(x, y, txt, color) { popups.push({ x, y, txt, color, t: 1.6 }); }
@@ -455,14 +648,14 @@ function draw() {
   ctx.fillRect(0, 0, VW, VH);
 
   ctx.save();
-  ctx.translate(0, -Math.round(cam));
+  ctx.translate(-Math.round(camX), -Math.round(cam));
 
   // 水面と光
   ctx.fillStyle = "rgba(255,255,255,0.5)";
-  ctx.fillRect(0, 0, VW, 3);
+  ctx.fillRect(0, 0, WORLD_W, 3);
   if (cam < 420) {
     ctx.fillStyle = "rgba(255,255,255,0.07)";
-    for (let i = 0; i < 4; i++) {
+    for (let i = 0; i < 10; i++) {
       const rx = 30 + i * 60 + Math.sin(tGame * 0.4 + i) * 8;
       ctx.beginPath();
       ctx.moveTo(rx, 0); ctx.lineTo(rx + 26, 0);
@@ -561,8 +754,10 @@ function draw() {
 
   drawHUD();
   if (state === "title") drawTitle();
+  if (state === "dex") drawDex();
   if (state === "aim") drawGauge();
   if (state === "struggle") drawStruggle();
+  if (catchCut && state === "dive") drawCatch();
   if (state === "result") drawResult();
 }
 
@@ -592,28 +787,58 @@ function drawHUD() {
 function drawTitle() {
   ctx.fillStyle = "rgba(4,18,34,0.78)";
   ctx.fillRect(0, 0, VW, VH);
+  // 図鑑ボタン
+  ctx.fillStyle = "rgba(20,40,60,0.8)";
+  ctx.fillRect(VW - 32, 6, 26, 16);
+  ctx.strokeStyle = "#9ad8f0"; ctx.lineWidth = 0.5;
+  ctx.strokeRect(VW - 31.5, 6.5, 25, 15);
+  ctx.textAlign = "center"; ctx.font = "bold 8px monospace";
+  ctx.fillStyle = "#9ad8f0";
+  ctx.fillText("図鑑", VW - 19, 17);
+  // サウンドボタン（左上）
+  ctx.fillStyle = "rgba(20,40,60,0.8)";
+  ctx.fillRect(6, 6, 34, 16);
+  ctx.strokeStyle = soundOn ? "#7bd88f" : "#5a6a7a"; ctx.lineWidth = 0.5;
+  ctx.strokeRect(6.5, 6.5, 33, 15);
+  ctx.fillStyle = soundOn ? "#7bd88f" : "#5a6a7a";
+  ctx.fillText(soundOn ? "♪ON" : "♪OFF", 23, 17);
+
   ctx.textAlign = "center";
   ctx.fillStyle = "#ffe066";
   ctx.font = "bold 22px monospace";
-  ctx.fillText("いそもぐり", VW / 2, 120);
+  ctx.fillText("いそもぐり", VW / 2, 92);
   ctx.font = "bold 9px monospace";
   ctx.fillStyle = "#9ad8f0";
-  ctx.fillText("― 仮・MVPプロトタイプ ―", VW / 2, 140);
-  ctx.fillStyle = "#fff";
-  ctx.fillText("海況：ベタ凪　潮：若潮", VW / 2, 180);
+  ctx.fillText("― 仮・MVPプロトタイプ ―", VW / 2, 110);
   ctx.fillStyle = "#cfd8e3";
-  ctx.fillText("ドラッグ＝泳ぐ", VW / 2, 215);
-  ctx.fillText("枠が出た魚の近くでタップ＝構える", VW / 2, 230);
-  ctx.fillText("ゲージ中央でもう一度タップ＝突く", VW / 2, 245);
-  ctx.fillText("魚が暴れたら連打！", VW / 2, 260);
+  ctx.fillText("ドラッグ＝泳ぐ", VW / 2, 142);
+  ctx.fillText("枠が出た魚の近くでタップ＝構える", VW / 2, 156);
+  ctx.fillText("ゲージ中央でもう一度タップ＝突く", VW / 2, 170);
+  ctx.fillText("魚が暴れたら連打！", VW / 2, 184);
   ctx.fillStyle = "#ffe066";
-  ctx.fillText("ハイスコア " + highScore + "pt", VW / 2, 295);
-  if (Math.sin(tGame * 3) > -0.2) {
-    ctx.fillStyle = "#fff";
-    ctx.fillText("タップで潜る", VW / 2, 330);
-  }
+  ctx.fillText("ハイスコア " + highScore + "pt", VW / 2, 210);
   ctx.fillStyle = "#7f9db8";
-  wrapText(careWord, VW / 2, 365, 200, 11);
+  wrapText(careWord, VW / 2, 232, 200, 11);
+  // 海況選択（タップで即潜行）
+  ctx.fillStyle = "#fff";
+  if (Math.sin(tGame * 3) > -0.2) ctx.fillText("海況をえらんで潜る", VW / 2, 284);
+  const cols = ["#7bd88f", "#ffe066", "#ff8c5c"];
+  for (let i = 0; i < 3; i++) {
+    const m = MODES[MODE_KEYS[i]];
+    const by = 292 + i * 34;
+    ctx.fillStyle = "rgba(20,40,60,0.92)";
+    ctx.fillRect(35, by, VW - 70, 28);
+    ctx.strokeStyle = cols[i]; ctx.lineWidth = 1;
+    ctx.strokeRect(35.5, by + 0.5, VW - 71, 27);
+    ctx.textAlign = "left";
+    ctx.fillStyle = cols[i];
+    ctx.fillText(m.name, 44, by + 12);
+    ctx.font = "bold 8px monospace";
+    ctx.fillStyle = "#9ab0c4";
+    ctx.fillText(m.desc, 44, by + 23);
+    ctx.font = "bold 9px monospace";
+  }
+  ctx.textAlign = "center";
 }
 
 function drawGauge() {
@@ -634,26 +859,84 @@ function drawGauge() {
   ctx.fillText("タップで突く！", VW / 2, gy - 10);
 }
 
+// 魚のアップ（カットイン用）。_big が未ロードなら通常スプライトを拡大
+function drawBigFish(id, cx, cy, targetW, rot) {
+  // _sad等の派生スプライトが未ロードなら元の魚にフォールバック
+  const base = id.split("_")[0];
+  const img = sprites[id + "_big"] || sprites[id] || sprites[base + "_big"] || sprites[base];
+  const s = targetW / img.width;
+  ctx.save();
+  ctx.translate(Math.round(cx), Math.round(cy));
+  ctx.rotate(rot);
+  ctx.scale(s, s);
+  ctx.drawImage(img, -img.width / 2, -img.height / 2);
+  ctx.restore();
+}
+
 function drawStruggle() {
   const s = struggle;
-  const cx = VW / 2, cy = VH / 2 + 40;
-  ctx.fillStyle = "rgba(10,20,35,0.55)";
-  ctx.fillRect(0, cy - 55, VW, 110);
-  // 残り時間リング
-  ctx.strokeStyle = "#28374d"; ctx.lineWidth = 6;
-  ctx.beginPath(); ctx.arc(cx, cy, 34, 0, Math.PI * 2); ctx.stroke();
-  ctx.strokeStyle = "#ff8c5c";
-  ctx.beginPath(); ctx.arc(cx, cy, 34, -Math.PI / 2, -Math.PI / 2 + (s.timer / 3.5) * Math.PI * 2); ctx.stroke();
-  // 進捗
-  const p = s.taps / s.need;
-  ctx.fillStyle = "#28374d"; ctx.fillRect(cx - 40, cy + 44, 80, 8);
-  ctx.fillStyle = "#7bd88f"; ctx.fillRect(cx - 40, cy + 44, 80 * Math.min(1, p), 8);
-  ctx.font = "bold 13px monospace"; ctx.textAlign = "center";
-  const shake = Math.sin(tGame * 25) * 2;
+  const cx = VW / 2;
+  // カットイン帯
+  ctx.fillStyle = "rgba(10,20,35,0.75)";
+  ctx.fillRect(0, 92, VW, 216);
+  ctx.fillStyle = "#ff8c5c";
+  ctx.fillRect(0, 92, VW, 2); ctx.fillRect(0, 306, VW, 2);
+  // 魚のアップ（残り時間が減るほど激しく暴れる）
+  const rage = 2 - s.timer / s.dur;
+  const wob = Math.sin(tGame * 16) * 0.1 * rage;
+  const jx = Math.sin(tGame * 31) * 3 * rage;
+  const jy = Math.cos(tGame * 26) * 2.5 * rage;
+  drawBigFish(s.f.id, cx + jx, 172 + jy, Math.min(150, 105 * s.f.sp.size), wob);
+  ctx.font = "bold 10px monospace"; ctx.textAlign = "center";
   ctx.fillStyle = "#fff";
-  ctx.fillText("連打！", cx + shake, cy + 5);
-  ctx.font = "bold 9px monospace";
-  ctx.fillText(s.f.sp.name + "が暴れている！", cx, cy - 44);
+  ctx.fillText(s.f.sp.name + "が暴れている！", cx, 108);
+  // 残り時間リング＋連打
+  const cy = 262;
+  ctx.strokeStyle = "#28374d"; ctx.lineWidth = 6;
+  ctx.beginPath(); ctx.arc(cx, cy, 24, 0, Math.PI * 2); ctx.stroke();
+  ctx.strokeStyle = "#ff8c5c";
+  ctx.beginPath(); ctx.arc(cx, cy, 24, -Math.PI / 2, -Math.PI / 2 + (s.timer / s.dur) * Math.PI * 2); ctx.stroke();
+  const p = s.taps / s.need;
+  ctx.fillStyle = "#28374d"; ctx.fillRect(cx - 40, cy + 32, 80, 8);
+  ctx.fillStyle = "#7bd88f"; ctx.fillRect(cx - 40, cy + 32, 80 * Math.min(1, p), 8);
+  const shake = Math.sin(tGame * 25) * 2;
+  ctx.font = "bold 12px monospace";
+  ctx.fillStyle = "#fff";
+  ctx.fillText("連打！", cx + shake, cy + 4);
+}
+
+// キープ成功／ハコフグごめんね のカットイン
+function drawCatch() {
+  const c = catchCut;
+  const fade = Math.min(1, c.t / 0.35);              // 消える時フェード
+  const pop = Math.min(1, (c.dur - c.t) / 0.15);     // 出る時ポップ
+  ctx.globalAlpha = fade;
+  const cx = VW / 2, cy = 150;
+  ctx.fillStyle = c.sad ? "rgba(15,20,42,0.82)" : "rgba(10,25,20,0.78)";
+  ctx.fillRect(0, cy - 64, VW, 128);
+  const col = c.sad ? "#9ad8f0" : c.crit ? "#ffe066" : "#7bd88f";
+  ctx.fillStyle = col;
+  ctx.fillRect(0, cy - 64, VW, 2); ctx.fillRect(0, cy + 62, VW, 2);
+  const w = Math.min(140, 95 * c.sp.size) * (0.5 + 0.5 * pop) * (c.sad ? 1.25 : 1);
+  // 悲しい時はゆっくり首を振る。嬉しい時は小さく揺れる
+  const rot = c.sad ? Math.sin(tGame * 1.6) * 0.06 : Math.sin(tGame * 2.5) * 0.05;
+  drawBigFish(c.id, cx, cy - 10, w, rot);
+  if (c.sad) { // 涙のしずくを落とす
+    ctx.fillStyle = "#bfe7ff";
+    const ty = (tGame * 40) % 46;
+    ctx.beginPath(); ctx.arc(cx - 24, cy - 8 + ty, 2.2, 0, Math.PI * 2); ctx.fill();
+  }
+  ctx.font = "bold 12px monospace"; ctx.textAlign = "center";
+  ctx.fillStyle = col;
+  const label = c.sad
+    ? "ハコフグ…ごめん… " + c.sp.pts + "pt"
+    : (c.crit ? "会心！ " : "") + c.sp.name + " キープ！ +" + c.sp.pts + "pt";
+  ctx.fillText(label, cx, cy + 50);
+  if (c.sad) {
+    ctx.font = "bold 8px monospace"; ctx.fillStyle = "#7f9db8";
+    ctx.fillText("（ハコフグは見つめるとボーナス）", cx, cy + 58 + 2);
+  }
+  ctx.globalAlpha = 1;
 }
 
 function drawResult() {
@@ -662,6 +945,8 @@ function drawResult() {
   ctx.textAlign = "center";
   ctx.fillStyle = "#ffe066"; ctx.font = "bold 16px monospace";
   ctx.fillText("― 浮上 ―", VW / 2, 50);
+  ctx.font = "bold 9px monospace"; ctx.fillStyle = "#9ad8f0";
+  ctx.fillText("海況 " + mode.name + (mode.score > 1 ? "（スコア×" + mode.score + "）" : ""), VW / 2, 66);
   // 集計
   const agg = new Map();
   for (const sp of bag) {
@@ -697,6 +982,44 @@ function drawResult() {
   }
 }
 
+function drawDex() {
+  ctx.fillStyle = "rgba(4,18,34,0.88)";
+  ctx.fillRect(0, 0, VW, VH);
+  ctx.textAlign = "center";
+  ctx.fillStyle = "#ffe066"; ctx.font = "bold 16px monospace";
+  ctx.fillText("図鑑", VW / 2, 30);
+
+  // Collection stats
+  let caught = 0, seen = 0;
+  for (const d of Object.values(dex)) { caught += d.caught; seen += d.seen; }
+  const species = Object.keys(dex).length;
+  ctx.font = "bold 9px monospace"; ctx.fillStyle = "#9ad8f0";
+  ctx.fillText(`捕獲 ${species}種 / 目撃 ${Object.values(dex).filter(d => d.seen > 0).length}種  (合計 ${caught}匹)`, VW / 2, 50);
+
+  // Fish list
+  ctx.textAlign = "left"; ctx.font = "bold 8px monospace";
+  let y = 75;
+  for (const [id, entry] of Object.entries(SPECIES)) {
+    const d = dex[id] || { caught: 0, seen: 0 };
+    if (d.seen === 0) continue;
+    const name = entry.name;
+    const isCaught = d.caught > 0;
+    ctx.fillStyle = isCaught ? "#fff" : "#7f9db8";
+    const mark = isCaught ? "✓" : "◇";
+    ctx.fillText(`${mark} ${name}`, 20, y);
+    if (isCaught) {
+      ctx.fillStyle = "#ffe066";
+      ctx.fillText(`×${d.caught}`, VW - 40, y);
+    }
+    y += 14;
+    if (y > VH - 40) break;
+  }
+
+  ctx.fillStyle = "#cfd8e3";
+  ctx.textAlign = "center"; ctx.font = "bold 8px monospace";
+  ctx.fillText("タップで戻る", VW / 2, VH - 20);
+}
+
 function wrapText(txt, cx, y, maxW, lh) {
   let line = "";
   for (const ch of txt) {
@@ -728,6 +1051,21 @@ window.addEventListener("resize", fit);
 window.__dbg = {
   get: () => ({ diver, fishes, state, oxygen, bag }),
   warp: (x, y) => { diver.x = x; diver.y = y; diver.maxDepth = Math.max(diver.maxDepth, y); },
+  forceStruggle: (id) => {
+    const f = fishes.find(f => f.alive && f.id === id) || fishes[0];
+    struggle = { f, need: 10, taps: 3, timer: 2.2, dur: 3.5, quality: "good" };
+    state = "struggle";
+  },
+  forceCatch: (id, crit) => {
+    const f = fishes.find(f => f.alive && f.id === id) || fishes[0];
+    catchCut = { id: f.id, sp: f.sp, t: 1.5, dur: 1.5, crit: !!crit };
+    state = "dive";
+  },
+  forceSad: () => {
+    catchCut = { id: "hakofugu_sad", sp: SPECIES.hakofugu, t: 2.2, dur: 2.2, sad: true };
+    state = "dive";
+  },
+  audio: () => ({ soundOn, hasAC: !!AC, acState: AC && AC.state }),
 };
 
 canvas.width = VW; canvas.height = VH;

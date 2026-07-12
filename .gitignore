@@ -4,3 +4,4 @@
 .obsidian/workspace-mobile.json
 .obsidian/cache/
 .claude/settings.local.json
+__pycache__/
