@@ -10,6 +10,7 @@ fal API（FLUX系）でドット絵スプライトを生成し、
   python3 generate.py            # 全スプライト生成
   python3 generate.py mebaru     # 1種だけ生成
   python3 generate.py --dummy    # APIを呼ばず後処理だけテスト
+  python3 generate.py --from-raw # raw/ の原画から再処理（API呼び出しなし）
 
 モデル切り替え:
   python3 generate.py --model fal-ai/flux/dev        # 既定
@@ -93,15 +94,94 @@ def _to_png(im: Image.Image) -> bytes:
 
 
 def chroma_key(im: Image.Image) -> Image.Image:
-    """マゼンタ系ピクセルを透過に"""
+    """背景を透過に。
+
+    生成モデルは指定色を無視してピンク等で塗ってくることがあるので、
+    四隅から背景色をサンプリングし、外周からの塗りつぶしで背景を除去する。
+    塗りつぶし方式なら背景と似た色の魚（カサゴ等）も輪郭線の内側は守られる。
+    最後に最大連結成分だけ残し、床の影や泡などの浮遊ピクセルを消す。
+    """
     im = im.convert("RGBA")
     px = im.load()
     w, h = im.size
+
+    corners = [px[0, 0], px[w - 1, 0], px[0, h - 1], px[w - 1, h - 1]]
+    bg = tuple(sum(c[i] for c in corners) // 4 for i in range(3))
+    tol2 = 70 * 70
+
+    def is_bg(p):
+        dr, dg, db = p[0] - bg[0], p[1] - bg[1], p[2] - bg[2]
+        return dr * dr + dg * dg + db * db < tol2
+
+    # 外周から背景色を塗りつぶし
+    seen = bytearray(w * h)
+    stack = []
+    for x in range(w):
+        stack += [(x, 0), (x, h - 1)]
     for y in range(h):
-        for x in range(w):
-            r, g, b, a = px[x, y]
-            if r > 150 and b > 150 and g < 110 and abs(r - b) < 90:
-                px[x, y] = (0, 0, 0, 0)
+        stack += [(0, y), (w - 1, y)]
+    while stack:
+        x, y = stack.pop()
+        i = y * w + x
+        if seen[i]:
+            continue
+        seen[i] = 1
+        if not is_bg(px[x, y]):
+            continue
+        px[x, y] = (0, 0, 0, 0)
+        if x > 0: stack.append((x - 1, y))
+        if x < w - 1: stack.append((x + 1, y))
+        if y > 0: stack.append((x, y - 1))
+        if y < h - 1: stack.append((x, y + 1))
+
+    # 本体に接した床の影（背景色と暗色の中間色）を透過境界から剥がす。
+    # 輪郭線は背景色から遠いので、剥がしはスプライト本体の手前で止まる。
+    tol2b = 115 * 115
+    changed = True
+    while changed:
+        changed = False
+        for y in range(h):
+            for x in range(w):
+                p = px[x, y]
+                if p[3] == 0:
+                    continue
+                dr, dg, db = p[0] - bg[0], p[1] - bg[1], p[2] - bg[2]
+                if dr * dr + dg * dg + db * db >= tol2b:
+                    continue
+                for nx, ny in ((x-1, y), (x+1, y), (x, y-1), (x, y+1)):
+                    if 0 <= nx < w and 0 <= ny < h and px[nx, ny][3] == 0:
+                        px[x, y] = (0, 0, 0, 0)
+                        changed = True
+                        break
+
+    # 最大連結成分（＝スプライト本体）以外の不透明ピクセルを除去
+    comp = [0] * (w * h)
+    sizes = {0: 0}
+    cid = 0
+    for sy in range(h):
+        for sx in range(w):
+            if comp[sy * w + sx] or px[sx, sy][3] == 0:
+                continue
+            cid += 1
+            size = 0
+            stack = [(sx, sy)]
+            comp[sy * w + sx] = cid
+            while stack:
+                x, y = stack.pop()
+                size += 1
+                for nx, ny in ((x-1, y), (x+1, y), (x, y-1), (x, y+1)):
+                    if 0 <= nx < w and 0 <= ny < h:
+                        j = ny * w + nx
+                        if not comp[j] and px[nx, ny][3] > 0:
+                            comp[j] = cid
+                            stack.append((nx, ny))
+            sizes[cid] = size
+    if cid > 1:
+        main = max(sizes, key=sizes.get)
+        for y in range(h):
+            for x in range(w):
+                if px[x, y][3] > 0 and comp[y * w + x] != main:
+                    px[x, y] = (0, 0, 0, 0)
     return im
 
 
@@ -123,6 +203,7 @@ def postprocess(png: bytes, target_w: int) -> Image.Image:
 def main():
     args = [a for a in sys.argv[1:]]
     dummy = "--dummy" in args
+    from_raw = "--from-raw" in args
     model = "fal-ai/flux/dev"
     lora = None
     if "--model" in args:
@@ -140,6 +221,12 @@ def main():
         print(f"[{sid}] ", end="", flush=True)
         if dummy:
             png = dummy_image()
+        elif from_raw:
+            raw = RAW_DIR / f"{sid}_raw.png"
+            if not raw.exists():
+                print(f"スキップ（{raw} が無い）")
+                continue
+            png = raw.read_bytes()
         else:
             prompt = f"{STYLE}, {desc}, {BG_PROMPT}"
             png = call_fal(prompt, model, lora)
