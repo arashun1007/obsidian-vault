@@ -1,0 +1,10 @@
+// Cloudflare（wrangler deploy）用の設定。
+// ゲーム（docs/isomoguri）だけを静的サイトとして配信する。
+// vault本体（日記・日報など）は配信対象に含めないこと。
+{
+  "name": "isomoguri",
+  "compatibility_date": "2026-07-12",
+  "assets": {
+    "directory": "./docs/isomoguri"
+  }
+}
