@@ -54,6 +54,12 @@ SPRITES = {
     "diver":    ("freediver spearfisher in black wetsuit, dive mask and snorkel, long yellow freediving fins, "
                  "weight belt, holding small flashlight in left hand and a very long wooden pole spear, "
                  "horizontal swimming pose facing left", 52),
+    "akahata": ("red grouper (akahata), chunky reddish-brown rockfish with spots and rounded fins, sitting on bottom", 30),
+    "hirame":  ("flounder (hirame), flat bottom-dwelling fish with both eyes on one side, mottled brown coloring", 36),
+    "kawahagi": ("filefish (kawahagi), small yellowish fish with papillae texture, cute small mouth, streamlined", 24),
+    "takanohadai": ("false snapper (takanohadai), silvery grey fish with black bands, small mouth, unremarkable", 32),
+    "aobudai": ("Japanese parrotfish (aobudai), greenish-blue fish with rounded mouth, venomous spines", 32),
+    "madai":   ("red seabream (madai), striking red and white fish with elegant red stripes, beautiful fins, treasure fish", 38),
 }
 
 
