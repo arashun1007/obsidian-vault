@@ -51,7 +51,20 @@ const WORLD_H = 2000;              // 20m（1m = 100px）
 const PX_PER_M = 100;
 const O2_MAX = 60;                 // 秒
 const SPEAR_RANGE = 85;
-const CRIT = 0.07, GOOD = 0.18, POOR = 0.35; // ゲージ中央からの距離
+const CRIT = 0.07, GOOD = 0.18, POOR = 0.35; // ゲージ中央からの距離（標準時）
+
+// 海況＝プレイヤーが選ぶ難易度（企画書 §5）
+const MODES = {
+  nagi:  { name: "ベタ凪",       desc: "判定甘め・練習向き",
+           gauge: 1.6,  taps: 0.7,  time: 1.2, flee: 0.85, o2: 1.0, drift: 0,  sway: 0, murk: 0, score: 1 },
+  uneri: { name: "ちょいうねり", desc: "標準。魚は少し敏感",
+           gauge: 1.0,  taps: 1.0,  time: 1.0, flee: 1.15, o2: 1.0, drift: 10, sway: 1, murk: 0, score: 1 },
+  arare: { name: "激荒れ",       desc: "濁り・流れ・スコア2倍",
+           gauge: 0.75, taps: 1.15, time: 0.9, flee: 1.3,  o2: 1.2, drift: 24, sway: 2, murk: 1, score: 2 },
+};
+const MODE_KEYS = ["nagi", "uneri", "arare"];
+let mode = MODES.nagi;
+let current = 1; // 激荒れの横流れの向き
 
 const QUOTES = [
   "忘れ物はない？ フィン、ウエイト、ナイフ、フロート。",
@@ -163,7 +176,7 @@ const SPECIES = {
               depth: [2, 8],  speed: 55, flee: 95, taps: 15, school: 2, count: 1 },
   kue:      { name: "クエ",     pts: 800,  shape: "rock", size: 1.9,
               colors: { b: "#6b5d4f", d: "#443a30", l: "#a89880" },
-              depth: [14, 20], speed: 8, flee: 40, taps: 18, sit: true, onRock: true, count: 1 },
+              depth: [14, 20], speed: 8, flee: 40, taps: 16, stTime: 4.5, sit: true, onRock: true, count: 1 },
 };
 
 // ---------- 状態 ----------
@@ -214,6 +227,7 @@ function reset() {
   aim = null; struggle = null; resultData = null; catchCut = null;
   popups = []; bubbles = [];
   hintShown = false;
+  current = Math.random() < 0.5 ? -1 : 1;
   quote = QUOTES[(Math.random() * QUOTES.length) | 0];
   careWord = QUOTES[(Math.random() * 2) | 0]; // 先頭2つはケアワード
   spawnTerrain();
@@ -301,8 +315,16 @@ function onUp(e) {
   const dt = performance.now() - ptr.downT;
   const isTap = dt < 280 && ptr.moved < 14;
   if (state === "title" && isTap) {
-    state = "dive";
-    diver.vy = 75; diver.angle = Math.PI / 2; // ジャックナイフで潜行開始
+    // 海況ボタン（3段）のヒット判定
+    for (let i = 0; i < 3; i++) {
+      const by = 292 + i * 34;
+      if (ptr.x >= 35 && ptr.x <= VW - 35 && ptr.downY >= by && ptr.downY <= by + 28) {
+        mode = MODES[MODE_KEYS[i]];
+        state = "dive";
+        diver.vy = 75; diver.angle = Math.PI / 2; // ジャックナイフで潜行開始
+        return;
+      }
+    }
     return;
   }
   if (state === "result" && isTap && performance.now() - resultData.t > 800) { reset(); return; }
@@ -348,9 +370,9 @@ function fire() {
     popup(f.x, f.y, "ハコフグ…ごめん… -100", "#f2994a");
     state = "dive"; return;
   }
-  if (off < CRIT)      spearDone("crit");
-  else if (off < GOOD) spearDone("good");
-  else if (off < POOR) spearDone("poor");
+  if (off < CRIT * mode.gauge)      spearDone("crit");
+  else if (off < GOOD * mode.gauge) spearDone("good");
+  else if (off < Math.min(0.48, POOR * mode.gauge)) spearDone("poor");
   else {
     flee(f, 2.0);
     popup(f.x, f.y, "外した！", "#cfd8e3");
@@ -364,7 +386,9 @@ function struggleOrCatch(f, quality) {
     state = "dive"; return;
   }
   const mult = quality === "poor" ? 1.7 : 1.0;
-  struggle = { f, need: Math.ceil(f.sp.taps * mult), taps: 0, timer: 3.5, quality };
+  const dur = (f.sp.stTime || 3.5) * mode.time;
+  struggle = { f, need: Math.max(3, Math.ceil(f.sp.taps * mult * mode.taps)),
+               taps: 0, timer: dur, dur, quality };
   state = "struggle";
 }
 function struggleTap() {
@@ -396,6 +420,7 @@ function endRun(blackout) {
   let total = bag.reduce((s, sp) => s + sp.pts, 0) + cuteBonus;
   let note = null;
   if (blackout) { total = Math.floor(total / 2); note = "ブラックアウト！ 獲物の半分を失った…"; }
+  total = Math.floor(total * mode.score);
   if (total > highScore) { highScore = total; localStorage.setItem("isomoguri_hs", String(highScore)); }
   resultData = { total, note, t: performance.now() };
   state = "result";
@@ -408,7 +433,7 @@ function update(dt) {
   if (state === "dive" || state === "aim" || state === "struggle") {
     // 酸素
     const depthM = diver.y / PX_PER_M;
-    oxygen -= dt * (0.6 + depthM / 12);
+    oxygen -= dt * (0.6 + depthM / 12) * mode.o2;
     if (oxygen <= 0) { endRun(true); return; }
     if (!hintShown && oxygen < O2_MAX * 0.3) {
       hintShown = true;
@@ -437,7 +462,7 @@ function update(dt) {
         while (dA < -Math.PI) dA += Math.PI * 2;
         diver.angle += dA * Math.min(1, dt * 7);
       }
-      diver.x = Math.max(8, Math.min(WORLD_W - 8, diver.x + diver.vx * dt));
+      diver.x = Math.max(8, Math.min(WORLD_W - 8, diver.x + (diver.vx + current * mode.drift) * dt));
       diver.y = Math.max(4, Math.min(WORLD_H - 10, diver.y + diver.vy * dt));
       diver.maxDepth = Math.max(diver.maxDepth, diver.y);
       if (diver.y <= 12 && diver.maxDepth > 60) { endRun(false); return; }
@@ -466,7 +491,7 @@ function update(dt) {
       // 逃走
       if (f.fleeT > 0) {
         f.fleeT -= dt * ts;
-      } else if (f.sp.flee > 0 && d < f.sp.flee && Math.hypot(diver.vx, diver.vy) > 35) {
+      } else if (f.sp.flee > 0 && d < f.sp.flee * mode.flee && Math.hypot(diver.vx, diver.vy) > 35) {
         flee(f, 1);
       } else {
         // うろうろ
@@ -673,25 +698,39 @@ function drawTitle() {
   ctx.textAlign = "center";
   ctx.fillStyle = "#ffe066";
   ctx.font = "bold 22px monospace";
-  ctx.fillText("いそもぐり", VW / 2, 120);
+  ctx.fillText("いそもぐり", VW / 2, 92);
   ctx.font = "bold 9px monospace";
   ctx.fillStyle = "#9ad8f0";
-  ctx.fillText("― 仮・MVPプロトタイプ ―", VW / 2, 140);
-  ctx.fillStyle = "#fff";
-  ctx.fillText("海況：ベタ凪　潮：若潮", VW / 2, 180);
+  ctx.fillText("― 仮・MVPプロトタイプ ―", VW / 2, 110);
   ctx.fillStyle = "#cfd8e3";
-  ctx.fillText("ドラッグ＝泳ぐ", VW / 2, 215);
-  ctx.fillText("枠が出た魚の近くでタップ＝構える", VW / 2, 230);
-  ctx.fillText("ゲージ中央でもう一度タップ＝突く", VW / 2, 245);
-  ctx.fillText("魚が暴れたら連打！", VW / 2, 260);
+  ctx.fillText("ドラッグ＝泳ぐ", VW / 2, 142);
+  ctx.fillText("枠が出た魚の近くでタップ＝構える", VW / 2, 156);
+  ctx.fillText("ゲージ中央でもう一度タップ＝突く", VW / 2, 170);
+  ctx.fillText("魚が暴れたら連打！", VW / 2, 184);
   ctx.fillStyle = "#ffe066";
-  ctx.fillText("ハイスコア " + highScore + "pt", VW / 2, 295);
-  if (Math.sin(tGame * 3) > -0.2) {
-    ctx.fillStyle = "#fff";
-    ctx.fillText("タップで潜る", VW / 2, 330);
-  }
+  ctx.fillText("ハイスコア " + highScore + "pt", VW / 2, 210);
   ctx.fillStyle = "#7f9db8";
-  wrapText(careWord, VW / 2, 365, 200, 11);
+  wrapText(careWord, VW / 2, 232, 200, 11);
+  // 海況選択（タップで即潜行）
+  ctx.fillStyle = "#fff";
+  if (Math.sin(tGame * 3) > -0.2) ctx.fillText("海況をえらんで潜る", VW / 2, 284);
+  const cols = ["#7bd88f", "#ffe066", "#ff8c5c"];
+  for (let i = 0; i < 3; i++) {
+    const m = MODES[MODE_KEYS[i]];
+    const by = 292 + i * 34;
+    ctx.fillStyle = "rgba(20,40,60,0.92)";
+    ctx.fillRect(35, by, VW - 70, 28);
+    ctx.strokeStyle = cols[i]; ctx.lineWidth = 1;
+    ctx.strokeRect(35.5, by + 0.5, VW - 71, 27);
+    ctx.textAlign = "left";
+    ctx.fillStyle = cols[i];
+    ctx.fillText(m.name, 44, by + 12);
+    ctx.font = "bold 8px monospace";
+    ctx.fillStyle = "#9ab0c4";
+    ctx.fillText(m.desc, 44, by + 23);
+    ctx.font = "bold 9px monospace";
+  }
+  ctx.textAlign = "center";
 }
 
 function drawGauge() {
@@ -733,7 +772,7 @@ function drawStruggle() {
   ctx.fillStyle = "#ff8c5c";
   ctx.fillRect(0, 92, VW, 2); ctx.fillRect(0, 306, VW, 2);
   // 魚のアップ（残り時間が減るほど激しく暴れる）
-  const rage = 2 - s.timer / 3.5;
+  const rage = 2 - s.timer / s.dur;
   const wob = Math.sin(tGame * 16) * 0.1 * rage;
   const jx = Math.sin(tGame * 31) * 3 * rage;
   const jy = Math.cos(tGame * 26) * 2.5 * rage;
@@ -746,7 +785,7 @@ function drawStruggle() {
   ctx.strokeStyle = "#28374d"; ctx.lineWidth = 6;
   ctx.beginPath(); ctx.arc(cx, cy, 24, 0, Math.PI * 2); ctx.stroke();
   ctx.strokeStyle = "#ff8c5c";
-  ctx.beginPath(); ctx.arc(cx, cy, 24, -Math.PI / 2, -Math.PI / 2 + (s.timer / 3.5) * Math.PI * 2); ctx.stroke();
+  ctx.beginPath(); ctx.arc(cx, cy, 24, -Math.PI / 2, -Math.PI / 2 + (s.timer / s.dur) * Math.PI * 2); ctx.stroke();
   const p = s.taps / s.need;
   ctx.fillStyle = "#28374d"; ctx.fillRect(cx - 40, cy + 32, 80, 8);
   ctx.fillStyle = "#7bd88f"; ctx.fillRect(cx - 40, cy + 32, 80 * Math.min(1, p), 8);
@@ -783,6 +822,8 @@ function drawResult() {
   ctx.textAlign = "center";
   ctx.fillStyle = "#ffe066"; ctx.font = "bold 16px monospace";
   ctx.fillText("― 浮上 ―", VW / 2, 50);
+  ctx.font = "bold 9px monospace"; ctx.fillStyle = "#9ad8f0";
+  ctx.fillText("海況 " + mode.name + (mode.score > 1 ? "（スコア×" + mode.score + "）" : ""), VW / 2, 66);
   // 集計
   const agg = new Map();
   for (const sp of bag) {
@@ -851,7 +892,7 @@ window.__dbg = {
   warp: (x, y) => { diver.x = x; diver.y = y; diver.maxDepth = Math.max(diver.maxDepth, y); },
   forceStruggle: (id) => {
     const f = fishes.find(f => f.alive && f.id === id) || fishes[0];
-    struggle = { f, need: 10, taps: 3, timer: 2.2, quality: "good" };
+    struggle = { f, need: 10, taps: 3, timer: 2.2, dur: 3.5, quality: "good" };
     state = "struggle";
   },
   forceCatch: (id, crit) => {
