@@ -107,7 +107,9 @@ def chroma_key(im: Image.Image) -> Image.Image:
 
     corners = [px[0, 0], px[w - 1, 0], px[0, h - 1], px[w - 1, h - 1]]
     bg = tuple(sum(c[i] for c in corners) // 4 for i in range(3))
-    tol2 = 70 * 70
+    # 背景はほぼ単色（ばらつき±10程度）なので、しきい値は小さく。
+    # 大きくするとイシダイの赤いくちばし等（背景との距離50台）が消える。
+    tol2 = 40 * 40
 
     def is_bg(p):
         dr, dg, db = p[0] - bg[0], p[1] - bg[1], p[2] - bg[2]
@@ -135,12 +137,17 @@ def chroma_key(im: Image.Image) -> Image.Image:
         if y < h - 1: stack.append((x, y + 1))
 
     # 本体に接した床の影（背景色と暗色の中間色）を透過境界から剥がす。
-    # 輪郭線は背景色から遠いので、剥がしはスプライト本体の手前で止まる。
-    tol2b = 115 * 115
+    # 影は必ずスプライト下部にあるので、強いしきい値は下部30%の行だけに使う。
+    # 全体に強くかけると、背景と色が近いパーツ（イシダイの赤いくちばし等）まで消える。
+    bbox = im.getbbox()
+    shadow_y = bbox[1] + (bbox[3] - bbox[1]) * 7 // 10 if bbox else h
+    tol2_weak = 40 * 40
+    tol2_strong = 115 * 115
     changed = True
     while changed:
         changed = False
         for y in range(h):
+            tol2b = tol2_strong if y >= shadow_y else tol2_weak
             for x in range(w):
                 p = px[x, y]
                 if p[3] == 0:
