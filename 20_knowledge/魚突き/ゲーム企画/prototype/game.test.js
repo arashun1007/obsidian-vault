@@ -146,4 +146,19 @@ assert.equal(evaluate("state"), "rank");
 tap(120, 200); // 帯の外 → タイトルへ
 assert.equal(evaluate("state"), "title");
 
+// スキン画面：未解放はタップしても装備されず、解放済みなら装備できる。
+evaluate("reset()");
+now += 600;
+tap(63, 14); // スキンボタン（46..84, y6..22）
+assert.equal(evaluate("state"), "skin");
+tap(120, 150); // 2段目（ベタ凪ブルー）は未解放 → 変化なし
+assert.equal(evaluate("skin"), "black");
+assert.equal(evaluate("state"), "skin");
+evaluate("progress.totalScore = 6000");
+tap(120, 150); // 解放済みになったので装備できる
+assert.equal(evaluate("skin"), "blue");
+tap(120, 390); // 行の外 → タイトルへ
+assert.equal(evaluate("state"), "title");
+evaluate('skin = "black"; progress.totalScore = 0'); // 後続テストのため戻す
+
 console.log("game input regression tests: ok");

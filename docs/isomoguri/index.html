@@ -198,6 +198,42 @@ function fetchRanking() {
     });
 }
 
+// ---------- スキン（通算ポイントで解放されるウェットスーツの色） ----------
+const SKINS = [
+  { id: "black", name: "くろ",             need: 0,     desc: "はじまりの一着" },
+  { id: "blue",  name: "ベタ凪ブルー",     need: 5000,  desc: "凪の海にとける色",   tint: "#3f7fd2" },
+  { id: "green", name: "海藻グリーン",     need: 15000, desc: "根に化ける保護色",   tint: "#3fa860" },
+  { id: "red",   name: "アカハタレッド",   need: 30000, desc: "岩場の主張",         tint: "#d0503a" },
+  { id: "gold",  name: "ヌシキラー金",     need: 60000, desc: "生ける伝説の証",     tint: "#e8b83a" },
+];
+let skin = store.getItem("isomoguri_skin") || "black";
+
+function skinDef(id) { return SKINS.find(s => s.id === id) || SKINS[0]; }
+function skinUnlocked(def) { return (progress.totalScore || 0) >= def.need; }
+
+// ベース画像に色を焼き込んだキャンバスを返す（生成アセット読込後は作り直す）
+let skinTintCache = { base: null, tinted: {} };
+function tintedDiver(id = skin) {
+  const def = skinDef(id);
+  const img = sprites.diver;
+  if (!img || !img.width || !def.tint) return img;
+  if (skinTintCache.base !== img) skinTintCache = { base: img, tinted: {} };
+  let c = skinTintCache.tinted[def.id];
+  if (!c) {
+    c = document.createElement("canvas");
+    c.width = img.width; c.height = img.height;
+    const g = c.getContext("2d");
+    g.imageSmoothingEnabled = false;
+    g.drawImage(img, 0, 0);
+    g.globalCompositeOperation = "source-atop";
+    g.globalAlpha = 0.45;
+    g.fillStyle = def.tint;
+    g.fillRect(0, 0, img.width, img.height);
+    skinTintCache.tinted[def.id] = c;
+  }
+  return c;
+}
+
 function askName() {
   if (typeof prompt !== "function") return false;
   const raw = prompt("ランキングに載せるニックネーム（10文字まで）", playerName);
@@ -510,6 +546,8 @@ let progress = Object.assign(
 );
 let daily = loadJSON("isomoguri_daily", null);
 ensureDaily();
+// スキン導入前から遊んでいた人は、ハイスコア分を通算ポイントの初期値として認める
+if (progress.totalScore === undefined) progress.totalScore = highScore;
 
 // 描画時の基準幅（生成アセットはこの幅に揃えて表示する）
 const BASE_W = { fish: 16, rock: 14, box: 11, diver: 24 };
@@ -718,6 +756,11 @@ function onUp(e) {
       else { if (AC) AC.suspend(); if (unlockEl) unlockEl.pause(); }
       return;
     }
+    // スキンボタン（サウンドの右隣）
+    if (g.x >= 46 && g.x <= 84 && g.downY >= 6 && g.downY <= 22) {
+      sfx.ui();
+      state = "skin"; return;
+    }
     // 図鑑ボタン
     if (g.x >= VW - 32 && g.x <= VW - 6 && g.downY >= 6 && g.downY <= 22) {
       sfx.ui();
@@ -742,6 +785,22 @@ function onUp(e) {
     return;
   }
   if (g.startedState === "dex" && state === "dex" && isTap) { state = "title"; return; }
+  if (g.startedState === "skin" && state === "skin" && isTap) {
+    // 行タップ＝装備（解放済みのみ）。行の外＝タイトルへ戻る
+    for (let i = 0; i < SKINS.length; i++) {
+      const top = 88 + i * 52;
+      if (g.x >= 18 && g.x <= VW - 18 && g.y >= top && g.y <= top + 46) {
+        const def = SKINS[i];
+        if (skinUnlocked(def) && skin !== def.id) {
+          skin = def.id;
+          store.setItem("isomoguri_skin", skin);
+          sfx.ui();
+        }
+        return;
+      }
+    }
+    state = "title"; return;
+  }
   if (g.startedState === "rank" && state === "rank" && isTap) {
     // 下部の帯＝名前の登録・変更。それ以外はタイトルへ戻る
     if (g.y >= VH - 48 && g.y <= VH - 16) {
@@ -932,6 +991,13 @@ function catchFish(f, quality) {
       o2Bonus = 1.5;
       oxygen = Math.min(O2_MAX, oxygen + o2Bonus);
     }
+    // 大物キープの高揚感＝ひと呼吸ぶんの余裕（深場からの生還率を上げる）
+    if (f.sp.pts >= 400) {
+      const breath = f.nushi ? 5 : 3;
+      oxygen = Math.min(O2_MAX, oxygen + breath);
+      o2Bonus += breath;
+      popup(f.x, f.y - 42, "ひと呼吸 +" + breath + "秒", "#7bd88f");
+    }
     // 種ごとの自己記録（cm）。初捕獲は記録扱いにせず、更新時だけ祝う
     const prevRec = dex[f.id].rec || 0;
     if (f.cm > prevRec) {
@@ -1004,12 +1070,20 @@ function endRun(blackout) {
   const isNew = total > highScore;
   if (isNew) { highScore = total; store.setItem("isomoguri_hs", String(highScore)); }
   progress.bestScore = Math.max(progress.bestScore || 0, total);
+  // 通算ポイント（スキン解放の条件）。またいだしきい値があれば解放を祝う
+  const prevTotal = progress.totalScore || 0;
+  progress.totalScore = prevTotal + total;
+  let newSkin = null;
+  for (const s of SKINS) {
+    if (s.need > 0 && prevTotal < s.need && progress.totalScore >= s.need) newSkin = s;
+  }
   saveJSON("isomoguri_progress", progress);
   saveJSON("isomoguri_dex", dex);
   if (!blackout) sfx.surface(); else sfx.bara();
+  if (newSkin) sfx.record();
   submitScore();
   resultData = {
-    total, note, isNew, rank: resultRank(total, blackout), blackout,
+    total, note, isNew, rank: resultRank(total, blackout), blackout, newSkin,
     bonusTotal: comboBonus + dailyBonus + discoveryBonus + surfaceBonus + sizeBonus,
     t: performance.now(),
   };
@@ -1023,9 +1097,10 @@ function update(dt) {
   if (bgmGain) bgmGain.gain.value = state === "aim" ? 0.25 : 0.8;
 
   if (state === "dive" || state === "aim" || state === "struggle") {
-    // 酸素
+    // 酸素。格闘中は食いしばって耐える（消費をゆるめ、深場の大物戦を成立させる）
     const depthM = diver.y / PX_PER_M;
-    oxygen -= dt * (0.6 + depthM / 12) * mode.o2;
+    const drainMul = state === "struggle" ? 0.55 : 1;
+    oxygen -= dt * (0.6 + depthM / 14) * mode.o2 * drainMul;
     if (oxygen <= 0) { endRun(true); return; }
     if (!hintShown && oxygen < O2_MAX * 0.3) {
       hintShown = true;
@@ -1044,7 +1119,8 @@ function update(dt) {
       diver.vx *= Math.pow(0.02, dt); diver.vy *= Math.pow(0.02, dt);
       diver.vy += 6 * dt; // ウエイトでわずかに沈む
       const sp = Math.hypot(diver.vx, diver.vy);
-      const max = 115;
+      // 浮上方向は浮力が味方する（深場からの帰り道を少し楽に）
+      const max = diver.vy < -20 ? 132 : 115;
       if (sp > max) { diver.vx *= max / sp; diver.vy *= max / sp; }
       // 流れも含めた実移動方向へ、頭から進むように追従する。
       const motionVx = diver.vx + current * mode.drift;
@@ -1267,7 +1343,7 @@ function draw() {
   ctx.strokeStyle = "#cfd8e3";
   ctx.beginPath(); ctx.moveTo(42, 1); ctx.lineTo(47, -1); ctx.moveTo(42, 1); ctx.lineTo(47, 3); ctx.stroke();
   {
-    const dImg = sprites.diver;
+    const dImg = tintedDiver();
     const k = spriteScale("diver", "diver");
     ctx.drawImage(dImg, -12, -dImg.height * k / 2, dImg.width * k, dImg.height * k);
   }
@@ -1296,6 +1372,7 @@ function draw() {
   if (state === "title") drawTitle();
   if (state === "dex") drawDex();
   if (state === "rank") drawRank();
+  if (state === "skin") drawSkin();
   if (state === "aim") drawGauge();
   if (state === "struggle") drawStruggle();
   if (catchCut && state === "dive") drawCatch();
@@ -1307,7 +1384,7 @@ function draw() {
 }
 
 function drawHUD() {
-  if (state === "title" || state === "dex" || state === "result" || state === "rank") return;
+  if (state === "title" || state === "dex" || state === "result" || state === "rank" || state === "skin") return;
   // 酸素
   ctx.fillStyle = "rgba(10,20,35,0.7)";
   ctx.fillRect(6, 6, 106, 12);
@@ -1366,6 +1443,13 @@ function drawTitle() {
   ctx.strokeRect(6.5, 6.5, 33, 15);
   ctx.fillStyle = soundOn ? "#7bd88f" : "#5a6a7a";
   ctx.fillText(soundOn ? "♪ON" : "♪OFF", 23, 17);
+  // スキンボタン
+  ctx.fillStyle = "rgba(20,40,60,0.8)";
+  ctx.fillRect(46, 6, 38, 16);
+  ctx.strokeStyle = "#c9a0e8"; ctx.lineWidth = 0.5;
+  ctx.strokeRect(46.5, 6.5, 37, 15);
+  ctx.fillStyle = "#c9a0e8";
+  ctx.fillText("スキン", 65, 17);
 
   ctx.textAlign = "center";
   ctx.fillStyle = "#ffe066";
@@ -1605,7 +1689,7 @@ function drawResult() {
                  best.cm + "cm " + best.award + "pt", VW / 2, cy + 48);
   } else {
     // ボウズ：ダイバーがぷかぷか浮かぶ
-    const img = sprites.diver;
+    const img = tintedDiver();
     if (img) {
       ctx.save();
       ctx.translate(VW / 2, 99 + Math.sin(tGame * 1.5) * 4);
@@ -1669,6 +1753,14 @@ function drawResult() {
   ctx.fillStyle = "#cfd8e3";
   wrapText("「" + quote + "」", VW / 2, 319, 205, 13);
 
+  // 新スキン解放の告知（きらめかせる）
+  if (resultData.newSkin) {
+    ctx.globalAlpha = 0.7 + 0.3 * Math.sin(tGame * 5);
+    ctx.fillStyle = "#c9a0e8"; ctx.font = "bold 9px monospace";
+    ctx.fillText(`新スキン解放「${resultData.newSkin.name}」！ タイトル→スキン`, VW / 2, 355);
+    ctx.globalAlpha = 1;
+  }
+
   ctx.fillStyle = "rgba(20,40,60,0.94)"; ctx.fillRect(30, 362, VW - 60, 28);
   ctx.strokeStyle = "#ffe066"; ctx.lineWidth = 1; ctx.strokeRect(30.5, 362.5, VW - 61, 27);
   if (Math.sin(tGame * 3) > -0.2) {
@@ -1717,6 +1809,53 @@ function drawDex() {
   ctx.fillStyle = "#cfd8e3";
   ctx.textAlign = "center"; ctx.font = "bold 8px monospace";
   ctx.fillText("タップで戻る", VW / 2, VH - 20);
+}
+
+function drawSkin() {
+  ctx.fillStyle = "rgba(4,18,34,0.92)";
+  ctx.fillRect(0, 0, VW, VH);
+  ctx.textAlign = "center";
+  ctx.fillStyle = "#c9a0e8"; ctx.font = "bold 16px monospace";
+  ctx.fillText("スキン", VW / 2, 30);
+  const total = progress.totalScore || 0;
+  ctx.font = "bold 9px monospace"; ctx.fillStyle = "#9ad8f0";
+  ctx.fillText(`通算 ${total}pt`, VW / 2, 50);
+  ctx.font = "bold 8px monospace"; ctx.fillStyle = "#7f9db8";
+  ctx.fillText("潜るほど新しい一着が解放される", VW / 2, 66);
+
+  for (let i = 0; i < SKINS.length; i++) {
+    const def = SKINS[i];
+    const top = 88 + i * 52;
+    const unlocked = skinUnlocked(def);
+    const equipped = skin === def.id;
+    ctx.fillStyle = "rgba(20,40,60,0.92)";
+    ctx.fillRect(18, top, VW - 36, 46);
+    ctx.strokeStyle = equipped ? "#ffe066" : unlocked ? "#7bd88f" : "#40566a";
+    ctx.lineWidth = equipped ? 1.5 : 1;
+    ctx.strokeRect(18.5, top + 0.5, VW - 37, 45);
+
+    // プレビュー（未解放はシルエット）
+    const img = tintedDiver(def.id);
+    if (img && img.width) {
+      ctx.save();
+      ctx.globalAlpha = unlocked ? 1 : 0.22;
+      const w = 40, h = img.height / img.width * w;
+      ctx.drawImage(img, 26, top + 23 - h / 2, w, h);
+      ctx.restore();
+    }
+    ctx.textAlign = "left";
+    ctx.font = "bold 10px monospace";
+    ctx.fillStyle = unlocked ? (equipped ? "#ffe066" : "#fff") : "#5a6a7a";
+    ctx.fillText(def.name, 76, top + 17);
+    ctx.font = "bold 8px monospace";
+    ctx.fillStyle = unlocked ? "#9ab0c4" : "#40566a";
+    ctx.fillText(def.desc, 76, top + 29);
+    ctx.fillStyle = equipped ? "#ffe066" : unlocked ? "#7bd88f" : "#7f9db8";
+    ctx.fillText(equipped ? "装備中" : unlocked ? "タップで装備" : `あと ${def.need - total}pt`, 76, top + 41);
+  }
+
+  ctx.fillStyle = "#7f9db8"; ctx.textAlign = "center"; ctx.font = "bold 8px monospace";
+  ctx.fillText("ほかの場所をタップで戻る", VW / 2, VH - 12);
 }
 
 function drawRank() {
