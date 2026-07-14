@@ -152,8 +152,18 @@ const NAME_MAX = 10;
 let playerName = store.getItem("isomoguri_name") || "";
 let bigFish = loadJSON("isomoguri_bigfish", { cm: 0, id: "" }); // 生涯最大の1匹
 let sentBest = loadJSON("isomoguri_sent", { s: 0, c: 0, n: "" }); // 送信済みのベスト
-let rankView = null; // null | {loading:1} | {error:msg} | {data}
+let rankView = null; // null | {loading:1} | {error:msg} | {data, alert}
 let rankTab = "score"; // "score" | "fish"
+let rankPeriod = "week"; // "week"（今週の部） | "all"（殿堂）
+let weeklySent = loadJSON("isomoguri_wsent", { week: 0, s: 0, c: 0 }); // 今週送信済みのベスト
+let runBig = { cm: 0, id: "" }; // このランで一番大きかった魚
+const SHARE_URL = "https://isomoguri.arai10070223.workers.dev/";
+
+// サーバーと同じ週番号（JST・月曜はじまり）
+function clientWeek(now = Date.now()) {
+  const day = Math.floor((now + 9 * 3600 * 1000) / 86400000);
+  return Math.floor((day + 3) / 7);
+}
 const NET_OK = typeof fetch === "function" &&
   typeof location !== "undefined" && /^https?:$/.test(location.protocol || "");
 
@@ -166,11 +176,12 @@ function playerId() {
   return id;
 }
 
-function submitScore() {
-  if (!NET_OK || !playerName) return;
-  // ベスト更新も名前変更も無ければ送らない（通信とKV書き込みの節約）
-  if (highScore <= sentBest.s && bigFish.cm <= sentBest.c && playerName === sentBest.n) return;
-  const payload = { id: playerId(), name: playerName, score: highScore, cm: bigFish.cm, fish: bigFish.id };
+function postScore(run, runCm, runFish) {
+  const payload = {
+    id: playerId(), name: playerName,
+    best: highScore, bestCm: bigFish.cm, bestFish: bigFish.id,
+    run, runCm, fish: runFish,
+  };
   fetch("api/score", {
     method: "POST",
     headers: { "content-type": "application/json" },
@@ -179,8 +190,54 @@ function submitScore() {
     if (res && res.ok) {
       sentBest = { s: highScore, c: bigFish.cm, n: playerName };
       saveJSON("isomoguri_sent", sentBest);
+      const wk = clientWeek();
+      if (weeklySent.week !== wk) weeklySent = { week: wk, s: 0, c: 0 };
+      weeklySent.s = Math.max(weeklySent.s, run);
+      weeklySent.c = Math.max(weeklySent.c, runCm);
+      saveJSON("isomoguri_wsent", weeklySent);
     }
   }).catch(() => {});
+}
+
+// 名前登録・変更時：通算ベストだけ同期する
+function submitScore() {
+  if (!NET_OK || !playerName) return;
+  if (highScore <= sentBest.s && bigFish.cm <= sentBest.c && playerName === sentBest.n) return;
+  postScore(0, 0, "");
+}
+
+// ラン終了時：今週の部にはそのランの成績を送る
+function submitRun(total) {
+  if (!NET_OK || !playerName) return;
+  const wk = clientWeek();
+  if (weeklySent.week !== wk) weeklySent = { week: wk, s: 0, c: 0 };
+  const improved = total > weeklySent.s || runBig.cm > weeklySent.c ||
+    highScore > sentBest.s || bigFish.cm > sentBest.c || playerName !== sentBest.n;
+  if (!improved) return;
+  postScore(Math.max(0, total), runBig.cm, runBig.id);
+}
+
+// 前回見たときの自分の順位と比べ、抜かれていたら知らせる（今週の部で判定）
+function rankAlert(d) {
+  const w = d.weekly || {};
+  const cur = {
+    week: w.week || 0,
+    s: (w.me && w.me.score) || 0,
+    f: (w.me && w.me.fish) || 0,
+  };
+  const prev = loadJSON("isomoguri_lastrank", null);
+  saveJSON("isomoguri_lastrank", cur);
+  if (!prev || !playerName || prev.week !== cur.week) return null;
+  const drops = [];
+  if (prev.s && cur.s > prev.s) {
+    const culprit = (w.score || [])[cur.s - 2];
+    drops.push(`スコア${prev.s}位→${cur.s}位` + (culprit ? `（${culprit.n}に抜かれた）` : ""));
+  }
+  if (prev.f && cur.f > prev.f) {
+    const culprit = (w.fish || [])[cur.f - 2];
+    drops.push(`ヌシ${prev.f}位→${cur.f}位` + (culprit ? `（${culprit.n}に抜かれた）` : ""));
+  }
+  return drops.length ? "⚠ " + drops.join("　") : null;
 }
 
 function fetchRanking() {
@@ -192,7 +249,7 @@ function fetchRanking() {
       if (!r.ok) throw "net";
       return r.json();
     })
-    .then(d => { rankView = { data: d }; })
+    .then(d => { rankView = { data: d, alert: rankAlert(d) }; })
     .catch(e => {
       rankView = { error: e === "notready" ? "ランキングは準備中。もうすこし待ってね。"
                                            : "取得できなかった。電波の良い場所でもう一度。" };
@@ -233,6 +290,112 @@ function tintedDiver(id = skin) {
     skinTintCache.tinted[def.id] = c;
   }
   return c;
+}
+
+// ---------- 自慢カード（リザルトをシェア画像にする） ----------
+function buildShareCard() {
+  const S = 4, W = 240, H = 126; // 論理240x126をx4で出力（960x504）
+  const c = document.createElement("canvas");
+  c.width = W * S; c.height = H * S;
+  const g = c.getContext("2d");
+  g.scale(S, S);
+  g.imageSmoothingEnabled = false;
+
+  // 海のグラデーションと光
+  const gr = g.createLinearGradient(0, 0, 0, H);
+  gr.addColorStop(0, "#0a3c64"); gr.addColorStop(1, "#04121f");
+  g.fillStyle = gr; g.fillRect(0, 0, W, H);
+  g.fillStyle = "rgba(200,230,255,0.06)";
+  for (const [x0, w] of [[30, 18], [70, 10], [150, 22], [205, 12]]) {
+    g.beginPath();
+    g.moveTo(x0, 0); g.lineTo(x0 + w, 0); g.lineTo(x0 + w - 28, H); g.lineTo(x0 - 28, H);
+    g.closePath(); g.fill();
+  }
+  g.strokeStyle = "rgba(255,255,255,0.25)";
+  for (const [bx, by, br] of [[20, 100, 2], [50, 40, 3], [200, 80, 2], [225, 30, 3], [120, 110, 2]]) {
+    g.beginPath(); g.arc(bx, by, br, 0, Math.PI * 2); g.stroke();
+  }
+
+  const best = bestCatch;
+  // 左：獲物（またはダイバー）
+  const cx = 58, cy = 60;
+  if (best) {
+    g.save();
+    g.translate(cx, cy);
+    g.fillStyle = "rgba(255,224,102,0.10)";
+    for (let i = 0; i < 8; i++) {
+      g.rotate(Math.PI / 4);
+      g.beginPath(); g.moveTo(0, 0); g.lineTo(52, -9); g.lineTo(52, 9); g.closePath(); g.fill();
+    }
+    g.restore();
+    const img = sprites[best.id + "_big"] || sprites[best.id];
+    if (img && img.width) {
+      const w = Math.min(84, 56 * best.sp.size * (best.nushi ? 1.25 : 1));
+      const h = img.height / img.width * w;
+      g.save();
+      g.translate(cx, cy);
+      g.rotate(-0.08);
+      g.drawImage(img, -w / 2, -h / 2, w, h);
+      g.restore();
+    }
+  } else {
+    const img = tintedDiver();
+    if (img && img.width) {
+      const w = 56, h = img.height / img.width * w;
+      g.drawImage(img, cx - w / 2, cy - h / 2, w, h);
+    }
+  }
+
+  // 右：テキスト
+  const tx = 112;
+  g.textAlign = "left";
+  g.font = "bold 10px monospace"; g.fillStyle = "#9ad8f0";
+  g.fillText("いそもぐり", tx, 22);
+  g.font = "bold 14px monospace"; g.fillStyle = "#fff";
+  g.fillText(playerName || "名無しの素潜り", tx, 44);
+  g.font = "bold 12px monospace"; g.fillStyle = "#ffe066";
+  if (best) {
+    g.fillText((best.nushi ? "ヌシ・" : "") + best.sp.name + " " + best.cm + "cm", tx, 66);
+  } else {
+    g.fillText("ボウズ。海はそういう日もある。", tx, 66);
+  }
+  g.font = "bold 10px monospace"; g.fillStyle = "#cfd8e3";
+  g.fillText("スコア " + (resultData ? resultData.total : 0) + "pt　漁果 " + (resultData ? resultData.rank : "-"), tx, 84);
+  g.font = "bold 9px monospace"; g.fillStyle = "#7f9db8";
+  g.fillText(localDateKey().replace(/-/g, "/") + "　海況 " + mode.name, tx, 100);
+  g.font = "bold 7px monospace"; g.fillStyle = "#5a7a94";
+  g.textAlign = "center";
+  g.fillText(SHARE_URL.replace("https://", "").replace(/\/$/, ""), W / 2, 118);
+
+  // 枠
+  g.strokeStyle = "#ffe066"; g.lineWidth = 1.5;
+  g.strokeRect(3, 3, W - 6, H - 6);
+  return c;
+}
+
+function shareResult() {
+  if (!resultData) return;
+  let cnv;
+  try { cnv = buildShareCard(); } catch (_) { return; }
+  const best = bestCatch;
+  const text = "【いそもぐり】" + (playerName ? playerName + "が" : "") +
+    (best ? (best.nushi ? "ヌシ・" : "") + best.sp.name + " " + best.cm + "cmをキープ！" : "潜ってきた。") +
+    " スコア" + resultData.total + "pt";
+  if (!cnv.toBlob) return;
+  cnv.toBlob(blob => {
+    if (!blob) return;
+    const file = typeof File === "function" ? new File([blob], "isomoguri.png", { type: "image/png" }) : null;
+    if (file && navigator.canShare && navigator.canShare({ files: [file] })) {
+      navigator.share({ files: [file], text: text + " " + SHARE_URL }).catch(() => {});
+    } else if (navigator.share) {
+      navigator.share({ text: text + " " + SHARE_URL }).catch(() => {});
+    } else if (typeof URL !== "undefined" && URL.createObjectURL) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "isomoguri.png";
+      a.click();
+    }
+  }, "image/png");
 }
 
 function askName() {
@@ -591,6 +754,7 @@ function reset() {
   cam = 0; camX = WORLD_W / 2 - VW / 2; tGame = 0;
   aim = null; struggle = null; resultData = null; catchCut = null; shotFx = null;
   popups = []; bubbles = [];
+  runBig = { cm: 0, id: "" };
   hintShown = false;
   tapGuardUntil = 0; screenShake = 0; flash = 0;
   current = Math.random() < 0.5 ? -1 : 1;
@@ -803,8 +967,14 @@ function onUp(e) {
     state = "title"; return;
   }
   if (g.startedState === "rank" && state === "rank" && isTap) {
-    // タブ切り替え（スコアの部／ヌシの部）
-    if (g.y >= 40 && g.y <= 60) {
+    // 期間タブ（今週の部／殿堂）
+    if (g.y >= 38 && g.y <= 58) {
+      if (g.x < VW / 2 && rankPeriod !== "week") { rankPeriod = "week"; sfx.ui(); }
+      else if (g.x >= VW / 2 && rankPeriod !== "all") { rankPeriod = "all"; sfx.ui(); }
+      return;
+    }
+    // 部門タブ（スコアの部／ヌシの部）
+    if (g.y >= 62 && g.y <= 82) {
       if (g.x < VW / 2 && rankTab !== "score") { rankTab = "score"; sfx.ui(); }
       else if (g.x >= VW / 2 && rankTab !== "fish") { rankTab = "fish"; sfx.ui(); }
       return;
@@ -818,6 +988,7 @@ function onUp(e) {
     state = "title"; return;
   }
   if (g.startedState === "result" && state === "result" && isTap && performance.now() - resultData.t > 800) {
+    if (g.x >= VW - 62 && g.y < 32) { sfx.ui(); shareResult(); return; }
     if (g.x < 52 && g.y < 32) reset();
     else beginDive();
     return;
@@ -1019,11 +1190,12 @@ function catchFish(f, quality) {
     if (!bestCatch || award > bestCatch.award) {
       bestCatch = { id: f.id, sp: f.sp, cm: f.cm, award, nushi: !!f.nushi };
     }
-    // 生涯最大の1匹（ランキング「ヌシの部」用）
+    // 生涯最大の1匹（ランキング「ヌシの部」用）と、このラン最大の1匹（今週の部用）
     if (f.cm > bigFish.cm) {
       bigFish = { cm: f.cm, id: f.id };
       saveJSON("isomoguri_bigfish", bigFish);
     }
+    if (f.cm > runBig.cm) runBig = { cm: f.cm, id: f.id };
   } else {
     breakCombo();
   }
@@ -1088,7 +1260,7 @@ function endRun(blackout) {
   saveJSON("isomoguri_dex", dex);
   if (!blackout) sfx.surface(); else sfx.bara();
   if (newSkin) sfx.record();
-  submitScore();
+  submitRun(total);
   resultData = {
     total, note, isNew, rank: resultRank(total, blackout), blackout, newSkin,
     bonusTotal: comboBonus + dailyBonus + discoveryBonus + surfaceBonus + sizeBonus,
@@ -1654,6 +1826,11 @@ function drawResult() {
   ctx.strokeStyle = "#7f9db8"; ctx.lineWidth = 0.5; ctx.strokeRect(6.5, 6.5, 39, 15);
   ctx.font = "bold 8px monospace"; ctx.textAlign = "center"; ctx.fillStyle = "#9ad8f0";
   ctx.fillText("海況", 26, 17);
+  // 自慢カード（シェア）ボタン
+  ctx.fillStyle = "rgba(20,40,60,0.9)"; ctx.fillRect(VW - 60, 6, 54, 16);
+  ctx.strokeStyle = "#ffe066"; ctx.lineWidth = 0.5; ctx.strokeRect(VW - 59.5, 6.5, 53, 15);
+  ctx.fillStyle = "#ffe066";
+  ctx.fillText("自慢する", VW - 33, 17);
 
   ctx.textAlign = "center";
   ctx.fillStyle = "#ffe066"; ctx.font = "bold 16px monospace";
@@ -1872,40 +2049,51 @@ function drawRank() {
   ctx.fillStyle = "#ffe066"; ctx.font = "bold 16px monospace";
   ctx.fillText("ランキング", VW / 2, 30);
 
-  // タブ（スコアの部／ヌシの部）
-  const tabs = [["score", "スコアの部"], ["fish", "ヌシの部"]];
-  ctx.font = "bold 9px monospace";
-  tabs.forEach(([id, label], i) => {
-    const tx = i === 0 ? 24 : VW / 2 + 4;
-    const tw = VW / 2 - 28;
-    const active = rankTab === id;
-    ctx.fillStyle = active ? "rgba(255,224,102,0.16)" : "rgba(20,40,60,0.9)";
-    ctx.fillRect(tx, 40, tw, 20);
-    ctx.strokeStyle = active ? "#ffe066" : "#40566a"; ctx.lineWidth = active ? 1.5 : 1;
-    ctx.strokeRect(tx + 0.5, 40.5, tw - 1, 19);
-    ctx.fillStyle = active ? "#ffe066" : "#7f9db8";
-    ctx.fillText(label, tx + tw / 2, 54);
-  });
+  // 期間タブ（今週の部／殿堂）と部門タブ（スコア／ヌシ）の2段
+  const drawTabRow = (pairs, sel, top) => {
+    ctx.font = "bold 9px monospace";
+    pairs.forEach(([id, label], i) => {
+      const tx = i === 0 ? 24 : VW / 2 + 4;
+      const tw = VW / 2 - 28;
+      const active = sel === id;
+      ctx.fillStyle = active ? "rgba(255,224,102,0.16)" : "rgba(20,40,60,0.9)";
+      ctx.fillRect(tx, top, tw, 18);
+      ctx.strokeStyle = active ? "#ffe066" : "#40566a"; ctx.lineWidth = active ? 1.5 : 1;
+      ctx.strokeRect(tx + 0.5, top + 0.5, tw - 1, 17);
+      ctx.fillStyle = active ? "#ffe066" : "#7f9db8";
+      ctx.textAlign = "center";
+      ctx.fillText(label, tx + tw / 2, top + 13);
+    });
+  };
+  drawTabRow([["week", "今週の部"], ["all", "殿堂（通算）"]], rankPeriod, 40);
+  drawTabRow([["score", "スコアの部"], ["fish", "ヌシの部"]], rankTab, 64);
 
   ctx.font = "bold 8px monospace";
   if (!rankView || rankView.loading) {
     ctx.fillStyle = "#9ad8f0";
-    ctx.fillText("取得中…", VW / 2, 100);
+    ctx.fillText("取得中…", VW / 2, 110);
   } else if (rankView.error) {
     ctx.fillStyle = "#ff8c8c";
-    wrapText(rankView.error, VW / 2, 100, 190, 12);
+    wrapText(rankView.error, VW / 2, 110, 190, 12);
   } else {
     const d = rankView.data;
+    const base = rankPeriod === "week" ? (d.weekly || {}) : d;
     const medal = ["#ffe066", "#cfd8e3", "#e0a06a"];
-    const rows = rankTab === "score" ? (d.score || []) : (d.fish || []);
-    let y = 80;
+    const rows = rankTab === "score" ? (base.score || []) : (base.fish || []);
+    let y = 100;
+    if (rankPeriod === "week") {
+      ctx.fillStyle = "#7f9db8"; ctx.textAlign = "center";
+      ctx.fillText("毎週月曜0時にリセット", VW / 2, 94);
+      y = 108;
+    }
     if (!rows.length) {
-      ctx.fillStyle = "#7f9db8";
-      ctx.fillText("まだ誰もいない。一番乗りのチャンス。", VW / 2, y);
-      y += 14;
+      ctx.fillStyle = "#7f9db8"; ctx.textAlign = "center";
+      ctx.fillText(rankPeriod === "week" ? "今週はまだ誰もいない。一番乗りのチャンス。"
+                                         : "まだ誰もいない。", VW / 2, y + 6);
+      y += 20;
     }
     ctx.textAlign = "left";
-    rows.slice(0, 20).forEach((p, i) => {
+    rows.slice(0, 18).forEach((p, i) => {
       ctx.fillStyle = medal[i] || "#fff";
       ctx.fillText(`${String(i + 1).padStart(2)}. ${p.n}`, 22, y);
       ctx.textAlign = "right";
@@ -1919,15 +2107,23 @@ function drawRank() {
       y += 12;
     });
 
-    // 自分の順位
+    // 抜かれた通知（今週の部基準）
     ctx.textAlign = "center";
+    if (rankView.alert) {
+      ctx.globalAlpha = 0.75 + 0.25 * Math.sin(tGame * 5);
+      ctx.fillStyle = "#ff8c8c";
+      wrapText(rankView.alert, VW / 2, VH - 80, 205, 10);
+      ctx.globalAlpha = 1;
+    }
+
+    // 自分の順位（表示中の期間で）
     const myY = VH - 58;
     if (playerName) {
       const mine = [];
-      if (d.me && d.me.score) mine.push(`スコア ${d.me.score}位`);
-      if (d.me && d.me.fish) mine.push(`ヌシ ${d.me.fish}位`);
+      if (base.me && base.me.score) mine.push(`スコア ${base.me.score}位`);
+      if (base.me && base.me.fish) mine.push(`ヌシ ${base.me.fish}位`);
       ctx.fillStyle = "#7bd88f";
-      ctx.fillText(mine.length ? `${playerName}：${mine.join("　")}（全${d.total}人）`
+      ctx.fillText(mine.length ? `${playerName}：${mine.join("　")}（全${base.total || 0}人）`
                                : "記録を出すとここに順位が出る", VW / 2, myY);
     } else {
       ctx.fillStyle = "#ffe066";
@@ -1988,6 +2184,7 @@ if (location.hostname === "127.0.0.1" || location.hostname === "localhost") {
       state = "struggle";
     },
     audio: () => ({ soundOn, hasAC: !!AC, acState: AC && AC.state }),
+    card: () => buildShareCard().toDataURL(),
   };
 }
 

@@ -22,15 +22,21 @@ function json(data, status = 200) {
   });
 }
 
-// 全プレイヤーのベストをKVのメタデータだけで集める（値のGETを発行しない）
-async function listPlayers(env) {
+// 週番号（JST・月曜はじまり）。週間ランキングのキーに使う
+function weekKey(now = Date.now()) {
+  const day = Math.floor((now + 9 * 3600 * 1000) / 86400000);
+  return Math.floor((day + 3) / 7);
+}
+
+// プレイヤーのベストをKVのメタデータだけで集める（値のGETを発行しない）
+async function listPlayers(env, prefix) {
   const players = [];
   let cursor;
   for (let page = 0; page < 5; page++) {
-    const res = await env.RANK.list({ prefix: "p:", limit: 1000, cursor });
+    const res = await env.RANK.list({ prefix, limit: 1000, cursor });
     for (const k of res.keys) {
       const m = k.metadata;
-      if (m && typeof m.s === "number") players.push({ id: k.name.slice(2), ...m });
+      if (m && typeof m.s === "number") players.push({ id: k.name.slice(prefix.length), ...m });
     }
     if (res.list_complete) break;
     cursor = res.cursor;
@@ -38,9 +44,7 @@ async function listPlayers(env) {
   return players;
 }
 
-async function handleRanking(url, env) {
-  const me = url.searchParams.get("id") || "";
-  const players = await listPlayers(env);
+function buildBoards(players, me) {
   const byScore = [...players].sort((a, b) => b.s - a.s || (a.t || 0) - (b.t || 0));
   const byFish = players.filter(p => p.c > 0).sort((a, b) => b.c - a.c || (a.t || 0) - (b.t || 0));
   const my = {};
@@ -48,12 +52,33 @@ async function handleRanking(url, env) {
   const iF = byFish.findIndex(p => p.id === me);
   if (iS >= 0) my.score = iS + 1;
   if (iF >= 0) my.fish = iF + 1;
-  return json({
+  return {
     total: players.length,
     score: byScore.slice(0, 20).map(p => ({ n: p.n, s: p.s })),
     fish: byFish.slice(0, 20).map(p => ({ n: p.n, c: p.c, f: p.f || "" })),
     me: my,
-  });
+  };
+}
+
+async function handleRanking(url, env) {
+  const me = url.searchParams.get("id") || "";
+  const wk = weekKey();
+  const [allPlayers, weekPlayers] = await Promise.all([
+    listPlayers(env, "p:"),
+    listPlayers(env, `w:${wk}:`),
+  ]);
+  const all = buildBoards(allPlayers, me);
+  const weekly = buildBoards(weekPlayers, me);
+  weekly.week = wk;
+  return json({ ...all, weekly });
+}
+
+function intIn(v, min, max) {
+  return Number.isInteger(v) && v >= min && v <= max ? v : 0;
+}
+
+function fishIdOf(v) {
+  return typeof v === "string" && /^[a-z_]{1,24}$/.test(v) ? v : "";
 }
 
 async function handleSubmit(request, env) {
@@ -63,24 +88,48 @@ async function handleSubmit(request, env) {
   const name = sanitizeName(body.name);
   if (!id) return json({ error: "bad_id" }, 400);
   if (!name) return json({ error: "bad_name" }, 400);
-  const score = Number.isInteger(body.score) && body.score >= 0 && body.score <= 999999 ? body.score : 0;
-  const cm = Number.isInteger(body.cm) && body.cm > 0 && body.cm <= 400 ? body.cm : 0;
-  const fishId = typeof body.fish === "string" && /^[a-z_]{1,24}$/.test(body.fish) ? body.fish : "";
+  // 新クライアントは best/run を分けて送る。旧クライアントの score/cm は両方に効かせる
+  // （旧版は自己ベスト更新時にしか送らない＝その値は「いま出した記録」なので週間にも有効）
+  const best = intIn(body.best !== undefined ? body.best : body.score, 0, 999999);
+  const run = intIn(body.run !== undefined ? body.run : body.score, 0, 999999);
+  const bestCm = intIn(body.bestCm !== undefined ? body.bestCm : body.cm, 1, 400);
+  const runCm = intIn(body.runCm !== undefined ? body.runCm : body.cm, 1, 400);
+  const bestFish = fishIdOf(body.bestFish || body.fish);
+  const runFish = fishIdOf(body.fish);
 
+  // 通算（殿堂）
   const key = "p:" + id;
   const prev = (await env.RANK.get(key, "json")) || { n: "", s: 0, c: 0, f: "" };
   const next = {
     n: name,
-    s: Math.max(prev.s || 0, score),
-    c: Math.max(prev.c || 0, cm),
-    f: cm > 0 && cm >= (prev.c || 0) ? fishId : (prev.f || ""),
+    s: Math.max(prev.s || 0, best),
+    c: Math.max(prev.c || 0, bestCm),
+    f: bestCm > 0 && bestCm >= (prev.c || 0) ? bestFish : (prev.f || ""),
     t: Date.now(),
   };
   // ベスト更新か名前変更のときだけ書き込む（KV無料枠の書き込み回数を節約）
   if (next.n !== prev.n || next.s !== (prev.s || 0) || next.c !== (prev.c || 0)) {
     await env.RANK.put(key, JSON.stringify(next), { metadata: next });
   }
-  return json({ ok: true, best: { s: next.s, c: next.c } });
+
+  // 今週の部（35日で自動失効）
+  const wk = weekKey();
+  if (run > 0 || runCm > 0) {
+    const wkey = `w:${wk}:${id}`;
+    const prevW = (await env.RANK.get(wkey, "json")) || { n: "", s: 0, c: 0, f: "" };
+    const nextW = {
+      n: name,
+      s: Math.max(prevW.s || 0, run),
+      c: Math.max(prevW.c || 0, runCm),
+      f: runCm > 0 && runCm >= (prevW.c || 0) ? runFish : (prevW.f || ""),
+      t: Date.now(),
+    };
+    if (nextW.n !== prevW.n || nextW.s !== (prevW.s || 0) || nextW.c !== (prevW.c || 0)) {
+      await env.RANK.put(wkey, JSON.stringify(nextW), { metadata: nextW, expirationTtl: 3600 * 24 * 35 });
+    }
+  }
+
+  return json({ ok: true, best: { s: next.s, c: next.c }, week: wk });
 }
 
 export default {

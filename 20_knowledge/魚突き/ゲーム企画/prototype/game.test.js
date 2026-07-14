@@ -143,10 +143,15 @@ assert.equal(evaluate("state"), "rank");
 assert.ok(evaluate("rankView && rankView.error !== undefined"));
 tap(120, 380); // 下部の帯（名前登録）。promptが無い環境では何も起きない
 assert.equal(evaluate("state"), "rank");
-tap(180, 50); // 右タブ → ヌシの部へ切り替え（画面は閉じない）
+tap(180, 48); // 期間タブ右 → 殿堂（通算）
+assert.equal(evaluate("rankPeriod"), "all");
+assert.equal(evaluate("state"), "rank");
+tap(60, 48); // 期間タブ左 → 今週の部へ戻す
+assert.equal(evaluate("rankPeriod"), "week");
+tap(180, 72); // 部門タブ右 → ヌシの部へ切り替え（画面は閉じない）
 assert.equal(evaluate("rankTab"), "fish");
 assert.equal(evaluate("state"), "rank");
-tap(60, 50); // 左タブ → スコアの部へ戻す
+tap(60, 72); // 部門タブ左 → スコアの部へ戻す
 assert.equal(evaluate("rankTab"), "score");
 tap(120, 200); // タブ・帯の外 → タイトルへ
 assert.equal(evaluate("state"), "title");
