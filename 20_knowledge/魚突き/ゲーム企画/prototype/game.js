@@ -79,6 +79,7 @@ let playerName = store.getItem("isomoguri_name") || "";
 let bigFish = loadJSON("isomoguri_bigfish", { cm: 0, id: "" }); // 生涯最大の1匹
 let sentBest = loadJSON("isomoguri_sent", { s: 0, c: 0, n: "" }); // 送信済みのベスト
 let rankView = null; // null | {loading:1} | {error:msg} | {data}
+let rankTab = "score"; // "score" | "fish"
 const NET_OK = typeof fetch === "function" &&
   typeof location !== "undefined" && /^https?:$/.test(location.protocol || "");
 
@@ -728,6 +729,12 @@ function onUp(e) {
     state = "title"; return;
   }
   if (g.startedState === "rank" && state === "rank" && isTap) {
+    // タブ切り替え（スコアの部／ヌシの部）
+    if (g.y >= 40 && g.y <= 60) {
+      if (g.x < VW / 2 && rankTab !== "score") { rankTab = "score"; sfx.ui(); }
+      else if (g.x >= VW / 2 && rankTab !== "fish") { rankTab = "fish"; sfx.ui(); }
+      return;
+    }
     // 下部の帯＝名前の登録・変更。それ以外はタイトルへ戻る
     if (g.y >= VH - 48 && g.y <= VH - 16) {
       sfx.ui();
@@ -1791,62 +1798,66 @@ function drawRank() {
   ctx.fillStyle = "#ffe066"; ctx.font = "bold 16px monospace";
   ctx.fillText("ランキング", VW / 2, 30);
 
+  // タブ（スコアの部／ヌシの部）
+  const tabs = [["score", "スコアの部"], ["fish", "ヌシの部"]];
+  ctx.font = "bold 9px monospace";
+  tabs.forEach(([id, label], i) => {
+    const tx = i === 0 ? 24 : VW / 2 + 4;
+    const tw = VW / 2 - 28;
+    const active = rankTab === id;
+    ctx.fillStyle = active ? "rgba(255,224,102,0.16)" : "rgba(20,40,60,0.9)";
+    ctx.fillRect(tx, 40, tw, 20);
+    ctx.strokeStyle = active ? "#ffe066" : "#40566a"; ctx.lineWidth = active ? 1.5 : 1;
+    ctx.strokeRect(tx + 0.5, 40.5, tw - 1, 19);
+    ctx.fillStyle = active ? "#ffe066" : "#7f9db8";
+    ctx.fillText(label, tx + tw / 2, 54);
+  });
+
   ctx.font = "bold 8px monospace";
   if (!rankView || rankView.loading) {
     ctx.fillStyle = "#9ad8f0";
-    ctx.fillText("取得中…", VW / 2, 90);
+    ctx.fillText("取得中…", VW / 2, 100);
   } else if (rankView.error) {
     ctx.fillStyle = "#ff8c8c";
-    wrapText(rankView.error, VW / 2, 90, 190, 12);
+    wrapText(rankView.error, VW / 2, 100, 190, 12);
   } else {
     const d = rankView.data;
     const medal = ["#ffe066", "#cfd8e3", "#e0a06a"];
-
-    // スコアの部
-    ctx.textAlign = "left"; ctx.fillStyle = "#9ad8f0";
-    ctx.fillText("― スコアの部 ―", 20, 56);
-    let y = 72;
-    const scores = (d.score || []).slice(0, 8);
-    if (!scores.length) { ctx.fillStyle = "#7f9db8"; ctx.fillText("まだ誰もいない。一番乗りのチャンス。", 20, y); y += 14; }
-    scores.forEach((p, i) => {
+    const rows = rankTab === "score" ? (d.score || []) : (d.fish || []);
+    let y = 80;
+    if (!rows.length) {
+      ctx.fillStyle = "#7f9db8";
+      ctx.fillText("まだ誰もいない。一番乗りのチャンス。", VW / 2, y);
+      y += 14;
+    }
+    ctx.textAlign = "left";
+    rows.slice(0, 20).forEach((p, i) => {
       ctx.fillStyle = medal[i] || "#fff";
-      ctx.fillText(`${i + 1}. ${p.n}`, 24, y);
+      ctx.fillText(`${String(i + 1).padStart(2)}. ${p.n}`, 22, y);
       ctx.textAlign = "right";
-      ctx.fillText(`${p.s}pt`, VW - 24, y);
+      if (rankTab === "score") {
+        ctx.fillText(`${p.s}pt`, VW - 22, y);
+      } else {
+        const spName = SPECIES[p.f] ? SPECIES[p.f].name : "";
+        ctx.fillText(`${spName} ${p.c}cm`, VW - 22, y);
+      }
       ctx.textAlign = "left";
-      y += 13;
-    });
-
-    // ヌシの部（生涯最大の1匹）
-    y += 10;
-    ctx.fillStyle = "#9ad8f0";
-    ctx.fillText("― ヌシの部（最大の1匹） ―", 20, y);
-    y += 16;
-    const fishes5 = (d.fish || []).slice(0, 5);
-    if (!fishes5.length) { ctx.fillStyle = "#7f9db8"; ctx.fillText("まだ記録なし。", 24, y); y += 14; }
-    fishes5.forEach((p, i) => {
-      const spName = SPECIES[p.f] ? SPECIES[p.f].name : "";
-      ctx.fillStyle = medal[i] || "#fff";
-      ctx.fillText(`${i + 1}. ${p.n}`, 24, y);
-      ctx.textAlign = "right";
-      ctx.fillText(`${spName} ${p.c}cm`, VW - 24, y);
-      ctx.textAlign = "left";
-      y += 13;
+      y += 12;
     });
 
     // 自分の順位
-    y += 12;
     ctx.textAlign = "center";
+    const myY = VH - 58;
     if (playerName) {
       const mine = [];
       if (d.me && d.me.score) mine.push(`スコア ${d.me.score}位`);
       if (d.me && d.me.fish) mine.push(`ヌシ ${d.me.fish}位`);
       ctx.fillStyle = "#7bd88f";
       ctx.fillText(mine.length ? `${playerName}：${mine.join("　")}（全${d.total}人）`
-                               : "記録を出すとここに順位が出る", VW / 2, y);
+                               : "記録を出すとここに順位が出る", VW / 2, myY);
     } else {
       ctx.fillStyle = "#ffe066";
-      ctx.fillText("名前を登録すると参加できます", VW / 2, y);
+      ctx.fillText("名前を登録すると参加できます", VW / 2, myY);
     }
   }
 
