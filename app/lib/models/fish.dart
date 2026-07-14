@@ -23,6 +23,10 @@ class Fish {
     required this.cookingMethods,
     required this.aliases,
     required this.description,
+    required this.tasteRating,
+    required this.priceRating,
+    required this.rarityRating,
+    required this.flavor,
     this.imageAsset,
   });
 
@@ -64,6 +68,19 @@ class Fish {
   final List<String> aliases;
 
   final String description;
+
+  /// 食味 rating (deliciousness), 1.0-5.0 in half steps.
+  final double tasteRating;
+
+  /// 価格帯 rating (1 = cheap … 5 = luxury), 1.0-5.0.
+  final double priceRating;
+
+  /// 希少度 rating (1 = everywhere … 5 = rarely seen), 1.0-5.0.
+  final double rarityRating;
+
+  /// Flavour radar values keyed by axis (`fat`, `umami`, `firmness`,
+  /// `richness`, `aroma`), each 1.0-5.0.
+  final Map<String, double> flavor;
 
   /// Bundled photo path (e.g. `assets/images/madai.webp`).
   ///
@@ -121,9 +138,25 @@ class Fish {
           .map((e) => e as String)
           .toList(),
       description: json['description'] as String,
+      tasteRating: (json['ratings']['taste'] as num).toDouble(),
+      priceRating: (json['ratings']['price'] as num).toDouble(),
+      rarityRating: (json['ratings']['rarity'] as num).toDouble(),
+      flavor: (json['flavor'] as Map<String, dynamic>)
+          .map((k, v) => MapEntry(k, (v as num).toDouble())),
       imageAsset: json['imageAsset'] as String?,
     );
   }
+}
+
+/// A flavour radar axis descriptor from the dataset header.
+@immutable
+class FlavorAxis {
+  const FlavorAxis({required this.key, required this.label});
+  final String key;
+  final String label;
+
+  factory FlavorAxis.fromJson(Map<String, dynamic> json) =>
+      FlavorAxis(key: json['key'] as String, label: json['label'] as String);
 }
 
 /// A category descriptor from the dataset header.

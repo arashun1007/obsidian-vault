@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 
 import '../data/favorites_service.dart';
+import '../data/fish_repository.dart';
 import '../models/fish.dart';
 import '../util/season.dart';
 import '../widgets/fish_image.dart';
+import '../widgets/flavor_radar.dart';
+import '../widgets/star_rating.dart';
 
 class DetailScreen extends StatelessWidget {
   const DetailScreen({super.key, required this.fish});
@@ -53,6 +56,21 @@ class DetailScreen extends StatelessWidget {
                   const SizedBox(height: 20),
                   _SeasonBar(months: fish.seasonMonths),
                   const SizedBox(height: 24),
+                  _Section(
+                    title: '評価',
+                    child: _RatingBlock(fish: fish),
+                  ),
+                  _Section(
+                    title: '味わいプロファイル',
+                    child: Center(
+                      child: FlavorRadar(
+                        axes: FishRepository.instance.flavorAxes,
+                        values: fish.flavor,
+                        color: fish.accentColor,
+                        size: 240,
+                      ),
+                    ),
+                  ),
                   _Section(
                     title: '解説',
                     child: Text(
@@ -112,6 +130,30 @@ class _Header extends StatelessWidget {
             fontStyle: FontStyle.italic,
             color: theme.colorScheme.onSurfaceVariant,
           ),
+        ),
+      ],
+    );
+  }
+}
+
+class _RatingBlock extends StatelessWidget {
+  const _RatingBlock({required this.fish});
+  final Fish fish;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        LabeledStars(label: '食味', value: fish.tasteRating),
+        LabeledStars(
+          label: '価格帯',
+          value: fish.priceRating,
+          color: const Color(0xFF4CAF82),
+        ),
+        LabeledStars(
+          label: '希少度',
+          value: fish.rarityRating,
+          color: const Color(0xFF7E8CE0),
         ),
       ],
     );

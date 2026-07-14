@@ -14,10 +14,12 @@ class FishRepository {
 
   List<Fish> _species = const [];
   List<FishCategory> _categories = const [];
+  List<FlavorAxis> _flavorAxes = const [];
   bool _loaded = false;
 
   List<Fish> get species => _species;
   List<FishCategory> get categories => _categories;
+  List<FlavorAxis> get flavorAxes => _flavorAxes;
   bool get isLoaded => _loaded;
 
   Future<void> load() async {
@@ -27,6 +29,10 @@ class FishRepository {
 
     _categories = (json['categories'] as List<dynamic>)
         .map((e) => FishCategory.fromJson(e as Map<String, dynamic>))
+        .toList();
+
+    _flavorAxes = (json['flavorAxes'] as List<dynamic>)
+        .map((e) => FlavorAxis.fromJson(e as Map<String, dynamic>))
         .toList();
 
     _species = (json['species'] as List<dynamic>)

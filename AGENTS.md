@@ -40,6 +40,9 @@ flutter pub get
    形式: `(id, 和名, かな, 学名, 科, 旬[月のリスト], 最大cm, 分布, 味, [料理], [別名], 解説)`
    カテゴリは `DATA` のキー（`blue`/`white`/`migratory`/`rockfish`/`deep`/
    `freshwater`/`shellfish`/`cephalopod`/`crustacean`/`other`）。
+   **評価は自動生成**（食味/価格帯/希少度＋味わいレーダー5軸）。カテゴリ基準＋
+   決定的ジッターで付与されるので通常は追記不要。高級魚や安価な種で調整したい
+   場合のみ `tool/gen_fish.py` の `OVERRIDES` に `id: {"taste":.., "price":..}` を追加。
 2. 生成:
    ```bash
    cd app
@@ -66,6 +69,8 @@ flutter pub get
 - `data/fish_repository.dart` — JSON を一度読み込みメモリ保持。
 - `data/favorites_service.dart` — お気に入り（shared_preferences）。
 - `util/season.dart` — 旬の月リスト → 「3〜5月」等の整形。
+- `widgets/star_rating.dart` — 星評価（ハーフ対応）と `LabeledStars`。
+- `widgets/flavor_radar.dart` — 味わい5軸レーダー（CustomPainter）。
 - `widgets/fish_image.dart` — 画像 or 生成プレースホルダ（image2 切替フック）。
 - `widgets/fish_card.dart` — グリッドのカード。
 - `screens/home_screen.dart` — 検索・カテゴリ/旬/お気に入りフィルタ・グリッド。

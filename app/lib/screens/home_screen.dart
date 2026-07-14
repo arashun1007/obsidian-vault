@@ -6,6 +6,16 @@ import '../models/fish.dart';
 import '../widgets/fish_card.dart';
 import 'detail_screen.dart';
 
+enum SortMode {
+  recommended('おすすめ順'),
+  taste('食味の高い順'),
+  priceAsc('価格の安い順'),
+  kana('五十音順');
+
+  const SortMode(this.label);
+  final String label;
+}
+
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -22,6 +32,7 @@ class _HomeScreenState extends State<HomeScreen> {
   String? _categoryFilter; // null = all
   bool _seasonOnly = false;
   bool _favoritesOnly = false;
+  SortMode _sort = SortMode.recommended;
 
   @override
   void dispose() {
@@ -31,7 +42,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   List<Fish> get _filtered {
     final month = DateTime.now().month;
-    return _repo.species.where((f) {
+    final list = _repo.species.where((f) {
       if (_categoryFilter != null && f.category != _categoryFilter) {
         return false;
       }
@@ -40,6 +51,24 @@ class _HomeScreenState extends State<HomeScreen> {
       if (!f.matches(_query)) return false;
       return true;
     }).toList();
+
+    switch (_sort) {
+      case SortMode.recommended:
+        break; // repository order: category then kana
+      case SortMode.taste:
+        list.sort((a, b) {
+          final c = b.tasteRating.compareTo(a.tasteRating);
+          return c != 0 ? c : a.kana.compareTo(b.kana);
+        });
+      case SortMode.priceAsc:
+        list.sort((a, b) {
+          final c = a.priceRating.compareTo(b.priceRating);
+          return c != 0 ? c : a.kana.compareTo(b.kana);
+        });
+      case SortMode.kana:
+        list.sort((a, b) => a.kana.compareTo(b.kana));
+    }
+    return list;
   }
 
   @override
@@ -92,12 +121,41 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               SliverToBoxAdapter(
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
-                  child: Text(
-                    '${results.length} 種  /  全 ${_repo.speciesCount} 種収録',
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: theme.colorScheme.onSurfaceVariant,
-                    ),
+                  padding: const EdgeInsets.fromLTRB(16, 10, 8, 2),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          '${results.length} 種  /  全 ${_repo.speciesCount} 種収録',
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: theme.colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ),
+                      PopupMenuButton<SortMode>(
+                        initialValue: _sort,
+                        onSelected: (m) => setState(() => _sort = m),
+                        tooltip: '並び替え',
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 4),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(Icons.sort_rounded, size: 18),
+                              const SizedBox(width: 4),
+                              Text(_sort.label,
+                                  style: theme.textTheme.labelLarge),
+                              const Icon(Icons.arrow_drop_down, size: 18),
+                            ],
+                          ),
+                        ),
+                        itemBuilder: (context) => [
+                          for (final m in SortMode.values)
+                            PopupMenuItem(value: m, child: Text(m.label)),
+                        ],
+                      ),
+                    ],
                   ),
                 ),
               ),
@@ -115,7 +173,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       maxCrossAxisExtent: 220,
                       mainAxisSpacing: 12,
                       crossAxisSpacing: 12,
-                      childAspectRatio: 0.78,
+                      childAspectRatio: 0.72,
                     ),
                     delegate: SliverChildBuilderDelegate(
                       (context, i) {

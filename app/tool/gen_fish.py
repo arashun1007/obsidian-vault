@@ -6,7 +6,132 @@ Data is authored as compact tuples per species and expanded into a rich,
 uniform JSON schema. Categories carry sensible defaults (color, habitat)
 so per-species rows stay focused on the facts that actually differ.
 """
+import hashlib
 import json, os, re
+
+# --- Ratings & flavour profiles -------------------------------------------
+# Every species gets a 3-axis star rating and a 5-axis flavour radar. To keep
+# 200+ entries maintainable these are DERIVED: a per-category baseline, plus a
+# small deterministic jitter (so radars differ species-to-species), plus a
+# curated OVERRIDES table for iconic fish. All values are on a 1.0-5.0 scale
+# and snapped to half-steps.
+FLAVOR_ORDER = ["fat", "umami", "firmness", "richness", "aroma"]
+
+# category -> {"taste":, "price":, "rarity":, flavour axes...}
+CATEGORY_RATING = {
+    #             taste price rarity  fat umami firm rich aroma
+    "blue":       (3.5,  2.0,  2.0,   4.0, 3.5, 2.5, 3.5, 3.5),
+    "white":      (3.5,  3.0,  2.5,   2.0, 3.5, 4.0, 2.5, 2.0),
+    "migratory":  (4.0,  4.0,  3.0,   3.5, 4.0, 3.0, 4.0, 2.5),
+    "rockfish":   (4.0,  3.5,  3.0,   2.5, 3.5, 4.0, 3.0, 2.5),
+    "deep":       (4.0,  4.0,  3.5,   4.0, 3.5, 3.0, 4.0, 2.5),
+    "freshwater": (3.0,  2.5,  3.0,   2.5, 3.0, 3.0, 2.5, 3.0),
+    "shellfish":  (4.0,  3.5,  3.0,   1.5, 4.5, 4.0, 3.0, 4.5),
+    "cephalopod": (3.5,  3.0,  2.5,   1.5, 4.0, 4.5, 2.5, 2.5),
+    "crustacean": (4.5,  4.0,  3.5,   2.0, 4.5, 3.5, 3.5, 3.0),
+    "other":      (3.5,  3.5,  3.5,   2.5, 3.5, 3.0, 3.0, 3.0),
+}
+
+# Per-species tuning. Keys: taste/price/rarity/fat/umami/firmness/richness/aroma
+# (any subset; absolute values that override the computed baseline).
+OVERRIDES = {
+    # ---- top-tier premium ----
+    "kuromaguro":     {"taste": 5.0, "price": 5.0, "rarity": 4.0, "fat": 5.0, "umami": 5.0, "richness": 5.0},
+    "kue":            {"taste": 5.0, "price": 5.0, "rarity": 4.5, "umami": 4.5, "richness": 4.0, "firmness": 4.0},
+    "torafugu":       {"taste": 4.5, "price": 5.0, "rarity": 4.0, "firmness": 5.0, "umami": 4.0, "fat": 1.5, "richness": 2.0},
+    "nodoguro":       {"taste": 5.0, "price": 5.0, "rarity": 4.0, "fat": 5.0, "richness": 5.0, "umami": 4.0},
+    "kinki":          {"taste": 4.5, "price": 5.0, "rarity": 4.0, "fat": 5.0, "richness": 5.0},
+    "shiroamadai":    {"taste": 4.5, "price": 5.0, "rarity": 5.0, "umami": 4.0},
+    "matsukawa":      {"taste": 5.0, "price": 5.0, "rarity": 4.5, "firmness": 4.5, "umami": 4.0},
+    "hoshigarei":     {"taste": 4.5, "price": 5.0, "rarity": 4.5, "firmness": 4.5},
+    "kuromutsu":      {"taste": 4.5, "price": 4.5, "rarity": 4.0, "fat": 4.5, "richness": 4.5},
+    # ---- famous & delicious ----
+    "madai":          {"taste": 4.5, "price": 3.5, "rarity": 2.0, "umami": 4.5, "firmness": 4.5},
+    "hirame":         {"taste": 4.5, "price": 4.0, "rarity": 2.5, "firmness": 5.0, "umami": 4.0},
+    "buri":           {"taste": 4.5, "price": 3.5, "rarity": 2.5, "fat": 4.5, "richness": 4.5},
+    "kanpachi":       {"taste": 4.5, "price": 4.0, "rarity": 3.0, "firmness": 4.5},
+    "hiramasa":       {"taste": 4.5, "price": 4.5, "rarity": 3.5, "firmness": 4.5},
+    "shimaaji":       {"taste": 4.5, "price": 4.5, "rarity": 3.5, "fat": 4.0, "umami": 4.5},
+    "katsuo":         {"taste": 4.0, "price": 2.5, "rarity": 2.0, "umami": 4.5},
+    "unagi":          {"taste": 4.5, "price": 4.0, "rarity": 3.5, "fat": 4.5, "richness": 5.0},
+    "hamo":           {"taste": 4.0, "price": 4.0, "rarity": 3.5, "firmness": 3.5},
+    "kinmedai":       {"taste": 4.5, "price": 4.0, "rarity": 3.0, "fat": 4.5, "richness": 4.5},
+    "amadai":         {"taste": 4.5, "price": 4.0, "rarity": 3.5},
+    "mahata":         {"taste": 4.5, "price": 4.5, "rarity": 3.5, "umami": 4.5},
+    "sawara":         {"taste": 4.0, "price": 3.0, "rarity": 2.5, "fat": 4.0},
+    "sanma":          {"taste": 4.0, "price": 2.0, "rarity": 2.5, "fat": 4.5, "richness": 4.0},
+    "ayu":            {"taste": 4.0, "price": 3.0, "rarity": 3.0, "aroma": 5.0},
+    "nodoguro2":      {},
+    "gindara":        {"taste": 4.0, "price": 3.5, "fat": 5.0, "richness": 5.0},
+    "mero":           {"taste": 4.0, "price": 4.0, "rarity": 3.5, "fat": 5.0, "richness": 5.0},
+    # ---- shellfish / uni / cephalopods ----
+    "awabi":          {"taste": 4.5, "price": 5.0, "rarity": 4.0, "firmness": 5.0, "aroma": 4.5, "umami": 4.0},
+    "mirukui":        {"taste": 4.5, "price": 5.0, "rarity": 4.5, "firmness": 5.0},
+    "torigai":        {"taste": 4.0, "price": 4.0, "rarity": 3.5, "firmness": 4.0},
+    "hotate":         {"taste": 4.5, "price": 3.0, "rarity": 2.0, "umami": 4.5},
+    "akagai":         {"taste": 4.0, "price": 4.0, "rarity": 3.5, "aroma": 4.0},
+    "tairagi":        {"taste": 4.0, "price": 4.0, "rarity": 3.5},
+    "bafununi":       {"taste": 4.5, "price": 4.5, "rarity": 3.5, "umami": 5.0, "aroma": 5.0, "fat": 3.0},
+    "kitamurasakiuni":{"taste": 4.5, "price": 4.5, "rarity": 3.5, "umami": 5.0, "aroma": 5.0, "fat": 3.0},
+    "aoriika":        {"taste": 4.5, "price": 4.0, "rarity": 3.0, "umami": 5.0, "firmness": 4.0},
+    "kensakiika":     {"taste": 4.5, "price": 4.0, "rarity": 3.5, "umami": 4.5},
+    "surumeika":      {"taste": 3.5, "price": 1.5, "rarity": 1.0},
+    "hotaruika":      {"taste": 3.5, "price": 2.5, "rarity": 2.5, "aroma": 4.5, "richness": 4.0},
+    # ---- crustaceans ----
+    "kurumaebi":      {"taste": 5.0, "price": 4.5, "rarity": 3.5, "umami": 4.5},
+    "iseebi":         {"taste": 4.5, "price": 5.0, "rarity": 4.0, "firmness": 4.5},
+    "semiebi":        {"taste": 4.5, "price": 5.0, "rarity": 5.0},
+    "kegani":         {"taste": 4.5, "price": 4.5, "rarity": 3.5, "umami": 5.0},
+    "zuwaigani":      {"taste": 4.5, "price": 4.5, "rarity": 3.5, "umami": 5.0},
+    "tarabagani":     {"taste": 4.0, "price": 4.5, "rarity": 3.5},
+    "hanasakigani":   {"taste": 4.5, "price": 4.5, "rarity": 4.0},
+    "amaebi":         {"taste": 4.0, "price": 2.5, "rarity": 2.0},
+    "botanebi":       {"taste": 4.5, "price": 4.0, "rarity": 3.5},
+    "sakuraebi":      {"taste": 4.0, "price": 4.0, "rarity": 4.0, "aroma": 4.0},
+    "banameiebi":     {"taste": 2.5, "price": 1.5, "rarity": 1.0},
+    "blacktiger":     {"taste": 3.0, "price": 2.0, "rarity": 1.0},
+    # ---- everyday cheap ----
+    "maiwashi":       {"taste": 3.5, "price": 1.5, "rarity": 1.0, "fat": 4.0},
+    "katakuchiiwashi":{"taste": 3.0, "price": 1.0, "rarity": 1.0},
+    "masaba":         {"taste": 3.5, "price": 2.0, "rarity": 1.0, "fat": 4.0},
+    "maaji":          {"taste": 4.0, "price": 2.0, "rarity": 1.5, "umami": 4.0},
+    "suketoudara":    {"taste": 2.5, "price": 1.5, "rarity": 1.0},
+    "asari":          {"taste": 3.5, "price": 2.0, "rarity": 1.0, "umami": 4.0},
+    "buri_dummy":     {},
+}
+
+
+def _clamp_half(x):
+    return max(1.0, min(5.0, round(x * 2) / 2))
+
+
+def compute_ratings(fid, cat):
+    base = CATEGORY_RATING[cat]
+    taste, price, rarity = base[0], base[1], base[2]
+    flavor = dict(zip(FLAVOR_ORDER, base[3:]))
+
+    # Deterministic per-species jitter on flavour axes (-0.5, 0, +0.5).
+    seed = int(hashlib.md5(fid.encode("utf-8")).hexdigest(), 16)
+    for i, ax in enumerate(FLAVOR_ORDER):
+        off = ((seed >> (i * 5)) % 3 - 1) * 0.5
+        flavor[ax] += off
+
+    ov = OVERRIDES.get(fid, {})
+    taste = ov.get("taste", taste)
+    price = ov.get("price", price)
+    rarity = ov.get("rarity", rarity)
+    for ax in FLAVOR_ORDER:
+        if ax in ov:
+            flavor[ax] = ov[ax]
+
+    ratings = {
+        "taste": _clamp_half(taste),
+        "price": _clamp_half(price),
+        "rarity": _clamp_half(rarity),
+    }
+    flavor = {ax: _clamp_half(flavor[ax]) for ax in FLAVOR_ORDER}
+    return ratings, flavor
+
 
 # category key -> (label, accent color hex, default habitat)
 CATEGORIES = {
@@ -663,6 +788,7 @@ def build():
             (fid, name, kana, sci, fam, season, size, dist, taste, cook, alias, note) = r
             if not name:
                 continue  # skip placeholder rows
+            ratings, flavor = compute_ratings(fid, cat)
             species.append({
                 "id": fid,
                 "name": name,
@@ -680,6 +806,8 @@ def build():
                 "cookingMethods": cook,
                 "aliases": alias,
                 "description": note,
+                "ratings": ratings,   # taste / price / rarity, 1.0-5.0
+                "flavor": flavor,     # fat/umami/firmness/richness/aroma radar
                 # image hook: filled in later by image2 pipeline
                 "imageAsset": None,
             })
@@ -689,6 +817,13 @@ def build():
         "generatedNote": "実データに基づく日本の市場魚介データセット。imageAsset は image2 で後日付与。",
         "categories": [
             {"key": k, "label": v[0], "accentColor": v[1]} for k, v in CATEGORIES.items()
+        ],
+        "flavorAxes": [
+            {"key": "fat", "label": "脂"},
+            {"key": "umami", "label": "旨味"},
+            {"key": "firmness", "label": "食感"},
+            {"key": "richness", "label": "濃厚"},
+            {"key": "aroma", "label": "香り"},
         ],
         "species": species,
     }

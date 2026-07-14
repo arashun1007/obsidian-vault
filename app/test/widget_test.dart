@@ -26,6 +26,16 @@ Fish _sample({
     cookingMethods: const ['刺身'],
     aliases: aliases,
     description: '魚の王様。',
+    tasteRating: 4.5,
+    priceRating: 3.5,
+    rarityRating: 2.0,
+    flavor: const {
+      'fat': 1.5,
+      'umami': 4.5,
+      'firmness': 4.5,
+      'richness': 2.0,
+      'aroma': 2.0,
+    },
   );
 }
 

@@ -4,6 +4,7 @@ import '../data/favorites_service.dart';
 import '../models/fish.dart';
 import '../util/season.dart';
 import 'fish_image.dart';
+import 'star_rating.dart';
 
 /// Grid tile for a single species.
 class FishCard extends StatelessWidget {
@@ -81,6 +82,8 @@ class FishCard extends StatelessWidget {
                       color: theme.colorScheme.onSurfaceVariant,
                     ),
                   ),
+                  const SizedBox(height: 3),
+                  StarRating(value: fish.tasteRating, size: 14),
                 ],
               ),
             ),

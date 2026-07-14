@@ -53,6 +53,28 @@
       "accentColor": "#8A7B4F"
     }
   ],
+  "flavorAxes": [
+    {
+      "key": "fat",
+      "label": "脂"
+    },
+    {
+      "key": "umami",
+      "label": "旨味"
+    },
+    {
+      "key": "firmness",
+      "label": "食感"
+    },
+    {
+      "key": "richness",
+      "label": "濃厚"
+    },
+    {
+      "key": "aroma",
+      "label": "香り"
+    }
+  ],
   "species": [
     {
       "id": "urumeiwashi",
@@ -83,6 +105,18 @@
         "ドンボ"
       ],
       "description": "潤んだ大きな目が名の由来。丸干しは冬の味覚として珍重。",
+      "ratings": {
+        "taste": 3.5,
+        "price": 2.0,
+        "rarity": 2.0
+      },
+      "flavor": {
+        "fat": 4.0,
+        "umami": 3.0,
+        "firmness": 3.0,
+        "richness": 4.0,
+        "aroma": 4.0
+      },
       "imageAsset": null
     },
     {
@@ -113,6 +147,18 @@
         "エツウオ"
       ],
       "description": "筑後川の初夏の風物詩。刀のように細長い体で小骨が多い。",
+      "ratings": {
+        "taste": 3.5,
+        "price": 2.0,
+        "rarity": 2.0
+      },
+      "flavor": {
+        "fat": 3.5,
+        "umami": 3.0,
+        "firmness": 2.0,
+        "richness": 3.0,
+        "aroma": 3.0
+      },
       "imageAsset": null
     },
     {
@@ -145,6 +191,18 @@
         "アカムロ"
       ],
       "description": "尾が赤いムロアジの仲間。くさやの原料にもなる。",
+      "ratings": {
+        "taste": 3.5,
+        "price": 2.0,
+        "rarity": 2.0
+      },
+      "flavor": {
+        "fat": 3.5,
+        "umami": 3.5,
+        "firmness": 2.5,
+        "richness": 3.0,
+        "aroma": 3.0
+      },
       "imageAsset": null
     },
     {
@@ -179,6 +237,18 @@
         "タツクチ"
       ],
       "description": "煮干し・しらす・アンチョビの原料。稚魚はシラスとして流通する。",
+      "ratings": {
+        "taste": 3.0,
+        "price": 1.0,
+        "rarity": 1.0
+      },
+      "flavor": {
+        "fat": 4.5,
+        "umami": 3.0,
+        "firmness": 3.0,
+        "richness": 4.0,
+        "aroma": 4.0
+      },
       "imageAsset": null
     },
     {
@@ -211,6 +281,18 @@
         "ハマゴ"
       ],
       "description": "体側の銀青色の帯が美しい。鹿児島では菊花造りの刺身が名物。",
+      "ratings": {
+        "taste": 3.5,
+        "price": 2.0,
+        "rarity": 2.0
+      },
+      "flavor": {
+        "fat": 4.5,
+        "umami": 4.0,
+        "firmness": 3.0,
+        "richness": 3.5,
+        "aroma": 3.5
+      },
       "imageAsset": null
     },
     {
@@ -243,6 +325,18 @@
         "ツナシ"
       ],
       "description": "出世魚。江戸前寿司のコハダ・シンコとして高値がつく。",
+      "ratings": {
+        "taste": 3.5,
+        "price": 2.0,
+        "rarity": 2.0
+      },
+      "flavor": {
+        "fat": 3.5,
+        "umami": 3.5,
+        "firmness": 2.5,
+        "richness": 3.0,
+        "aroma": 3.5
+      },
       "imageAsset": null
     },
     {
@@ -274,6 +368,18 @@
         "ホシグロ"
       ],
       "description": "腹side に小黒点が散る。夏場でも味が落ちにくく、九州の郷土料理でも人気。",
+      "ratings": {
+        "taste": 3.5,
+        "price": 2.0,
+        "rarity": 2.0
+      },
+      "flavor": {
+        "fat": 4.0,
+        "umami": 3.0,
+        "firmness": 2.5,
+        "richness": 3.0,
+        "aroma": 3.0
+      },
       "imageAsset": null
     },
     {
@@ -306,6 +412,18 @@
         "ハラカタ"
       ],
       "description": "岡山の「ままかり」で有名。旨さに飯を借りるほど、が名の由来。",
+      "ratings": {
+        "taste": 3.5,
+        "price": 2.0,
+        "rarity": 2.0
+      },
+      "flavor": {
+        "fat": 3.5,
+        "umami": 3.5,
+        "firmness": 3.0,
+        "richness": 3.0,
+        "aroma": 4.0
+      },
       "imageAsset": null
     },
     {
@@ -337,6 +455,18 @@
         "スズ"
       ],
       "description": "下あごが針状に長く伸びる。腹の内膜が黒く「腹黒い人」の語源とも。",
+      "ratings": {
+        "taste": 3.5,
+        "price": 2.0,
+        "rarity": 2.0
+      },
+      "flavor": {
+        "fat": 4.0,
+        "umami": 3.5,
+        "firmness": 2.0,
+        "richness": 3.5,
+        "aroma": 4.0
+      },
       "imageAsset": null
     },
     {
@@ -368,6 +498,18 @@
         "秋刀魚"
       ],
       "description": "秋の味覚の代表。近年は不漁で高騰。新鮮なものは下あごの先が黄色い。",
+      "ratings": {
+        "taste": 4.0,
+        "price": 2.0,
+        "rarity": 2.5
+      },
+      "flavor": {
+        "fat": 4.5,
+        "umami": 4.0,
+        "firmness": 2.5,
+        "richness": 4.0,
+        "aroma": 4.0
+      },
       "imageAsset": null
     },
     {
@@ -400,6 +542,18 @@
         "ホントビ"
       ],
       "description": "胸びれを広げ海面を滑空する。焼きアゴは高級出汁の材料。",
+      "ratings": {
+        "taste": 3.5,
+        "price": 2.0,
+        "rarity": 2.0
+      },
+      "flavor": {
+        "fat": 4.0,
+        "umami": 3.0,
+        "firmness": 2.0,
+        "richness": 4.0,
+        "aroma": 4.0
+      },
       "imageAsset": null
     },
     {
@@ -431,6 +585,18 @@
         "春告魚"
       ],
       "description": "春に産卵で接岸する「春告魚」。卵巣は数の子、白子・親body も余さず使う。",
+      "ratings": {
+        "taste": 3.5,
+        "price": 2.0,
+        "rarity": 2.0
+      },
+      "flavor": {
+        "fat": 4.5,
+        "umami": 3.5,
+        "firmness": 3.0,
+        "richness": 3.0,
+        "aroma": 4.0
+      },
       "imageAsset": null
     },
     {
@@ -460,6 +626,18 @@
         "ヒラコノシロ"
       ],
       "description": "有明海の珍魚。強い側扁が名の由来。小骨が多いが美味。",
+      "ratings": {
+        "taste": 3.5,
+        "price": 2.0,
+        "rarity": 2.0
+      },
+      "flavor": {
+        "fat": 4.5,
+        "umami": 3.0,
+        "firmness": 2.5,
+        "richness": 3.5,
+        "aroma": 4.0
+      },
       "imageAsset": null
     },
     {
@@ -495,6 +673,18 @@
         "キアジ/クロアジ"
       ],
       "description": "ゼイゴ(硬い稜鱗)が特徴。回遊型の「黒アジ」より瀬付きの「黄アジ」が美味とされる。",
+      "ratings": {
+        "taste": 4.0,
+        "price": 2.0,
+        "rarity": 1.5
+      },
+      "flavor": {
+        "fat": 4.0,
+        "umami": 4.0,
+        "firmness": 2.0,
+        "richness": 3.0,
+        "aroma": 3.5
+      },
       "imageAsset": null
     },
     {
@@ -529,6 +719,18 @@
         "ヒラゴ(幼魚)"
       ],
       "description": "体側の黒点列が特徴。梅雨〜秋の「入梅いわし」は特に脂がのる。DHA・EPAが豊富。",
+      "ratings": {
+        "taste": 3.5,
+        "price": 1.5,
+        "rarity": 1.0
+      },
+      "flavor": {
+        "fat": 4.0,
+        "umami": 3.0,
+        "firmness": 2.5,
+        "richness": 4.0,
+        "aroma": 3.5
+      },
       "imageAsset": null
     },
     {
@@ -561,6 +763,18 @@
         "ヒラサバ"
       ],
       "description": "「秋サバ」「寒サバ」が旬。鮮度落ちが早く「サバの生き腐れ」と言われる。アニサキスに注意。",
+      "ratings": {
+        "taste": 3.5,
+        "price": 2.0,
+        "rarity": 1.0
+      },
+      "flavor": {
+        "fat": 4.0,
+        "umami": 3.5,
+        "firmness": 3.0,
+        "richness": 4.0,
+        "aroma": 3.0
+      },
       "imageAsset": null
     },
     {
@@ -592,6 +806,18 @@
         "ドンアジ"
       ],
       "description": "断面が丸く尾に稜鱗があるのが特徴。安価で家庭向き。",
+      "ratings": {
+        "taste": 3.5,
+        "price": 2.0,
+        "rarity": 2.0
+      },
+      "flavor": {
+        "fat": 3.5,
+        "umami": 3.5,
+        "firmness": 2.0,
+        "richness": 3.0,
+        "aroma": 4.0
+      },
       "imageAsset": null
     },
     {
@@ -623,6 +849,18 @@
         "メジカ"
       ],
       "description": "血合いが多く独特の風味。宗田節(そうだぶし)の主原料。鮮度落ちが早い。",
+      "ratings": {
+        "taste": 3.5,
+        "price": 2.0,
+        "rarity": 2.0
+      },
+      "flavor": {
+        "fat": 4.5,
+        "umami": 3.0,
+        "firmness": 2.5,
+        "richness": 4.0,
+        "aroma": 3.0
+      },
       "imageAsset": null
     },
     {
@@ -655,6 +893,18 @@
         "アオムロ"
       ],
       "description": "伊豆諸島の「くさや」の主原料として有名。",
+      "ratings": {
+        "taste": 3.5,
+        "price": 2.0,
+        "rarity": 2.0
+      },
+      "flavor": {
+        "fat": 4.5,
+        "umami": 4.0,
+        "firmness": 3.0,
+        "richness": 3.0,
+        "aroma": 4.0
+      },
       "imageAsset": null
     },
     {
@@ -686,6 +936,18 @@
         "オニアジ"
       ],
       "description": "大きな目が特徴。沖縄や南日本で親しまれる小型のアジ。",
+      "ratings": {
+        "taste": 3.5,
+        "price": 2.0,
+        "rarity": 2.0
+      },
+      "flavor": {
+        "fat": 4.0,
+        "umami": 3.0,
+        "firmness": 2.5,
+        "richness": 4.0,
+        "aroma": 4.0
+      },
       "imageAsset": null
     },
     {
@@ -717,6 +979,18 @@
         "ネウ"
       ],
       "description": "縄張りを持つ根魚。旬は初夏で「アブラメ」の名の通り脂がのる。",
+      "ratings": {
+        "taste": 3.5,
+        "price": 3.0,
+        "rarity": 2.5
+      },
+      "flavor": {
+        "fat": 2.5,
+        "umami": 3.5,
+        "firmness": 4.0,
+        "richness": 3.0,
+        "aroma": 1.5
+      },
       "imageAsset": null
     },
     {
@@ -748,6 +1022,18 @@
         "ホンカマス"
       ],
       "description": "「カマスの一夜干し」が定番。秋が旬で脂がのる。",
+      "ratings": {
+        "taste": 3.5,
+        "price": 3.0,
+        "rarity": 2.5
+      },
+      "flavor": {
+        "fat": 2.0,
+        "umami": 3.5,
+        "firmness": 4.5,
+        "richness": 3.0,
+        "aroma": 2.0
+      },
       "imageAsset": null
     },
     {
@@ -778,6 +1064,18 @@
         "アカガレ"
       ],
       "description": "無眼側が赤みを帯びる。日本海の底引きで多く獲れ子持ちが人気。",
+      "ratings": {
+        "taste": 3.5,
+        "price": 3.0,
+        "rarity": 2.5
+      },
+      "flavor": {
+        "fat": 1.5,
+        "umami": 3.0,
+        "firmness": 4.0,
+        "richness": 3.0,
+        "aroma": 1.5
+      },
       "imageAsset": null
     },
     {
@@ -809,6 +1107,18 @@
         "ウリンボ(幼魚)"
       ],
       "description": "梅雨時が旬で「梅雨イサキ」。産卵前の初夏は「麦わらイサキ」とも。",
+      "ratings": {
+        "taste": 3.5,
+        "price": 3.0,
+        "rarity": 2.5
+      },
+      "flavor": {
+        "fat": 1.5,
+        "umami": 4.0,
+        "firmness": 3.5,
+        "richness": 2.0,
+        "aroma": 1.5
+      },
       "imageAsset": null
     },
     {
@@ -840,6 +1150,18 @@
         "モモ(幼魚)"
       ],
       "description": "白い斑点が石垣状。老成すると口の周りが白くなる。磯釣りの人気種。",
+      "ratings": {
+        "taste": 3.5,
+        "price": 3.0,
+        "rarity": 2.5
+      },
+      "flavor": {
+        "fat": 1.5,
+        "umami": 4.0,
+        "firmness": 4.0,
+        "richness": 2.5,
+        "aroma": 2.0
+      },
       "imageAsset": null
     },
     {
@@ -871,6 +1193,18 @@
         "イシモチガレイ"
       ],
       "description": "無眼側に石のような骨質板が並ぶ。冬が旬で刺身も美味。",
+      "ratings": {
+        "taste": 3.5,
+        "price": 3.0,
+        "rarity": 2.5
+      },
+      "flavor": {
+        "fat": 2.5,
+        "umami": 4.0,
+        "firmness": 4.5,
+        "richness": 3.0,
+        "aroma": 2.5
+      },
       "imageAsset": null
     },
     {
@@ -903,6 +1237,18 @@
         "クチグロ"
       ],
       "description": "強靭な歯でウニや貝を砕く。幼魚は縞模様、老成すると口が黒くなる。磯釣りの王者。",
+      "ratings": {
+        "taste": 3.5,
+        "price": 3.0,
+        "rarity": 2.5
+      },
+      "flavor": {
+        "fat": 2.0,
+        "umami": 3.5,
+        "firmness": 3.5,
+        "richness": 3.0,
+        "aroma": 1.5
+      },
       "imageAsset": null
     },
     {
@@ -935,6 +1281,18 @@
         "イトヒキ"
       ],
       "description": "黄色い糸状に伸びた尾と桃色の体が美しい高級白身。",
+      "ratings": {
+        "taste": 3.5,
+        "price": 3.0,
+        "rarity": 2.5
+      },
+      "flavor": {
+        "fat": 1.5,
+        "umami": 4.0,
+        "firmness": 4.0,
+        "richness": 2.0,
+        "aroma": 2.5
+      },
       "imageAsset": null
     },
     {
@@ -968,6 +1326,18 @@
         "ナガハゲ"
       ],
       "description": "顔が長く馬面に見える。カワハギより安価で肝も楽しめる。",
+      "ratings": {
+        "taste": 3.5,
+        "price": 3.0,
+        "rarity": 2.5
+      },
+      "flavor": {
+        "fat": 1.5,
+        "umami": 3.0,
+        "firmness": 4.5,
+        "richness": 2.0,
+        "aroma": 2.5
+      },
       "imageAsset": null
     },
     {
@@ -1002,6 +1372,18 @@
         "マルハゲ"
       ],
       "description": "皮が簡単に剥げるのが名の由来。冬は肝が肥大し「肝パン」が珍重される。",
+      "ratings": {
+        "taste": 3.5,
+        "price": 3.0,
+        "rarity": 2.5
+      },
+      "flavor": {
+        "fat": 2.0,
+        "umami": 3.0,
+        "firmness": 4.0,
+        "richness": 2.5,
+        "aroma": 2.0
+      },
       "imageAsset": null
     },
     {
@@ -1034,6 +1416,18 @@
         "レンコ"
       ],
       "description": "体が黄色みを帯びる。干物や蒲鉾原料として重要。",
+      "ratings": {
+        "taste": 3.5,
+        "price": 3.0,
+        "rarity": 2.5
+      },
+      "flavor": {
+        "fat": 2.0,
+        "umami": 4.0,
+        "firmness": 4.5,
+        "richness": 2.5,
+        "aroma": 2.0
+      },
       "imageAsset": null
     },
     {
@@ -1066,6 +1460,18 @@
         "アオベラ/アカベラ"
       ],
       "description": "関西で夏に好まれる。雄は青緑、雌は赤褐色で性転換する。",
+      "ratings": {
+        "taste": 3.5,
+        "price": 3.0,
+        "rarity": 2.5
+      },
+      "flavor": {
+        "fat": 1.5,
+        "umami": 4.0,
+        "firmness": 3.5,
+        "richness": 2.5,
+        "aroma": 2.0
+      },
       "imageAsset": null
     },
     {
@@ -1099,6 +1505,18 @@
         "カイズ(中型)"
       ],
       "description": "雑食で環境適応力が高い。関西では「チヌ」と呼び釣りの対象として人気。",
+      "ratings": {
+        "taste": 3.5,
+        "price": 3.0,
+        "rarity": 2.5
+      },
+      "flavor": {
+        "fat": 2.5,
+        "umami": 3.5,
+        "firmness": 4.0,
+        "richness": 3.0,
+        "aroma": 2.0
+      },
       "imageAsset": null
     },
     {
@@ -1130,6 +1548,18 @@
         "モブシ"
       ],
       "description": "雄は成長すると額と顎が大きく張り出す。冬の「寒コブ」が旬。",
+      "ratings": {
+        "taste": 3.5,
+        "price": 3.0,
+        "rarity": 2.5
+      },
+      "flavor": {
+        "fat": 1.5,
+        "umami": 4.0,
+        "firmness": 4.5,
+        "richness": 3.0,
+        "aroma": 2.5
+      },
       "imageAsset": null
     },
     {
@@ -1162,6 +1592,18 @@
         "カツオアジ"
       ],
       "description": "アジ類の最高峰。天然物は非常に高価で養殖も盛ん。",
+      "ratings": {
+        "taste": 4.5,
+        "price": 4.5,
+        "rarity": 3.5
+      },
+      "flavor": {
+        "fat": 4.0,
+        "umami": 4.5,
+        "firmness": 3.5,
+        "richness": 2.5,
+        "aroma": 2.0
+      },
       "imageAsset": null
     },
     {
@@ -1193,6 +1635,18 @@
         "マギス"
       ],
       "description": "投げ釣りの人気ターゲット。天ぷらネタの高級品。",
+      "ratings": {
+        "taste": 3.5,
+        "price": 3.0,
+        "rarity": 2.5
+      },
+      "flavor": {
+        "fat": 2.0,
+        "umami": 3.0,
+        "firmness": 3.5,
+        "richness": 2.5,
+        "aroma": 1.5
+      },
       "imageAsset": null
     },
     {
@@ -1224,6 +1678,18 @@
         "グチ"
       ],
       "description": "浮袋で「グーグー」鳴く。高級かまぼこ・はんぺんの原料。",
+      "ratings": {
+        "taste": 3.5,
+        "price": 3.0,
+        "rarity": 2.5
+      },
+      "flavor": {
+        "fat": 1.5,
+        "umami": 3.0,
+        "firmness": 3.5,
+        "richness": 3.0,
+        "aroma": 1.5
+      },
       "imageAsset": null
     },
     {
@@ -1255,6 +1721,18 @@
         "スケソ"
       ],
       "description": "卵巣は「たらこ」「明太子」の原料。かまぼこ・ちくわのすり身の中心。",
+      "ratings": {
+        "taste": 2.5,
+        "price": 1.5,
+        "rarity": 1.0
+      },
+      "flavor": {
+        "fat": 1.5,
+        "umami": 3.0,
+        "firmness": 4.0,
+        "richness": 2.0,
+        "aroma": 2.5
+      },
       "imageAsset": null
     },
     {
@@ -1287,6 +1765,18 @@
         "マルスズキ"
       ],
       "description": "代表的な出世魚。夏が旬で「夏の白身の王」。河川にも遡上する。",
+      "ratings": {
+        "taste": 3.5,
+        "price": 3.0,
+        "rarity": 2.5
+      },
+      "flavor": {
+        "fat": 2.0,
+        "umami": 3.5,
+        "firmness": 4.0,
+        "richness": 3.0,
+        "aroma": 2.0
+      },
       "imageAsset": null
     },
     {
@@ -1316,6 +1806,18 @@
         "ホタ"
       ],
       "description": "背に黄色い縦帯。伊豆諸島の夏の高級魚で塩焼きが名物。",
+      "ratings": {
+        "taste": 3.5,
+        "price": 3.0,
+        "rarity": 2.5
+      },
+      "flavor": {
+        "fat": 1.5,
+        "umami": 3.5,
+        "firmness": 3.5,
+        "richness": 2.0,
+        "aroma": 2.5
+      },
       "imageAsset": null
     },
     {
@@ -1349,6 +1851,18 @@
         "ハクナギ"
       ],
       "description": "銀色に輝く太刀のような体。立って泳ぐ習性が名の由来。指何本分で太さを測る。",
+      "ratings": {
+        "taste": 3.5,
+        "price": 3.0,
+        "rarity": 2.5
+      },
+      "flavor": {
+        "fat": 2.5,
+        "umami": 3.5,
+        "firmness": 3.5,
+        "richness": 3.0,
+        "aroma": 1.5
+      },
       "imageAsset": null
     },
     {
@@ -1380,6 +1894,18 @@
         "チコダイ"
       ],
       "description": "エラ蓋の縁が血のように赤い。マダイより小型で安価だが味は良い。",
+      "ratings": {
+        "taste": 3.5,
+        "price": 3.0,
+        "rarity": 2.5
+      },
+      "flavor": {
+        "fat": 2.5,
+        "umami": 3.0,
+        "firmness": 4.5,
+        "richness": 3.0,
+        "aroma": 2.5
+      },
       "imageAsset": null
     },
     {
@@ -1411,6 +1937,18 @@
         "ナメタ"
       ],
       "description": "体表がぬめる。東北で子持ちの煮付けが正月の縁起物。",
+      "ratings": {
+        "taste": 3.5,
+        "price": 3.0,
+        "rarity": 2.5
+      },
+      "flavor": {
+        "fat": 2.0,
+        "umami": 3.0,
+        "firmness": 4.5,
+        "richness": 2.0,
+        "aroma": 2.0
+      },
       "imageAsset": null
     },
     {
@@ -1443,6 +1981,18 @@
         "ソゲ(小型)"
       ],
       "description": "「左ヒラメに右カレイ」。冬の「寒ビラメ」が旬。縁側(えんがわ)は高級部位。",
+      "ratings": {
+        "taste": 4.5,
+        "price": 4.0,
+        "rarity": 2.5
+      },
+      "flavor": {
+        "fat": 2.0,
+        "umami": 4.0,
+        "firmness": 5.0,
+        "richness": 2.0,
+        "aroma": 1.5
+      },
       "imageAsset": null
     },
     {
@@ -1473,6 +2023,18 @@
         "星がれい"
       ],
       "description": "背びれ・尻びれに黒い斑紋。天然物は極めて高価。",
+      "ratings": {
+        "taste": 4.5,
+        "price": 5.0,
+        "rarity": 4.5
+      },
+      "flavor": {
+        "fat": 2.0,
+        "umami": 3.0,
+        "firmness": 4.5,
+        "richness": 3.0,
+        "aroma": 2.0
+      },
       "imageAsset": null
     },
     {
@@ -1506,6 +2068,18 @@
         "ネホッケ"
       ],
       "description": "居酒屋の開きでおなじみ。鮮度落ちが早く生食は産地ならでは。",
+      "ratings": {
+        "taste": 3.5,
+        "price": 3.0,
+        "rarity": 2.5
+      },
+      "flavor": {
+        "fat": 2.5,
+        "umami": 4.0,
+        "firmness": 4.5,
+        "richness": 2.0,
+        "aroma": 1.5
+      },
       "imageAsset": null
     },
     {
@@ -1536,6 +2110,18 @@
         "ハク(稚魚)"
       ],
       "description": "出世魚の代表。卵巣を塩漬け乾燥した「からすみ」は日本三大珍味。",
+      "ratings": {
+        "taste": 3.5,
+        "price": 3.0,
+        "rarity": 2.5
+      },
+      "flavor": {
+        "fat": 2.0,
+        "umami": 3.5,
+        "firmness": 4.5,
+        "richness": 2.0,
+        "aroma": 2.5
+      },
       "imageAsset": null
     },
     {
@@ -1568,6 +2154,18 @@
         "クチボソ"
       ],
       "description": "北海道で最も一般的なカレイ。子持ちの煮付けが定番。",
+      "ratings": {
+        "taste": 3.5,
+        "price": 3.0,
+        "rarity": 2.5
+      },
+      "flavor": {
+        "fat": 2.0,
+        "umami": 3.5,
+        "firmness": 4.5,
+        "richness": 2.5,
+        "aroma": 1.5
+      },
       "imageAsset": null
     },
     {
@@ -1598,6 +2196,18 @@
         "アマテ"
       ],
       "description": "大分・城下(しろした)かれいが有名。夏が旬の「夏ガレイ」。",
+      "ratings": {
+        "taste": 3.5,
+        "price": 3.0,
+        "rarity": 2.5
+      },
+      "flavor": {
+        "fat": 1.5,
+        "umami": 3.0,
+        "firmness": 4.5,
+        "richness": 2.0,
+        "aroma": 2.0
+      },
       "imageAsset": null
     },
     {
@@ -1630,6 +2240,18 @@
         "ゼニゴチ"
       ],
       "description": "「照りゴチ」と呼ばれ夏が旬。フグに例えられるほど上品な味。",
+      "ratings": {
+        "taste": 3.5,
+        "price": 3.0,
+        "rarity": 2.5
+      },
+      "flavor": {
+        "fat": 1.5,
+        "umami": 4.0,
+        "firmness": 4.5,
+        "richness": 2.5,
+        "aroma": 2.0
+      },
       "imageAsset": null
     },
     {
@@ -1663,6 +2285,18 @@
         "オオダイ"
       ],
       "description": "「魚の王様」。産卵前の春が「桜鯛」、秋は「紅葉鯛」。祝い事に欠かせない。",
+      "ratings": {
+        "taste": 4.5,
+        "price": 3.5,
+        "rarity": 2.0
+      },
+      "flavor": {
+        "fat": 1.5,
+        "umami": 4.5,
+        "firmness": 4.5,
+        "richness": 2.0,
+        "aroma": 2.0
+      },
       "imageAsset": null
     },
     {
@@ -1696,6 +2330,18 @@
         "ホンダラ"
       ],
       "description": "冬の鍋の主役。白子(精巣)は「たち」「きく」と呼ばれ珍重。真子・肝も食用。",
+      "ratings": {
+        "taste": 3.5,
+        "price": 3.0,
+        "rarity": 2.5
+      },
+      "flavor": {
+        "fat": 2.5,
+        "umami": 3.0,
+        "firmness": 4.0,
+        "richness": 2.5,
+        "aroma": 1.5
+      },
       "imageAsset": null
     },
     {
@@ -1727,6 +2373,18 @@
         "王鰈"
       ],
       "description": "北海道で「王鰈(おうちょう)」としてブランド化。カレイ類最高級。",
+      "ratings": {
+        "taste": 5.0,
+        "price": 5.0,
+        "rarity": 4.5
+      },
+      "flavor": {
+        "fat": 2.5,
+        "umami": 4.0,
+        "firmness": 4.5,
+        "richness": 2.0,
+        "aroma": 1.5
+      },
       "imageAsset": null
     },
     {
@@ -1758,6 +2416,18 @@
         "デキハゼ(幼魚)"
       ],
       "description": "江戸前天ぷらの代表。秋の「彼岸ハゼ」の釣りが風物詩。",
+      "ratings": {
+        "taste": 3.5,
+        "price": 3.0,
+        "rarity": 2.5
+      },
+      "flavor": {
+        "fat": 2.5,
+        "umami": 3.0,
+        "firmness": 3.5,
+        "richness": 2.5,
+        "aroma": 1.5
+      },
       "imageAsset": null
     },
     {
@@ -1788,6 +2458,18 @@
         "目板がれい"
       ],
       "description": "両目の間に骨質の棘。小型だが味が濃く関西で人気。",
+      "ratings": {
+        "taste": 3.5,
+        "price": 3.0,
+        "rarity": 2.5
+      },
+      "flavor": {
+        "fat": 1.5,
+        "umami": 3.5,
+        "firmness": 4.5,
+        "richness": 3.0,
+        "aroma": 1.5
+      },
       "imageAsset": null
     },
     {
@@ -1820,6 +2502,18 @@
         "クシロ"
       ],
       "description": "関西で「グレ」、九州で「クロ」。冬の「寒グレ」が磯釣りとして人気。",
+      "ratings": {
+        "taste": 3.5,
+        "price": 3.0,
+        "rarity": 2.5
+      },
+      "flavor": {
+        "fat": 2.0,
+        "umami": 4.0,
+        "firmness": 4.5,
+        "richness": 3.0,
+        "aroma": 1.5
+      },
       "imageAsset": null
     },
     {
@@ -1850,6 +2544,18 @@
         "笹がれい"
       ],
       "description": "福井・若狭の「笹がれい」の一夜干しが高級品として知られる。",
+      "ratings": {
+        "taste": 3.5,
+        "price": 3.0,
+        "rarity": 2.5
+      },
+      "flavor": {
+        "fat": 1.5,
+        "umami": 3.0,
+        "firmness": 4.0,
+        "richness": 2.5,
+        "aroma": 2.0
+      },
       "imageAsset": null
     },
     {
@@ -1884,6 +2590,18 @@
         "ヤマト"
       ],
       "description": "春の「初鰹」と秋の「戻り鰹」で味が別物。鰹節・出汁文化の要。",
+      "ratings": {
+        "taste": 4.0,
+        "price": 2.5,
+        "rarity": 2.0
+      },
+      "flavor": {
+        "fat": 3.5,
+        "umami": 4.5,
+        "firmness": 3.5,
+        "richness": 4.0,
+        "aroma": 2.5
+      },
       "imageAsset": null
     },
     {
@@ -1916,6 +2634,18 @@
         "シオ"
       ],
       "description": "目の間の斑紋が「八」の字に見える。ブリ類では最も高級とされる。",
+      "ratings": {
+        "taste": 4.5,
+        "price": 4.0,
+        "rarity": 3.0
+      },
+      "flavor": {
+        "fat": 3.5,
+        "umami": 4.0,
+        "firmness": 4.5,
+        "richness": 4.0,
+        "aroma": 3.0
+      },
       "imageAsset": null
     },
     {
@@ -1949,6 +2679,18 @@
         "キメジ(幼魚)"
       ],
       "description": "ひれが黄色い。関西で好まれ、ツナ缶原料としても重要。",
+      "ratings": {
+        "taste": 4.0,
+        "price": 4.0,
+        "rarity": 3.0
+      },
+      "flavor": {
+        "fat": 4.0,
+        "umami": 3.5,
+        "firmness": 3.5,
+        "richness": 4.5,
+        "aroma": 3.0
+      },
       "imageAsset": null
     },
     {
@@ -1979,6 +2721,18 @@
         "クロカワ"
       ],
       "description": "カジキ最大級でトローリングの大物。身は白っぽい。",
+      "ratings": {
+        "taste": 4.0,
+        "price": 4.0,
+        "rarity": 3.0
+      },
+      "flavor": {
+        "fat": 4.0,
+        "umami": 4.5,
+        "firmness": 3.0,
+        "richness": 4.0,
+        "aroma": 2.5
+      },
       "imageAsset": null
     },
     {
@@ -2012,6 +2766,18 @@
         "メジ/ヨコワ(幼魚)"
       ],
       "description": "「黒いダイヤ」。大間などの寒鮪は最高級。大トロ・中トロ・赤身と部位で味が変わる。",
+      "ratings": {
+        "taste": 5.0,
+        "price": 5.0,
+        "rarity": 4.0
+      },
+      "flavor": {
+        "fat": 5.0,
+        "umami": 5.0,
+        "firmness": 3.0,
+        "richness": 5.0,
+        "aroma": 3.0
+      },
       "imageAsset": null
     },
     {
@@ -2041,6 +2807,18 @@
         "ヨコワ(混称)"
       ],
       "description": "小型のマグロで胴が細長い。西日本で流通する。",
+      "ratings": {
+        "taste": 4.0,
+        "price": 4.0,
+        "rarity": 3.0
+      },
+      "flavor": {
+        "fat": 3.5,
+        "umami": 4.5,
+        "firmness": 3.0,
+        "richness": 4.5,
+        "aroma": 3.0
+      },
       "imageAsset": null
     },
     {
@@ -2075,6 +2853,18 @@
         "カジキサワラ"
       ],
       "description": "「魚偏に春」で春告魚。関西では春、関東では冬の「寒鰆」が好まれる。",
+      "ratings": {
+        "taste": 4.0,
+        "price": 3.0,
+        "rarity": 2.5
+      },
+      "flavor": {
+        "fat": 4.0,
+        "umami": 4.0,
+        "firmness": 2.5,
+        "richness": 4.0,
+        "aroma": 2.0
+      },
       "imageAsset": null
     },
     {
@@ -2108,6 +2898,18 @@
         "マヒマヒ"
       ],
       "description": "ハワイでは「マヒマヒ」。鮮度が良ければ刺身も。白身フライの原料。",
+      "ratings": {
+        "taste": 4.0,
+        "price": 4.0,
+        "rarity": 3.0
+      },
+      "flavor": {
+        "fat": 3.5,
+        "umami": 3.5,
+        "firmness": 2.5,
+        "richness": 4.0,
+        "aroma": 2.0
+      },
       "imageAsset": null
     },
     {
@@ -2139,6 +2941,18 @@
         "ホシガツオ"
       ],
       "description": "腹の黒点が灸(やいと)に見える。近年養殖も進む「幻の魚」。",
+      "ratings": {
+        "taste": 4.0,
+        "price": 4.0,
+        "rarity": 3.0
+      },
+      "flavor": {
+        "fat": 3.0,
+        "umami": 4.0,
+        "firmness": 2.5,
+        "richness": 4.0,
+        "aroma": 3.0
+      },
       "imageAsset": null
     },
     {
@@ -2170,6 +2984,18 @@
         "芭蕉旗魚"
       ],
       "description": "大きな背びれを芭蕉の葉に見立てた名。泳ぐと最速級の魚。",
+      "ratings": {
+        "taste": 4.0,
+        "price": 4.0,
+        "rarity": 3.0
+      },
+      "flavor": {
+        "fat": 3.5,
+        "umami": 3.5,
+        "firmness": 3.5,
+        "richness": 3.5,
+        "aroma": 2.0
+      },
       "imageAsset": null
     },
     {
@@ -2200,6 +3026,18 @@
         "スボ"
       ],
       "description": "マルソウダと共に「ソウダガツオ」。新鮮なら刺身も美味。",
+      "ratings": {
+        "taste": 4.0,
+        "price": 4.0,
+        "rarity": 3.0
+      },
+      "flavor": {
+        "fat": 3.0,
+        "umami": 4.0,
+        "firmness": 2.5,
+        "richness": 4.5,
+        "aroma": 3.0
+      },
       "imageAsset": null
     },
     {
@@ -2231,6 +3069,18 @@
         "マサ"
       ],
       "description": "ブリより体が平たく夏が旬。「幻の魚」とも呼ばれる高級魚。",
+      "ratings": {
+        "taste": 4.5,
+        "price": 4.5,
+        "rarity": 3.5
+      },
+      "flavor": {
+        "fat": 4.0,
+        "umami": 4.5,
+        "firmness": 4.5,
+        "richness": 4.0,
+        "aroma": 3.0
+      },
       "imageAsset": null
     },
     {
@@ -2263,6 +3113,18 @@
         "ビンナガマグロ"
       ],
       "description": "胸びれが長い。「ビントロ」として回転寿司で人気。高級ツナ缶の原料。",
+      "ratings": {
+        "taste": 4.0,
+        "price": 4.0,
+        "rarity": 3.0
+      },
+      "flavor": {
+        "fat": 4.0,
+        "umami": 4.0,
+        "firmness": 3.5,
+        "richness": 4.5,
+        "aroma": 2.0
+      },
       "imageAsset": null
     },
     {
@@ -2295,6 +3157,18 @@
         "アオ"
       ],
       "description": "出世魚の代表格。冬の「寒ブリ」、特に氷見ブリは最高級。養殖のハマチも通年流通。",
+      "ratings": {
+        "taste": 4.5,
+        "price": 3.5,
+        "rarity": 2.5
+      },
+      "flavor": {
+        "fat": 4.5,
+        "umami": 4.5,
+        "firmness": 3.5,
+        "richness": 4.5,
+        "aroma": 2.5
+      },
       "imageAsset": null
     },
     {
@@ -2327,6 +3201,18 @@
         "ナイラゲ"
       ],
       "description": "カジキ類で最も美味とされる。上あごが槍状に伸びる。",
+      "ratings": {
+        "taste": 4.0,
+        "price": 4.0,
+        "rarity": 3.0
+      },
+      "flavor": {
+        "fat": 3.5,
+        "umami": 4.5,
+        "firmness": 3.0,
+        "richness": 3.5,
+        "aroma": 3.0
+      },
       "imageAsset": null
     },
     {
@@ -2357,6 +3243,18 @@
         "ゴウシュウマグロ"
       ],
       "description": "南半球産で脂が濃く高級。別名インドマグロ。資源管理が厳格。",
+      "ratings": {
+        "taste": 4.0,
+        "price": 4.0,
+        "rarity": 3.0
+      },
+      "flavor": {
+        "fat": 4.0,
+        "umami": 4.0,
+        "firmness": 3.0,
+        "richness": 4.5,
+        "aroma": 3.0
+      },
       "imageAsset": null
     },
     {
@@ -2389,6 +3287,18 @@
         "カジキマグロ"
       ],
       "description": "巨大な吻(ふん)を持つ。切り身の「カジキマグロ」として広く流通。",
+      "ratings": {
+        "taste": 4.0,
+        "price": 4.0,
+        "rarity": 3.0
+      },
+      "flavor": {
+        "fat": 3.0,
+        "umami": 4.0,
+        "firmness": 3.0,
+        "richness": 4.5,
+        "aroma": 2.5
+      },
       "imageAsset": null
     },
     {
@@ -2422,6 +3332,18 @@
         "ダルマ"
       ],
       "description": "目が大きくパッチリ。スーパーで最も見かけるマグロの一つ。",
+      "ratings": {
+        "taste": 4.0,
+        "price": 4.0,
+        "rarity": 3.0
+      },
+      "flavor": {
+        "fat": 3.0,
+        "umami": 4.0,
+        "firmness": 3.5,
+        "richness": 4.5,
+        "aroma": 3.0
+      },
       "imageAsset": null
     },
     {
@@ -2453,6 +3375,18 @@
         "キハタ"
       ],
       "description": "黄色みを帯びた体。ハタ類の中では比較的手頃で美味。",
+      "ratings": {
+        "taste": 4.0,
+        "price": 3.5,
+        "rarity": 3.0
+      },
+      "flavor": {
+        "fat": 2.5,
+        "umami": 3.0,
+        "firmness": 4.0,
+        "richness": 3.0,
+        "aroma": 2.5
+      },
       "imageAsset": null
     },
     {
@@ -2485,6 +3419,18 @@
         "アカバ"
       ],
       "description": "赤い体色に横帯。温暖化で分布が北上している南方系のハタ。",
+      "ratings": {
+        "taste": 4.0,
+        "price": 3.5,
+        "rarity": 3.0
+      },
+      "flavor": {
+        "fat": 3.0,
+        "umami": 3.5,
+        "firmness": 4.5,
+        "richness": 2.5,
+        "aroma": 3.0
+      },
       "imageAsset": null
     },
     {
@@ -2515,6 +3461,18 @@
         "カサゴ(混同)"
       ],
       "description": "カサゴにそっくりで長年混同された。より深所に棲み大型。",
+      "ratings": {
+        "taste": 4.0,
+        "price": 3.5,
+        "rarity": 3.0
+      },
+      "flavor": {
+        "fat": 2.0,
+        "umami": 3.0,
+        "firmness": 4.5,
+        "richness": 2.5,
+        "aroma": 2.5
+      },
       "imageAsset": null
     },
     {
@@ -2544,6 +3502,18 @@
         "ガヤ"
       ],
       "description": "北海道で「ガヤ」と呼ばれ大量に獲れる。安価で家庭向き。",
+      "ratings": {
+        "taste": 4.0,
+        "price": 3.5,
+        "rarity": 3.0
+      },
+      "flavor": {
+        "fat": 2.5,
+        "umami": 3.0,
+        "firmness": 4.0,
+        "richness": 2.5,
+        "aroma": 2.5
+      },
       "imageAsset": null
     },
     {
@@ -2574,6 +3544,18 @@
         "ホウキハタ(近縁)"
       ],
       "description": "温暖化で漁獲が増えた入門的なハタ。クセがなく美味。",
+      "ratings": {
+        "taste": 4.0,
+        "price": 3.5,
+        "rarity": 3.0
+      },
+      "flavor": {
+        "fat": 3.0,
+        "umami": 3.0,
+        "firmness": 4.5,
+        "richness": 3.0,
+        "aroma": 2.5
+      },
       "imageAsset": null
     },
     {
@@ -2605,6 +3587,18 @@
         "ヤマノカミ"
       ],
       "description": "背びれに毒棘を持つので扱い注意。夏が旬で刺身・唐揚げが絶品。",
+      "ratings": {
+        "taste": 4.0,
+        "price": 3.5,
+        "rarity": 3.0
+      },
+      "flavor": {
+        "fat": 3.0,
+        "umami": 3.0,
+        "firmness": 4.0,
+        "richness": 3.5,
+        "aroma": 3.0
+      },
       "imageAsset": null
     },
     {
@@ -2638,6 +3632,18 @@
         "ホゴ"
       ],
       "description": "地方名が非常に多い根魚。頭が大きく身は少ないが味は濃厚。",
+      "ratings": {
+        "taste": 4.0,
+        "price": 3.5,
+        "rarity": 3.0
+      },
+      "flavor": {
+        "fat": 2.0,
+        "umami": 4.0,
+        "firmness": 3.5,
+        "richness": 3.5,
+        "aroma": 2.5
+      },
       "imageAsset": null
     },
     {
@@ -2669,6 +3675,18 @@
         "アコ"
       ],
       "description": "関西で「アコウ」と呼ばれる夏の高級魚。「夏のフグ」とも称される。",
+      "ratings": {
+        "taste": 4.0,
+        "price": 3.5,
+        "rarity": 3.0
+      },
+      "flavor": {
+        "fat": 2.5,
+        "umami": 3.0,
+        "firmness": 3.5,
+        "richness": 2.5,
+        "aroma": 2.0
+      },
       "imageAsset": null
     },
     {
@@ -2700,6 +3718,18 @@
         "モロコ"
       ],
       "description": "「クエを食ったら他の魚は食えぬ」と言われる冬の高級魚。鍋が至高。",
+      "ratings": {
+        "taste": 5.0,
+        "price": 5.0,
+        "rarity": 4.5
+      },
+      "flavor": {
+        "fat": 2.5,
+        "umami": 4.5,
+        "firmness": 4.0,
+        "richness": 4.0,
+        "aroma": 2.5
+      },
       "imageAsset": null
     },
     {
@@ -2732,6 +3762,18 @@
         "ナガラゾイ"
       ],
       "description": "北の魚だが養殖も盛ん。歯ごたえのある刺身が美味。",
+      "ratings": {
+        "taste": 4.0,
+        "price": 3.5,
+        "rarity": 3.0
+      },
+      "flavor": {
+        "fat": 2.0,
+        "umami": 3.5,
+        "firmness": 3.5,
+        "richness": 3.5,
+        "aroma": 2.0
+      },
       "imageAsset": null
     },
     {
@@ -2763,6 +3805,18 @@
         "ションベンタレ"
       ],
       "description": "斜めの縞が鷹の羽のよう。夏は磯臭いが冬は美味。",
+      "ratings": {
+        "taste": 4.0,
+        "price": 3.5,
+        "rarity": 3.0
+      },
+      "flavor": {
+        "fat": 2.0,
+        "umami": 4.0,
+        "firmness": 4.0,
+        "richness": 2.5,
+        "aroma": 3.0
+      },
       "imageAsset": null
     },
     {
@@ -2795,6 +3849,18 @@
         "カンナギ(老成)"
       ],
       "description": "ハタ類の代表格。皮と身の間のゼラチン質が絶品。大型は超高級。",
+      "ratings": {
+        "taste": 4.5,
+        "price": 4.5,
+        "rarity": 3.5
+      },
+      "flavor": {
+        "fat": 2.0,
+        "umami": 4.5,
+        "firmness": 4.5,
+        "richness": 3.5,
+        "aroma": 2.5
+      },
       "imageAsset": null
     },
     {
@@ -2827,6 +3893,18 @@
         "クロソイ(近縁)"
       ],
       "description": "岩礁の隙間に潜む根魚。煮付けや唐揚げが美味。",
+      "ratings": {
+        "taste": 4.0,
+        "price": 3.5,
+        "rarity": 3.0
+      },
+      "flavor": {
+        "fat": 2.5,
+        "umami": 3.0,
+        "firmness": 4.5,
+        "richness": 3.5,
+        "aroma": 2.5
+      },
       "imageAsset": null
     },
     {
@@ -2858,6 +3936,18 @@
         "アカ/クロ/シロメバル"
       ],
       "description": "大きな目が張り出す。「春告魚」で煮付けが定番。近年3種に分類。",
+      "ratings": {
+        "taste": 4.0,
+        "price": 3.5,
+        "rarity": 3.0
+      },
+      "flavor": {
+        "fat": 3.0,
+        "umami": 4.0,
+        "firmness": 3.5,
+        "richness": 3.5,
+        "aroma": 2.0
+      },
       "imageAsset": null
     },
     {
@@ -2891,6 +3981,18 @@
         "クズナ"
       ],
       "description": "京料理の「ぐじ」。うろこごと焼く「松笠揚げ」や若狭焼きが有名。",
+      "ratings": {
+        "taste": 4.5,
+        "price": 4.0,
+        "rarity": 3.5
+      },
+      "flavor": {
+        "fat": 4.5,
+        "umami": 3.0,
+        "firmness": 3.5,
+        "richness": 4.0,
+        "aroma": 2.5
+      },
       "imageAsset": null
     },
     {
@@ -2924,6 +4026,18 @@
         "キンギョ"
       ],
       "description": "喉の奥が黒く「ノドグロ」。北陸・山陰の超高級魚で脂の乗りが別格。",
+      "ratings": {
+        "taste": 5.0,
+        "price": 5.0,
+        "rarity": 4.0
+      },
+      "flavor": {
+        "fat": 5.0,
+        "umami": 4.0,
+        "firmness": 3.5,
+        "richness": 5.0,
+        "aroma": 2.0
+      },
       "imageAsset": null
     },
     {
@@ -2957,6 +4071,18 @@
         "シズ"
       ],
       "description": "干物として人気。関東の「えぼだい」の干物は定番。",
+      "ratings": {
+        "taste": 4.0,
+        "price": 4.0,
+        "rarity": 3.5
+      },
+      "flavor": {
+        "fat": 4.5,
+        "umami": 3.5,
+        "firmness": 3.0,
+        "richness": 4.0,
+        "aroma": 2.0
+      },
       "imageAsset": null
     },
     {
@@ -2988,6 +4114,18 @@
         "イソカサゴ"
       ],
       "description": "背びれに毒棘を持つので扱い注意。鍋や刺身が美味。",
+      "ratings": {
+        "taste": 4.0,
+        "price": 4.0,
+        "rarity": 3.5
+      },
+      "flavor": {
+        "fat": 4.0,
+        "umami": 3.5,
+        "firmness": 3.5,
+        "richness": 3.5,
+        "aroma": 3.0
+      },
       "imageAsset": null
     },
     {
@@ -3018,6 +4156,18 @@
         "ギンマト"
       ],
       "description": "銀白色でマトウダイに似る。バターソテーが美味。",
+      "ratings": {
+        "taste": 4.0,
+        "price": 4.0,
+        "rarity": 3.5
+      },
+      "flavor": {
+        "fat": 4.5,
+        "umami": 4.0,
+        "firmness": 3.5,
+        "richness": 3.5,
+        "aroma": 2.0
+      },
       "imageAsset": null
     },
     {
@@ -3050,6 +4200,18 @@
         "ガッチョ"
       ],
       "description": "ホウボウの近縁で赤い体。祝い膳の尾頭付きにも使われる。",
+      "ratings": {
+        "taste": 4.0,
+        "price": 4.0,
+        "rarity": 3.5
+      },
+      "flavor": {
+        "fat": 3.5,
+        "umami": 4.0,
+        "firmness": 3.0,
+        "richness": 4.0,
+        "aroma": 2.0
+      },
       "imageAsset": null
     },
     {
@@ -3081,6 +4243,18 @@
         "ホンアンコウ"
       ],
       "description": "「東のあんこう、西のふぐ」。骨以外は捨てる所がない「七つ道具」。あん肝は海のフォアグラ。",
+      "ratings": {
+        "taste": 4.0,
+        "price": 4.0,
+        "rarity": 3.5
+      },
+      "flavor": {
+        "fat": 3.5,
+        "umami": 4.0,
+        "firmness": 3.0,
+        "richness": 4.5,
+        "aroma": 2.0
+      },
       "imageAsset": null
     },
     {
@@ -3113,6 +4287,18 @@
         "キンキン"
       ],
       "description": "北海道・東北の最高級魚。真っ赤な体で「一きんき二○○」と称される。",
+      "ratings": {
+        "taste": 4.5,
+        "price": 5.0,
+        "rarity": 4.0
+      },
+      "flavor": {
+        "fat": 5.0,
+        "umami": 3.0,
+        "firmness": 3.5,
+        "richness": 5.0,
+        "aroma": 3.0
+      },
       "imageAsset": null
     },
     {
@@ -3145,6 +4331,18 @@
         "アカギ"
       ],
       "description": "目が金色に輝く深海魚。伊豆・千葉の名物。煮付けは日本料理の定番高級品。",
+      "ratings": {
+        "taste": 4.5,
+        "price": 4.0,
+        "rarity": 3.0
+      },
+      "flavor": {
+        "fat": 4.5,
+        "umami": 4.0,
+        "firmness": 3.0,
+        "richness": 4.5,
+        "aroma": 3.0
+      },
       "imageAsset": null
     },
     {
@@ -3175,6 +4373,18 @@
         "ギンダラ"
       ],
       "description": "タラの名がつくがタラ科ではない。西京漬けの定番でとろける脂が特徴。",
+      "ratings": {
+        "taste": 4.0,
+        "price": 3.5,
+        "rarity": 3.5
+      },
+      "flavor": {
+        "fat": 5.0,
+        "umami": 4.0,
+        "firmness": 2.5,
+        "richness": 5.0,
+        "aroma": 3.0
+      },
       "imageAsset": null
     },
     {
@@ -3206,6 +4416,18 @@
         "ムツ(混称)"
       ],
       "description": "ムツに似るがより深海性。冬に脂がのり刺身・煮付けが絶品。",
+      "ratings": {
+        "taste": 4.5,
+        "price": 4.5,
+        "rarity": 4.0
+      },
+      "flavor": {
+        "fat": 4.5,
+        "umami": 3.0,
+        "firmness": 3.5,
+        "richness": 4.5,
+        "aroma": 2.0
+      },
       "imageAsset": null
     },
     {
@@ -3236,6 +4458,18 @@
         "シラカワ"
       ],
       "description": "アマダイ類で最も高価。「シラカワ」と呼ばれ幻の高級魚。",
+      "ratings": {
+        "taste": 4.5,
+        "price": 5.0,
+        "rarity": 5.0
+      },
+      "flavor": {
+        "fat": 4.0,
+        "umami": 4.0,
+        "firmness": 3.5,
+        "richness": 4.0,
+        "aroma": 2.5
+      },
       "imageAsset": null
     },
     {
@@ -3269,6 +4503,18 @@
         "ブリコ"
       ],
       "description": "秋田の県魚。魚醤「しょっつる」の原料。産卵期の卵「ぶりこ」が名物。",
+      "ratings": {
+        "taste": 4.0,
+        "price": 4.0,
+        "rarity": 3.5
+      },
+      "flavor": {
+        "fat": 4.5,
+        "umami": 3.0,
+        "firmness": 3.0,
+        "richness": 4.0,
+        "aroma": 2.0
+      },
       "imageAsset": null
     },
     {
@@ -3302,6 +4548,18 @@
         "キミヨ"
       ],
       "description": "胸びれを足のように使い海底を歩く。鳴き袋でグーグー鳴く。冬の高級魚。",
+      "ratings": {
+        "taste": 4.0,
+        "price": 4.0,
+        "rarity": 3.5
+      },
+      "flavor": {
+        "fat": 4.0,
+        "umami": 3.5,
+        "firmness": 3.0,
+        "richness": 4.5,
+        "aroma": 3.0
+      },
       "imageAsset": null
     },
     {
@@ -3335,6 +4593,18 @@
         "クルマダイ"
       ],
       "description": "体側に的のような黒点。フランス料理で「サンピエール」と呼ぶ高級魚。",
+      "ratings": {
+        "taste": 4.0,
+        "price": 4.0,
+        "rarity": 3.5
+      },
+      "flavor": {
+        "fat": 4.5,
+        "umami": 4.0,
+        "firmness": 3.0,
+        "richness": 4.0,
+        "aroma": 2.5
+      },
       "imageAsset": null
     },
     {
@@ -3366,6 +4636,18 @@
         "クロムツ(近縁)"
       ],
       "description": "「むつっこい(脂っこい)」が名の由来。幼魚は沿岸、成魚は深海に。",
+      "ratings": {
+        "taste": 4.0,
+        "price": 4.0,
+        "rarity": 3.5
+      },
+      "flavor": {
+        "fat": 3.5,
+        "umami": 3.5,
+        "firmness": 3.5,
+        "richness": 4.0,
+        "aroma": 2.0
+      },
       "imageAsset": null
     },
     {
@@ -3398,6 +4680,18 @@
         "メブト"
       ],
       "description": "全身が滑る粘液で覆われる。冬に脂がのり刺身が美味。",
+      "ratings": {
+        "taste": 4.0,
+        "price": 4.0,
+        "rarity": 3.5
+      },
+      "flavor": {
+        "fat": 4.0,
+        "umami": 3.0,
+        "firmness": 3.5,
+        "richness": 3.5,
+        "aroma": 2.0
+      },
       "imageAsset": null
     },
     {
@@ -3430,6 +4724,18 @@
         "トロボッチ"
       ],
       "description": "大きな青緑の目が光る。福島・宮崎の名物で丸ごと食べる。",
+      "ratings": {
+        "taste": 4.0,
+        "price": 4.0,
+        "rarity": 3.5
+      },
+      "flavor": {
+        "fat": 4.0,
+        "umami": 3.0,
+        "firmness": 3.0,
+        "richness": 3.5,
+        "aroma": 3.0
+      },
       "imageAsset": null
     },
     {
@@ -3461,6 +4767,18 @@
         "マゼランアイナメ"
       ],
       "description": "「銀ムツ」の名で流通。脂が濃厚で加熱するととろける高級魚。",
+      "ratings": {
+        "taste": 4.0,
+        "price": 4.0,
+        "rarity": 3.5
+      },
+      "flavor": {
+        "fat": 5.0,
+        "umami": 4.0,
+        "firmness": 3.0,
+        "richness": 5.0,
+        "aroma": 3.0
+      },
       "imageAsset": null
     },
     {
@@ -3493,6 +4811,18 @@
         "エノハ"
       ],
       "description": "ヤマメの近縁で朱点があるのが特徴。西日本・太平洋側に分布。",
+      "ratings": {
+        "taste": 3.0,
+        "price": 2.5,
+        "rarity": 3.0
+      },
+      "flavor": {
+        "fat": 2.0,
+        "umami": 3.0,
+        "firmness": 2.5,
+        "richness": 2.0,
+        "aroma": 3.0
+      },
       "imageAsset": null
     },
     {
@@ -3526,6 +4856,18 @@
         "コアユ"
       ],
       "description": "縄張りを持ち石の苔を食む。独特の香りから「香魚」。友釣りの対象。1年で一生を終える「年魚」。",
+      "ratings": {
+        "taste": 4.0,
+        "price": 3.0,
+        "rarity": 3.0
+      },
+      "flavor": {
+        "fat": 2.5,
+        "umami": 3.5,
+        "firmness": 3.5,
+        "richness": 2.0,
+        "aroma": 5.0
+      },
       "imageAsset": null
     },
     {
@@ -3559,6 +4901,18 @@
         "キリクチ"
       ],
       "description": "渓流の最上流に棲む。「渓流の王者」。焼いた骨で作る骨酒も名物。",
+      "ratings": {
+        "taste": 3.0,
+        "price": 2.5,
+        "rarity": 3.0
+      },
+      "flavor": {
+        "fat": 2.0,
+        "umami": 3.5,
+        "firmness": 3.5,
+        "richness": 3.0,
+        "aroma": 3.5
+      },
       "imageAsset": null
     },
     {
@@ -3589,6 +4943,18 @@
         "アカハラ"
       ],
       "description": "繁殖期に腹が赤くなる。渓流・河川釣りでおなじみ。",
+      "ratings": {
+        "taste": 3.0,
+        "price": 2.5,
+        "rarity": 3.0
+      },
+      "flavor": {
+        "fat": 3.0,
+        "umami": 3.5,
+        "firmness": 3.0,
+        "richness": 3.0,
+        "aroma": 3.5
+      },
       "imageAsset": null
     },
     {
@@ -3620,6 +4986,18 @@
         "シラハエ"
       ],
       "description": "雄は繁殖期に青緑と赤の美しい婚姻色になる。",
+      "ratings": {
+        "taste": 3.0,
+        "price": 2.5,
+        "rarity": 3.0
+      },
+      "flavor": {
+        "fat": 3.0,
+        "umami": 3.5,
+        "firmness": 2.5,
+        "richness": 3.0,
+        "aroma": 3.0
+      },
       "imageAsset": null
     },
     {
@@ -3650,6 +5028,18 @@
         "ピンクサーモン"
       ],
       "description": "産卵期の雄は背が盛り上がる。缶詰の原料としておなじみ。",
+      "ratings": {
+        "taste": 3.0,
+        "price": 2.5,
+        "rarity": 3.0
+      },
+      "flavor": {
+        "fat": 3.0,
+        "umami": 3.0,
+        "firmness": 2.5,
+        "richness": 2.0,
+        "aroma": 2.5
+      },
       "imageAsset": null
     },
     {
@@ -3681,6 +5071,18 @@
         "マブナ"
       ],
       "description": "滋賀の「鮒寿司」はなれずしの原点で日本の発酵食の源流。",
+      "ratings": {
+        "taste": 3.0,
+        "price": 2.5,
+        "rarity": 3.0
+      },
+      "flavor": {
+        "fat": 2.5,
+        "umami": 2.5,
+        "firmness": 2.5,
+        "richness": 3.0,
+        "aroma": 3.0
+      },
       "imageAsset": null
     },
     {
@@ -3712,6 +5114,18 @@
         "ノゴイ"
       ],
       "description": "古くから食用・観賞用。長野・山形など内陸の伝統食材。冬の「寒鯉」が旬。",
+      "ratings": {
+        "taste": 3.0,
+        "price": 2.5,
+        "rarity": 3.0
+      },
+      "flavor": {
+        "fat": 2.0,
+        "umami": 3.5,
+        "firmness": 2.5,
+        "richness": 3.0,
+        "aroma": 3.0
+      },
       "imageAsset": null
     },
     {
@@ -3744,6 +5158,18 @@
         "本鱒"
       ],
       "description": "ヤマメが海に降りて大型化したもの。桜の時期に遡上。",
+      "ratings": {
+        "taste": 3.0,
+        "price": 2.5,
+        "rarity": 3.0
+      },
+      "flavor": {
+        "fat": 3.0,
+        "umami": 2.5,
+        "firmness": 3.5,
+        "richness": 2.0,
+        "aroma": 2.5
+      },
       "imageAsset": null
     },
     {
@@ -3777,6 +5203,18 @@
         "トキシラズ(初夏)"
       ],
       "description": "一般に「鮭」といえばこれ。卵は「いくら」「筋子」。産卵前は「秋味」。",
+      "ratings": {
+        "taste": 3.0,
+        "price": 2.5,
+        "rarity": 3.0
+      },
+      "flavor": {
+        "fat": 2.5,
+        "umami": 3.5,
+        "firmness": 3.5,
+        "richness": 2.5,
+        "aroma": 3.0
+      },
       "imageAsset": null
     },
     {
@@ -3807,6 +5245,18 @@
         "ドジョッコ"
       ],
       "description": "江戸の食文化を代表する。ごぼうと卵でとじる柳川鍋が有名。",
+      "ratings": {
+        "taste": 3.0,
+        "price": 2.5,
+        "rarity": 3.0
+      },
+      "flavor": {
+        "fat": 3.0,
+        "umami": 2.5,
+        "firmness": 3.5,
+        "richness": 2.5,
+        "aroma": 3.5
+      },
       "imageAsset": null
     },
     {
@@ -3837,6 +5287,18 @@
         "マナマズ"
       ],
       "description": "ひげと大きな口が特徴。蒲焼きはウナギの代用にもなる淡泊な味。",
+      "ratings": {
+        "taste": 3.0,
+        "price": 2.5,
+        "rarity": 3.0
+      },
+      "flavor": {
+        "fat": 2.5,
+        "umami": 2.5,
+        "firmness": 3.0,
+        "richness": 3.0,
+        "aroma": 3.0
+      },
       "imageAsset": null
     },
     {
@@ -3870,6 +5332,18 @@
         "トラウト"
       ],
       "description": "北米原産で養殖の主力。大型化した改良品種は「サーモントラウト」として流通。",
+      "ratings": {
+        "taste": 3.0,
+        "price": 2.5,
+        "rarity": 3.0
+      },
+      "flavor": {
+        "fat": 2.0,
+        "umami": 3.5,
+        "firmness": 3.5,
+        "richness": 2.5,
+        "aroma": 3.0
+      },
       "imageAsset": null
     },
     {
@@ -3903,6 +5377,18 @@
         "マムシ(関西)"
       ],
       "description": "マリアナ海溝で産卵し川を遡上。土用の丑の日の風物詩。稚魚(シラスウナギ)の減少が課題。",
+      "ratings": {
+        "taste": 4.5,
+        "price": 4.0,
+        "rarity": 3.5
+      },
+      "flavor": {
+        "fat": 4.5,
+        "umami": 2.5,
+        "firmness": 3.5,
+        "richness": 5.0,
+        "aroma": 3.5
+      },
       "imageAsset": null
     },
     {
@@ -3934,6 +5420,18 @@
         "カバチェッポ"
       ],
       "description": "ベニザケの陸封型。阿寒湖・十和田湖・支笏湖の名物。",
+      "ratings": {
+        "taste": 3.0,
+        "price": 2.5,
+        "rarity": 3.0
+      },
+      "flavor": {
+        "fat": 3.0,
+        "umami": 2.5,
+        "firmness": 3.0,
+        "richness": 3.0,
+        "aroma": 3.5
+      },
       "imageAsset": null
     },
     {
@@ -3964,6 +5462,18 @@
         "アメノウオ"
       ],
       "description": "琵琶湖固有種。雨の日に川を遡上するので「アメノウオ」。",
+      "ratings": {
+        "taste": 3.0,
+        "price": 2.5,
+        "rarity": 3.0
+      },
+      "flavor": {
+        "fat": 3.0,
+        "umami": 3.0,
+        "firmness": 3.0,
+        "richness": 2.0,
+        "aroma": 3.5
+      },
       "imageAsset": null
     },
     {
@@ -3995,6 +5505,18 @@
         "ヒメマス(陸封)"
       ],
       "description": "身が最も赤いサケ。塩焼きやスモークで人気。陸封型はヒメマス。",
+      "ratings": {
+        "taste": 3.0,
+        "price": 2.5,
+        "rarity": 3.0
+      },
+      "flavor": {
+        "fat": 2.5,
+        "umami": 3.0,
+        "firmness": 3.0,
+        "richness": 2.5,
+        "aroma": 3.5
+      },
       "imageAsset": null
     },
     {
@@ -4025,6 +5547,18 @@
         "モロコ"
       ],
       "description": "琵琶湖の高級小魚。子持ちの素焼きが珍重される。",
+      "ratings": {
+        "taste": 3.0,
+        "price": 2.5,
+        "rarity": 3.0
+      },
+      "flavor": {
+        "fat": 2.0,
+        "umami": 2.5,
+        "firmness": 3.0,
+        "richness": 2.0,
+        "aroma": 3.5
+      },
       "imageAsset": null
     },
     {
@@ -4058,6 +5592,18 @@
         "ヒラベ"
       ],
       "description": "サクラマスの陸封型。「渓流の女王」と称される美しい魚。",
+      "ratings": {
+        "taste": 3.0,
+        "price": 2.5,
+        "rarity": 3.0
+      },
+      "flavor": {
+        "fat": 2.0,
+        "umami": 2.5,
+        "firmness": 2.5,
+        "richness": 2.5,
+        "aroma": 3.0
+      },
       "imageAsset": null
     },
     {
@@ -4089,6 +5635,18 @@
         "チカ(近縁)"
       ],
       "description": "冬の氷上穴釣りで有名。丸ごと食べられ天ぷらが定番。",
+      "ratings": {
+        "taste": 3.0,
+        "price": 2.5,
+        "rarity": 3.0
+      },
+      "flavor": {
+        "fat": 2.5,
+        "umami": 3.5,
+        "firmness": 3.5,
+        "richness": 3.0,
+        "aroma": 3.0
+      },
       "imageAsset": null
     },
     {
@@ -4121,6 +5679,18 @@
         "ホンダマ"
       ],
       "description": "ヘモグロビンを持ち身が赤い。江戸前寿司の花形。ひもも珍重される。",
+      "ratings": {
+        "taste": 4.0,
+        "price": 4.0,
+        "rarity": 3.5
+      },
+      "flavor": {
+        "fat": 1.5,
+        "umami": 5.0,
+        "firmness": 3.5,
+        "richness": 3.0,
+        "aroma": 4.0
+      },
       "imageAsset": null
     },
     {
@@ -4150,6 +5720,18 @@
         "ニシ貝"
       ],
       "description": "サザエの代用にもなる大型巻貝。殻の内側が赤い。",
+      "ratings": {
+        "taste": 4.0,
+        "price": 3.5,
+        "rarity": 3.0
+      },
+      "flavor": {
+        "fat": 1.0,
+        "umami": 4.0,
+        "firmness": 3.5,
+        "richness": 3.5,
+        "aroma": 4.5
+      },
       "imageAsset": null
     },
     {
@@ -4183,6 +5765,18 @@
         "浅蜊"
       ],
       "description": "潮干狩りの定番。表面の模様は個体差が大きい。良い出汁が出る。",
+      "ratings": {
+        "taste": 3.5,
+        "price": 2.0,
+        "rarity": 1.0
+      },
+      "flavor": {
+        "fat": 1.5,
+        "umami": 4.0,
+        "firmness": 3.5,
+        "richness": 3.5,
+        "aroma": 5.0
+      },
       "imageAsset": null
     },
     {
@@ -4213,6 +5807,18 @@
         "天然岩牡蠣"
       ],
       "description": "マガキと逆で夏が旬。天然物が多く殻が厚く大ぶり。",
+      "ratings": {
+        "taste": 4.0,
+        "price": 3.5,
+        "rarity": 3.0
+      },
+      "flavor": {
+        "fat": 2.0,
+        "umami": 4.5,
+        "firmness": 4.5,
+        "richness": 3.0,
+        "aroma": 4.0
+      },
       "imageAsset": null
     },
     {
@@ -4245,6 +5851,18 @@
         "ホッキ"
       ],
       "description": "北海道の名産。むき身は加熱すると鮮やかな赤に。寿司ネタで人気。",
+      "ratings": {
+        "taste": 4.0,
+        "price": 3.5,
+        "rarity": 3.0
+      },
+      "flavor": {
+        "fat": 1.5,
+        "umami": 4.0,
+        "firmness": 4.0,
+        "richness": 3.5,
+        "aroma": 5.0
+      },
       "imageAsset": null
     },
     {
@@ -4277,6 +5895,18 @@
         "真ツブ"
       ],
       "description": "唾液腺に微量のテトラミンを含むため除去して食べる。刺身のこりこり感が人気。",
+      "ratings": {
+        "taste": 4.0,
+        "price": 3.5,
+        "rarity": 3.0
+      },
+      "flavor": {
+        "fat": 2.0,
+        "umami": 4.5,
+        "firmness": 3.5,
+        "richness": 2.5,
+        "aroma": 4.0
+      },
       "imageAsset": null
     },
     {
@@ -4309,6 +5939,18 @@
         "オンガイ"
       ],
       "description": "巻貝の一種。生はこりこり、蒸すと柔らかく別の美味。古来より高級食材。",
+      "ratings": {
+        "taste": 4.5,
+        "price": 5.0,
+        "rarity": 4.0
+      },
+      "flavor": {
+        "fat": 2.0,
+        "umami": 4.0,
+        "firmness": 5.0,
+        "richness": 3.5,
+        "aroma": 4.5
+      },
       "imageAsset": null
     },
     {
@@ -4340,6 +5982,18 @@
         "栄螺"
       ],
       "description": "波の荒い外海の個体は角(つの)が発達する。つぼ焼きが定番。",
+      "ratings": {
+        "taste": 4.0,
+        "price": 3.5,
+        "rarity": 3.0
+      },
+      "flavor": {
+        "fat": 2.0,
+        "umami": 5.0,
+        "firmness": 4.0,
+        "richness": 3.5,
+        "aroma": 4.5
+      },
       "imageAsset": null
     },
     {
@@ -4371,6 +6025,18 @@
         "エボシガイ"
       ],
       "description": "砂に立って生息する三角の二枚貝。貝柱が大きく高級寿司ネタ。",
+      "ratings": {
+        "taste": 4.0,
+        "price": 4.0,
+        "rarity": 3.5
+      },
+      "flavor": {
+        "fat": 1.0,
+        "umami": 4.0,
+        "firmness": 4.0,
+        "richness": 3.0,
+        "aroma": 5.0
+      },
       "imageAsset": null
     },
     {
@@ -4402,6 +6068,18 @@
         "フクダメ"
       ],
       "description": "アワビを小さくしたような巻貝。煮ると柔らかく正月の縁起物。",
+      "ratings": {
+        "taste": 4.0,
+        "price": 3.5,
+        "rarity": 3.0
+      },
+      "flavor": {
+        "fat": 1.0,
+        "umami": 4.5,
+        "firmness": 3.5,
+        "richness": 3.5,
+        "aroma": 4.5
+      },
       "imageAsset": null
     },
     {
@@ -4431,6 +6109,18 @@
         "トリ貝"
       ],
       "description": "足の部分を食べる。味が鶏肉に似ることが名の由来とも。近年は高騰。",
+      "ratings": {
+        "taste": 4.0,
+        "price": 4.0,
+        "rarity": 3.5
+      },
+      "flavor": {
+        "fat": 2.0,
+        "umami": 4.0,
+        "firmness": 4.0,
+        "richness": 3.5,
+        "aroma": 5.0
+      },
       "imageAsset": null
     },
     {
@@ -4462,6 +6152,18 @@
         "地はまぐり"
       ],
       "description": "対になる殻しか合わないことから夫婦円満の縁起物。桃の節句に欠かせない。",
+      "ratings": {
+        "taste": 4.0,
+        "price": 3.5,
+        "rarity": 3.0
+      },
+      "flavor": {
+        "fat": 1.5,
+        "umami": 4.0,
+        "firmness": 4.0,
+        "richness": 3.0,
+        "aroma": 4.0
+      },
       "imageAsset": null
     },
     {
@@ -4492,6 +6194,18 @@
         "ツバイ"
       ],
       "description": "唾液腺に毒があり除去して食べる。煮付けが定番。",
+      "ratings": {
+        "taste": 4.0,
+        "price": 3.5,
+        "rarity": 3.0
+      },
+      "flavor": {
+        "fat": 1.0,
+        "umami": 4.5,
+        "firmness": 4.0,
+        "richness": 3.0,
+        "aroma": 5.0
+      },
       "imageAsset": null
     },
     {
@@ -4524,6 +6238,18 @@
         "青柳"
       ],
       "description": "むき身を「アオヤギ」、貝柱を「小柱(あられ)」と呼び江戸前の高級ネタ。",
+      "ratings": {
+        "taste": 4.0,
+        "price": 3.5,
+        "rarity": 3.0
+      },
+      "flavor": {
+        "fat": 2.0,
+        "umami": 5.0,
+        "firmness": 4.0,
+        "richness": 2.5,
+        "aroma": 5.0
+      },
       "imageAsset": null
     },
     {
@@ -4557,6 +6283,18 @@
         "アキタガイ"
       ],
       "description": "大きな貝柱が特徴。青森・北海道が主産地で養殖・地撒きが盛ん。ひもも珍味。",
+      "ratings": {
+        "taste": 4.5,
+        "price": 3.0,
+        "rarity": 2.0
+      },
+      "flavor": {
+        "fat": 2.0,
+        "umami": 4.5,
+        "firmness": 3.5,
+        "richness": 2.5,
+        "aroma": 5.0
+      },
       "imageAsset": null
     },
     {
@@ -4590,6 +6328,18 @@
         "真牡蠣"
       ],
       "description": "「海のミルク」。冬が旬で広島・宮城が名産。生食用と加熱用は基準が異なる。",
+      "ratings": {
+        "taste": 4.0,
+        "price": 3.5,
+        "rarity": 3.0
+      },
+      "flavor": {
+        "fat": 2.0,
+        "umami": 4.0,
+        "firmness": 3.5,
+        "richness": 2.5,
+        "aroma": 4.0
+      },
       "imageAsset": null
     },
     {
@@ -4620,6 +6370,18 @@
         "マテ貝"
       ],
       "description": "細長い筒状の貝。塩を入れると穴から飛び出す潮干狩りの人気者。",
+      "ratings": {
+        "taste": 4.0,
+        "price": 3.5,
+        "rarity": 3.0
+      },
+      "flavor": {
+        "fat": 2.0,
+        "umami": 5.0,
+        "firmness": 4.0,
+        "richness": 3.0,
+        "aroma": 4.0
+      },
       "imageAsset": null
     },
     {
@@ -4650,6 +6412,18 @@
         "本ミル"
       ],
       "description": "太い水管を食べる。「ミル貝」として超高級。近年は希少。",
+      "ratings": {
+        "taste": 4.5,
+        "price": 5.0,
+        "rarity": 4.5
+      },
+      "flavor": {
+        "fat": 1.5,
+        "umami": 5.0,
+        "firmness": 5.0,
+        "richness": 3.5,
+        "aroma": 4.5
+      },
       "imageAsset": null
     },
     {
@@ -4681,6 +6455,18 @@
         "シジミ"
       ],
       "description": "オルニチン等が豊富で「肝臓に良い」と言われる。宍道湖・十三湖が名産。",
+      "ratings": {
+        "taste": 4.0,
+        "price": 3.5,
+        "rarity": 3.0
+      },
+      "flavor": {
+        "fat": 2.0,
+        "umami": 4.0,
+        "firmness": 4.5,
+        "richness": 2.5,
+        "aroma": 4.0
+      },
       "imageAsset": null
     },
     {
@@ -4715,6 +6501,18 @@
         "モイカ"
       ],
       "description": "「イカの王様」。餌木(エギ)を使うエギングの人気ターゲット。甘みが際立つ。",
+      "ratings": {
+        "taste": 4.5,
+        "price": 4.0,
+        "rarity": 3.0
+      },
+      "flavor": {
+        "fat": 2.0,
+        "umami": 5.0,
+        "firmness": 4.0,
+        "richness": 2.0,
+        "aroma": 2.5
+      },
       "imageAsset": null
     },
     {
@@ -4746,6 +6544,18 @@
         "バカイカ"
       ],
       "description": "外洋性の大型イカ。刺身のほかさきいか等の加工品原料として重要。",
+      "ratings": {
+        "taste": 3.5,
+        "price": 3.0,
+        "rarity": 2.5
+      },
+      "flavor": {
+        "fat": 2.0,
+        "umami": 4.5,
+        "firmness": 5.0,
+        "richness": 3.0,
+        "aroma": 2.5
+      },
       "imageAsset": null
     },
     {
@@ -4777,6 +6587,18 @@
         "コモチダコ"
       ],
       "description": "冬に卵を持つ雌が珍重され、卵が飯粒に見えることが名の由来。",
+      "ratings": {
+        "taste": 3.5,
+        "price": 3.0,
+        "rarity": 2.5
+      },
+      "flavor": {
+        "fat": 2.0,
+        "umami": 4.0,
+        "firmness": 5.0,
+        "richness": 2.0,
+        "aroma": 2.5
+      },
       "imageAsset": null
     },
     {
@@ -4808,6 +6630,18 @@
         "クツイカ"
       ],
       "description": "背に紋がある大型のコウイカ。高級で「モンゴウイカ」として流通。",
+      "ratings": {
+        "taste": 3.5,
+        "price": 3.0,
+        "rarity": 2.5
+      },
+      "flavor": {
+        "fat": 2.0,
+        "umami": 4.0,
+        "firmness": 4.5,
+        "richness": 2.5,
+        "aroma": 2.0
+      },
       "imageAsset": null
     },
     {
@@ -4840,6 +6674,18 @@
         "五島イカ"
       ],
       "description": "「イカの女王」。九州・山陰で高値。透明感のある活き造りが絶品。",
+      "ratings": {
+        "taste": 4.5,
+        "price": 4.0,
+        "rarity": 3.5
+      },
+      "flavor": {
+        "fat": 2.0,
+        "umami": 4.5,
+        "firmness": 4.0,
+        "richness": 2.0,
+        "aroma": 2.5
+      },
       "imageAsset": null
     },
     {
@@ -4873,6 +6719,18 @@
         "マイカ(関西)"
       ],
       "description": "体内に石灰質の甲(こう)を持つ。墨が多く「スミイカ」とも。ねっとりした食感。",
+      "ratings": {
+        "taste": 3.5,
+        "price": 3.0,
+        "rarity": 2.5
+      },
+      "flavor": {
+        "fat": 2.0,
+        "umami": 3.5,
+        "firmness": 4.0,
+        "richness": 2.0,
+        "aroma": 3.0
+      },
       "imageAsset": null
     },
     {
@@ -4903,6 +6761,18 @@
         "クブシミ"
       ],
       "description": "沖縄最大のコウイカ。もっちり濃厚で沖縄料理に欠かせない。",
+      "ratings": {
+        "taste": 3.5,
+        "price": 3.0,
+        "rarity": 2.5
+      },
+      "flavor": {
+        "fat": 1.0,
+        "umami": 4.5,
+        "firmness": 4.0,
+        "richness": 3.0,
+        "aroma": 2.5
+      },
       "imageAsset": null
     },
     {
@@ -4937,6 +6807,18 @@
         "トンキュウ"
       ],
       "description": "日本で漁獲量最多のイカ。刺身から加工品まで用途が広い。肝も塩辛に使う。",
+      "ratings": {
+        "taste": 3.5,
+        "price": 1.5,
+        "rarity": 1.0
+      },
+      "flavor": {
+        "fat": 2.0,
+        "umami": 4.0,
+        "firmness": 4.5,
+        "richness": 3.0,
+        "aroma": 2.5
+      },
       "imageAsset": null
     },
     {
@@ -4968,6 +6850,18 @@
         "アカイカ(誤称)"
       ],
       "description": "非常に大型で沖縄・日本海で漁獲。回転寿司のイカにもよく使われる。",
+      "ratings": {
+        "taste": 3.5,
+        "price": 3.0,
+        "rarity": 2.5
+      },
+      "flavor": {
+        "fat": 2.0,
+        "umami": 4.0,
+        "firmness": 4.5,
+        "richness": 2.0,
+        "aroma": 2.5
+      },
       "imageAsset": null
     },
     {
@@ -5000,6 +6894,18 @@
         "コイカ"
       ],
       "description": "青白く発光する。富山湾の身投げが有名。春の風物詩。生食は寄生虫のため要冷凍または加熱。",
+      "ratings": {
+        "taste": 3.5,
+        "price": 2.5,
+        "rarity": 2.5
+      },
+      "flavor": {
+        "fat": 1.0,
+        "umami": 3.5,
+        "firmness": 4.0,
+        "richness": 4.0,
+        "aroma": 4.5
+      },
       "imageAsset": null
     },
     {
@@ -5034,6 +6940,18 @@
         "イイダコ(別種)"
       ],
       "description": "明石ダコが有名。茹でると鮮やかな赤に。夏の「麦わらダコ」と冬が旬。",
+      "ratings": {
+        "taste": 3.5,
+        "price": 3.0,
+        "rarity": 2.5
+      },
+      "flavor": {
+        "fat": 2.0,
+        "umami": 4.5,
+        "firmness": 4.5,
+        "richness": 2.5,
+        "aroma": 2.0
+      },
       "imageAsset": null
     },
     {
@@ -5066,6 +6984,18 @@
         "ボウズ"
       ],
       "description": "世界最大のタコで足を広げると3m超。北海道の主要なタコ。",
+      "ratings": {
+        "taste": 3.5,
+        "price": 3.0,
+        "rarity": 2.5
+      },
+      "flavor": {
+        "fat": 1.0,
+        "umami": 3.5,
+        "firmness": 4.0,
+        "richness": 2.0,
+        "aroma": 3.0
+      },
       "imageAsset": null
     },
     {
@@ -5096,6 +7026,18 @@
         "ヤナギ"
       ],
       "description": "北海道で多く獲れる。加工だこ・おでん種の原料として重要。",
+      "ratings": {
+        "taste": 3.5,
+        "price": 3.0,
+        "rarity": 2.5
+      },
+      "flavor": {
+        "fat": 1.0,
+        "umami": 4.0,
+        "firmness": 4.5,
+        "richness": 2.5,
+        "aroma": 2.0
+      },
       "imageAsset": null
     },
     {
@@ -5129,6 +7071,18 @@
         "サヤナガ"
       ],
       "description": "槍のように細長い。冬〜春が旬でスルメイカより上品な甘みが人気。",
+      "ratings": {
+        "taste": 3.5,
+        "price": 3.0,
+        "rarity": 2.5
+      },
+      "flavor": {
+        "fat": 1.0,
+        "umami": 4.5,
+        "firmness": 4.5,
+        "richness": 2.0,
+        "aroma": 2.0
+      },
       "imageAsset": null
     },
     {
@@ -5158,6 +7112,18 @@
         "アサヒ"
       ],
       "description": "前後に歩く珍しいカニ。南日本の高級ガニ。",
+      "ratings": {
+        "taste": 4.5,
+        "price": 4.0,
+        "rarity": 3.5
+      },
+      "flavor": {
+        "fat": 2.0,
+        "umami": 4.5,
+        "firmness": 4.0,
+        "richness": 3.0,
+        "aroma": 2.5
+      },
       "imageAsset": null
     },
     {
@@ -5190,6 +7156,18 @@
         "伊勢海老"
       ],
       "description": "祝い事に欠かせない縁起物。長いひげと立派な体。禁漁期があり資源管理される。",
+      "ratings": {
+        "taste": 4.5,
+        "price": 5.0,
+        "rarity": 4.0
+      },
+      "flavor": {
+        "fat": 1.5,
+        "umami": 4.5,
+        "firmness": 4.5,
+        "richness": 3.0,
+        "aroma": 3.0
+      },
       "imageAsset": null
     },
     {
@@ -5222,6 +7200,18 @@
         "ゾウリエビ(近縁)"
       ],
       "description": "うちわ状の平たい体。西日本で味噌汁の具として珍重。",
+      "ratings": {
+        "taste": 4.5,
+        "price": 4.0,
+        "rarity": 3.5
+      },
+      "flavor": {
+        "fat": 2.5,
+        "umami": 4.0,
+        "firmness": 4.0,
+        "richness": 3.0,
+        "aroma": 3.5
+      },
       "imageAsset": null
     },
     {
@@ -5255,6 +7245,18 @@
         "タイワンガザミ(近縁)"
       ],
       "description": "後脚が遊泳用の平たいオール状。海を「渡る」ことから渡り蟹。旨みの濃い出汁が出る。",
+      "ratings": {
+        "taste": 4.5,
+        "price": 4.0,
+        "rarity": 3.5
+      },
+      "flavor": {
+        "fat": 2.5,
+        "umami": 4.0,
+        "firmness": 3.0,
+        "richness": 3.0,
+        "aroma": 3.0
+      },
       "imageAsset": null
     },
     {
@@ -5288,6 +7290,18 @@
         "クルマ"
       ],
       "description": "縞模様が車輪に見える。生きたまま流通する高級エビ。天ぷらネタの王様。",
+      "ratings": {
+        "taste": 5.0,
+        "price": 4.5,
+        "rarity": 3.5
+      },
+      "flavor": {
+        "fat": 2.5,
+        "umami": 4.5,
+        "firmness": 3.5,
+        "richness": 3.0,
+        "aroma": 2.5
+      },
       "imageAsset": null
     },
     {
@@ -5320,6 +7334,18 @@
         "オオクリガニ"
       ],
       "description": "全身が短い毛に覆われる。小ぶりだが身の甘さとカニ味噌の濃さで人気。",
+      "ratings": {
+        "taste": 4.5,
+        "price": 4.5,
+        "rarity": 3.5
+      },
+      "flavor": {
+        "fat": 2.5,
+        "umami": 5.0,
+        "firmness": 3.5,
+        "richness": 3.0,
+        "aroma": 2.5
+      },
       "imageAsset": null
     },
     {
@@ -5352,6 +7378,18 @@
         "ヒカリエビ"
       ],
       "description": "国内漁は駿河湾のみ。春と秋に漁期。生桜えびは産地の贅沢。",
+      "ratings": {
+        "taste": 4.0,
+        "price": 4.0,
+        "rarity": 4.0
+      },
+      "flavor": {
+        "fat": 2.0,
+        "umami": 4.0,
+        "firmness": 3.5,
+        "richness": 3.5,
+        "aroma": 4.0
+      },
       "imageAsset": null
     },
     {
@@ -5382,6 +7420,18 @@
         "シラサエビ"
       ],
       "description": "江戸前の小型エビ。かき揚げやすり身の定番。",
+      "ratings": {
+        "taste": 4.5,
+        "price": 4.0,
+        "rarity": 3.5
+      },
+      "flavor": {
+        "fat": 2.5,
+        "umami": 4.5,
+        "firmness": 3.0,
+        "richness": 3.0,
+        "aroma": 2.5
+      },
       "imageAsset": null
     },
     {
@@ -5413,6 +7463,18 @@
         "シャコエビ"
       ],
       "description": "エビでもカニでもない独立した仲間。産卵前の「子持ちシャコ」が最高。江戸前の名脇役。",
+      "ratings": {
+        "taste": 4.5,
+        "price": 4.0,
+        "rarity": 3.5
+      },
+      "flavor": {
+        "fat": 2.5,
+        "umami": 5.0,
+        "firmness": 3.5,
+        "richness": 3.5,
+        "aroma": 3.0
+      },
       "imageAsset": null
     },
     {
@@ -5448,6 +7510,18 @@
         "セコガニ(雌)"
       ],
       "description": "産地でブランド名が変わる冬の味覚の王。雌は「セコガニ/コッペ」で内子・外子が美味。",
+      "ratings": {
+        "taste": 4.5,
+        "price": 4.5,
+        "rarity": 3.5
+      },
+      "flavor": {
+        "fat": 1.5,
+        "umami": 5.0,
+        "firmness": 4.0,
+        "richness": 3.0,
+        "aroma": 3.5
+      },
       "imageAsset": null
     },
     {
@@ -5477,6 +7551,18 @@
         "セミ"
       ],
       "description": "イセエビ以上とも言われる高級エビ。漁獲が少なく希少。",
+      "ratings": {
+        "taste": 4.5,
+        "price": 5.0,
+        "rarity": 5.0
+      },
+      "flavor": {
+        "fat": 2.0,
+        "umami": 5.0,
+        "firmness": 3.5,
+        "richness": 3.0,
+        "aroma": 3.0
+      },
       "imageAsset": null
     },
     {
@@ -5509,6 +7595,18 @@
         "タラバ"
       ],
       "description": "実はヤドカリの仲間で脚は左右4対。太い脚の身が魅力。カニ味噌は食用に向かない。",
+      "ratings": {
+        "taste": 4.0,
+        "price": 4.5,
+        "rarity": 3.5
+      },
+      "flavor": {
+        "fat": 2.5,
+        "umami": 5.0,
+        "firmness": 4.0,
+        "richness": 3.0,
+        "aroma": 3.5
+      },
       "imageAsset": null
     },
     {
@@ -5538,6 +7636,18 @@
         "カワエビ"
       ],
       "description": "長い鋏を持つ淡水エビ。素揚げが香ばしく美味。",
+      "ratings": {
+        "taste": 4.5,
+        "price": 4.0,
+        "rarity": 3.5
+      },
+      "flavor": {
+        "fat": 1.5,
+        "umami": 4.0,
+        "firmness": 3.0,
+        "richness": 3.0,
+        "aroma": 3.0
+      },
       "imageAsset": null
     },
     {
@@ -5568,6 +7678,18 @@
         "ボタンエビ(混称)"
       ],
       "description": "縞模様を持つ大型エビ。「ボタンエビ」として流通することも多い。",
+      "ratings": {
+        "taste": 4.5,
+        "price": 4.0,
+        "rarity": 3.5
+      },
+      "flavor": {
+        "fat": 2.5,
+        "umami": 4.0,
+        "firmness": 3.0,
+        "richness": 3.0,
+        "aroma": 2.5
+      },
       "imageAsset": null
     },
     {
@@ -5597,6 +7719,18 @@
         "花咲ガニ"
       ],
       "description": "根室の名物。茹でると花が咲くように赤くなるのが名の由来。",
+      "ratings": {
+        "taste": 4.5,
+        "price": 4.5,
+        "rarity": 4.0
+      },
+      "flavor": {
+        "fat": 2.5,
+        "umami": 5.0,
+        "firmness": 4.0,
+        "richness": 3.0,
+        "aroma": 3.5
+      },
       "imageAsset": null
     },
     {
@@ -5636,6 +7770,18 @@
         "白えび(誤称)"
       ],
       "description": "世界で最も養殖される食用エビ。安価で流通量が最多。",
+      "ratings": {
+        "taste": 2.5,
+        "price": 1.5,
+        "rarity": 1.0
+      },
+      "flavor": {
+        "fat": 2.0,
+        "umami": 5.0,
+        "firmness": 3.5,
+        "richness": 3.5,
+        "aroma": 2.5
+      },
       "imageAsset": null
     },
     {
@@ -5675,6 +7821,18 @@
         "ウシエビ"
       ],
       "description": "大型で食べ応えがある。養殖エビの主力の一つ。",
+      "ratings": {
+        "taste": 3.0,
+        "price": 2.0,
+        "rarity": 1.0
+      },
+      "flavor": {
+        "fat": 1.5,
+        "umami": 4.5,
+        "firmness": 3.5,
+        "richness": 3.0,
+        "aroma": 3.5
+      },
       "imageAsset": null
     },
     {
@@ -5707,6 +7865,18 @@
         "紅ズワイ"
       ],
       "description": "ズワイガニより深所に棲み安価。最初から真っ赤な体。",
+      "ratings": {
+        "taste": 4.5,
+        "price": 4.0,
+        "rarity": 3.5
+      },
+      "flavor": {
+        "fat": 1.5,
+        "umami": 5.0,
+        "firmness": 3.0,
+        "richness": 3.0,
+        "aroma": 3.5
+      },
       "imageAsset": null
     },
     {
@@ -5737,6 +7907,18 @@
         "シマエビ"
       ],
       "description": "北海道の藻場に棲む。茹でると縞模様が鮮やかになる。",
+      "ratings": {
+        "taste": 4.5,
+        "price": 4.0,
+        "rarity": 3.5
+      },
+      "flavor": {
+        "fat": 2.0,
+        "umami": 4.0,
+        "firmness": 3.0,
+        "richness": 3.0,
+        "aroma": 3.0
+      },
       "imageAsset": null
     },
     {
@@ -5769,6 +7951,18 @@
         "ナンバンエビ"
       ],
       "description": "「甘エビ」の名で親しまれる。雄から雌に性転換する。卵持ちも人気。",
+      "ratings": {
+        "taste": 4.0,
+        "price": 2.5,
+        "rarity": 2.0
+      },
+      "flavor": {
+        "fat": 1.5,
+        "umami": 4.5,
+        "firmness": 4.0,
+        "richness": 4.0,
+        "aroma": 3.5
+      },
       "imageAsset": null
     },
     {
@@ -5800,6 +7994,18 @@
         "トヤマエビ(近縁と混称)"
       ],
       "description": "大型で鮮やかな朱色。刺身・寿司で高値がつく甘みの強いエビ。",
+      "ratings": {
+        "taste": 4.5,
+        "price": 4.0,
+        "rarity": 3.5
+      },
+      "flavor": {
+        "fat": 2.0,
+        "umami": 4.5,
+        "firmness": 4.0,
+        "richness": 3.0,
+        "aroma": 2.5
+      },
       "imageAsset": null
     },
     {
@@ -5832,6 +8038,18 @@
         "モクズ"
       ],
       "description": "はさみに毛が生えるのが特徴。中国の上海蟹の近縁。秋に川を下る個体が旬。",
+      "ratings": {
+        "taste": 4.5,
+        "price": 4.0,
+        "rarity": 3.5
+      },
+      "flavor": {
+        "fat": 2.5,
+        "umami": 4.5,
+        "firmness": 4.0,
+        "richness": 4.0,
+        "aroma": 2.5
+      },
       "imageAsset": null
     },
     {
@@ -5864,6 +8082,18 @@
         "アカエ"
       ],
       "description": "尾に毒棘を持つ。ひれ(かん)は軟骨のコリコリ感が特徴で煮こごりに向く。",
+      "ratings": {
+        "taste": 3.5,
+        "price": 3.5,
+        "rarity": 3.5
+      },
+      "flavor": {
+        "fat": 2.5,
+        "umami": 3.5,
+        "firmness": 3.0,
+        "richness": 3.5,
+        "aroma": 3.0
+      },
       "imageAsset": null
     },
     {
@@ -5895,6 +8125,18 @@
         "モロ"
       ],
       "description": "東北で「モロ」等として煮付けにされる。肝油の原料にも。",
+      "ratings": {
+        "taste": 3.5,
+        "price": 3.5,
+        "rarity": 3.5
+      },
+      "flavor": {
+        "fat": 2.5,
+        "umami": 4.0,
+        "firmness": 3.5,
+        "richness": 3.5,
+        "aroma": 3.5
+      },
       "imageAsset": null
     },
     {
@@ -5927,6 +8169,18 @@
         "ナマダ"
       ],
       "description": "鋭い歯を持つ「海のギャング」。高知・和歌山で珍味として食べられる。皮のゼラチン質が特徴。",
+      "ratings": {
+        "taste": 3.5,
+        "price": 3.5,
+        "rarity": 3.5
+      },
+      "flavor": {
+        "fat": 2.0,
+        "umami": 3.0,
+        "firmness": 3.0,
+        "richness": 3.0,
+        "aroma": 3.5
+      },
       "imageAsset": null
     },
     {
@@ -5958,6 +8212,18 @@
         "ノナ"
       ],
       "description": "北海道の主要ウニ。折(板)うにや塩うにで広く流通する。",
+      "ratings": {
+        "taste": 4.5,
+        "price": 4.5,
+        "rarity": 3.5
+      },
+      "flavor": {
+        "fat": 3.0,
+        "umami": 5.0,
+        "firmness": 2.5,
+        "richness": 3.0,
+        "aroma": 5.0
+      },
       "imageAsset": null
     },
     {
@@ -5989,6 +8255,18 @@
         "ナゴヤフグ"
       ],
       "description": "トラフグより手頃な中型フグ。要調理免許。関東で人気。",
+      "ratings": {
+        "taste": 3.5,
+        "price": 3.5,
+        "rarity": 3.5
+      },
+      "flavor": {
+        "fat": 3.0,
+        "umami": 4.0,
+        "firmness": 3.5,
+        "richness": 3.0,
+        "aroma": 3.5
+      },
       "imageAsset": null
     },
     {
@@ -6022,6 +8300,18 @@
         "ドチガメ"
       ],
       "description": "亀の一種で滋養強壮の高級食材。丸鍋やスープが有名。",
+      "ratings": {
+        "taste": 3.5,
+        "price": 3.5,
+        "rarity": 3.5
+      },
+      "flavor": {
+        "fat": 3.0,
+        "umami": 3.0,
+        "firmness": 3.0,
+        "richness": 3.5,
+        "aroma": 3.0
+      },
       "imageAsset": null
     },
     {
@@ -6055,6 +8345,18 @@
         "本フグ"
       ],
       "description": "内臓・血液等に猛毒テトロドトキシンを持ち、調理は免許が必須。白子は絶品。下関が集散地。",
+      "ratings": {
+        "taste": 4.5,
+        "price": 5.0,
+        "rarity": 4.0
+      },
+      "flavor": {
+        "fat": 1.5,
+        "umami": 4.0,
+        "firmness": 5.0,
+        "richness": 2.0,
+        "aroma": 3.5
+      },
       "imageAsset": null
     },
     {
@@ -6087,6 +8389,18 @@
         "スズハモ"
       ],
       "description": "小骨が多く「骨切り」の技が必須。京都の夏に欠かせない祇園祭の魚。",
+      "ratings": {
+        "taste": 4.0,
+        "price": 4.0,
+        "rarity": 3.5
+      },
+      "flavor": {
+        "fat": 2.5,
+        "umami": 3.0,
+        "firmness": 3.5,
+        "richness": 2.5,
+        "aroma": 2.5
+      },
       "imageAsset": null
     },
     {
@@ -6120,6 +8434,18 @@
         "アカウニ(近縁)"
       ],
       "description": "小型だが濃厚。生殖巣(身)を食べる。バフン(馬糞)に似た姿が名の由来。",
+      "ratings": {
+        "taste": 4.5,
+        "price": 4.5,
+        "rarity": 3.5
+      },
+      "flavor": {
+        "fat": 3.0,
+        "umami": 5.0,
+        "firmness": 3.0,
+        "richness": 3.0,
+        "aroma": 5.0
+      },
       "imageAsset": null
     },
     {
@@ -6150,6 +8476,18 @@
         "ヒゼンクラゲ"
       ],
       "description": "食用クラゲの最高級。塩とミョウバンで締めて中華食材にする。",
+      "ratings": {
+        "taste": 3.5,
+        "price": 3.5,
+        "rarity": 3.5
+      },
+      "flavor": {
+        "fat": 2.0,
+        "umami": 4.0,
+        "firmness": 2.5,
+        "richness": 3.5,
+        "aroma": 3.0
+      },
       "imageAsset": null
     },
     {
@@ -6181,6 +8519,18 @@
         "フカ"
       ],
       "description": "瀬戸内で「ふか」として親しまれる。臭みが少なく食べやすい。",
+      "ratings": {
+        "taste": 3.5,
+        "price": 3.5,
+        "rarity": 3.5
+      },
+      "flavor": {
+        "fat": 2.0,
+        "umami": 3.5,
+        "firmness": 3.5,
+        "richness": 2.5,
+        "aroma": 3.0
+      },
       "imageAsset": null
     },
     {
@@ -6212,6 +8562,18 @@
         "海のパイナップル"
       ],
       "description": "「海のパイナップル」。東北の初夏の珍味で好き嫌いが分かれる。",
+      "ratings": {
+        "taste": 3.5,
+        "price": 3.5,
+        "rarity": 3.5
+      },
+      "flavor": {
+        "fat": 3.0,
+        "umami": 3.5,
+        "firmness": 3.5,
+        "richness": 2.5,
+        "aroma": 2.5
+      },
       "imageAsset": null
     },
     {
@@ -6245,6 +8607,18 @@
         "メジロ"
       ],
       "description": "ウナギより脂は控えめで上品。江戸前寿司の煮穴子は定番。体側に点線の斑紋。",
+      "ratings": {
+        "taste": 3.5,
+        "price": 3.5,
+        "rarity": 3.5
+      },
+      "flavor": {
+        "fat": 3.0,
+        "umami": 3.5,
+        "firmness": 3.0,
+        "richness": 3.5,
+        "aroma": 3.5
+      },
       "imageAsset": null
     },
     {
@@ -6276,6 +8650,18 @@
         "アカコ/アオコ"
       ],
       "description": "冬が旬。腸の塩辛「このわた」、卵巣の「このこ」は日本三大珍味の一つ。",
+      "ratings": {
+        "taste": 3.5,
+        "price": 3.5,
+        "rarity": 3.5
+      },
+      "flavor": {
+        "fat": 2.5,
+        "umami": 4.0,
+        "firmness": 2.5,
+        "richness": 2.5,
+        "aroma": 3.5
+      },
       "imageAsset": null
     },
     {
@@ -6306,6 +8692,18 @@
         "ナメラフグ"
       ],
       "description": "皮に棘がなく滑らか。白子が絶品。要調理免許。",
+      "ratings": {
+        "taste": 3.5,
+        "price": 3.5,
+        "rarity": 3.5
+      },
+      "flavor": {
+        "fat": 2.5,
+        "umami": 4.0,
+        "firmness": 3.0,
+        "richness": 3.0,
+        "aroma": 2.5
+      },
       "imageAsset": null
     },
     {
@@ -6338,6 +8736,18 @@
         "キナンボ"
       ],
       "description": "世界最重量級の硬骨魚。産地では腸(はらわた)も珍味として食べる。鮮度落ちが早い。",
+      "ratings": {
+        "taste": 3.5,
+        "price": 3.5,
+        "rarity": 3.5
+      },
+      "flavor": {
+        "fat": 3.0,
+        "umami": 3.5,
+        "firmness": 3.0,
+        "richness": 3.0,
+        "aroma": 2.5
+      },
       "imageAsset": null
     },
     {
@@ -6368,6 +8778,18 @@
         "ガンガゼ(別)"
       ],
       "description": "夏が旬。バフンウニより淡い色で生殖巣が大きめ。",
+      "ratings": {
+        "taste": 3.5,
+        "price": 3.5,
+        "rarity": 3.5
+      },
+      "flavor": {
+        "fat": 2.5,
+        "umami": 3.0,
+        "firmness": 3.5,
+        "richness": 3.0,
+        "aroma": 3.0
+      },
       "imageAsset": null
     },
     {
@@ -6400,6 +8822,18 @@
         "フカ"
       ],
       "description": "青い体色の外洋性サメ。ひれはフカヒレ、身ははんぺん等の練り物原料。",
+      "ratings": {
+        "taste": 3.5,
+        "price": 3.5,
+        "rarity": 3.5
+      },
+      "flavor": {
+        "fat": 2.0,
+        "umami": 4.0,
+        "firmness": 3.0,
+        "richness": 3.0,
+        "aroma": 2.5
+      },
       "imageAsset": null
     }
   ]
