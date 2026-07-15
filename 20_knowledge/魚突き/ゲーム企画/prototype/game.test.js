@@ -32,14 +32,17 @@ function fakeCanvas(isMain = false) {
 
 const canvas = fakeCanvas(true);
 const document = {
+  hidden: false,
   getElementById: () => canvas,
   createElement: tag => {
     if (tag === "canvas") return fakeCanvas();
     if (tag === "audio") {
       return { loop: false, paused: true, setAttribute: noop, play: () => Promise.resolve(), pause: noop };
     }
-    return {};
+    return { style: {}, addEventListener: noop, appendChild: noop, remove: noop };
   },
+  addEventListener: noop,
+  body: { appendChild: noop },
 };
 
 class FakeImage {

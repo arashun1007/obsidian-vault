@@ -373,6 +373,30 @@ function buildShareCard() {
   return c;
 }
 
+// LINE等アプリ内ブラウザは <a download> を「このブラウザでは保存できません」と拒否することがある。
+// window.openの新規タブもポップアップとして塞がれがちなので、画像を直接ページ上に表示して
+// 「長押しで保存」してもらう方式にする。これは共有APIが無い環境でも確実に効く。
+function showShareImage(dataUrl) {
+  const wrap = document.createElement("div");
+  wrap.style.cssText = "position:fixed;inset:0;background:rgba(4,18,34,0.94);z-index:9999;" +
+    "display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:16px;" +
+    "font-family:monospace;";
+  const img = document.createElement("img");
+  img.src = dataUrl;
+  img.style.cssText = "max-width:92vw;max-height:68vh;border:2px solid #ffe066;border-radius:4px;";
+  const msg = document.createElement("div");
+  msg.textContent = "画像を長押しして「写真に保存」してください";
+  msg.style.cssText = "color:#ffe066;font-weight:bold;font-size:13px;text-align:center;";
+  const closeBtn = document.createElement("button");
+  closeBtn.textContent = "閉じる";
+  closeBtn.style.cssText = "padding:8px 28px;background:#1e3a52;color:#9ad8f0;" +
+    "border:1px solid #9ad8f0;border-radius:4px;font-family:monospace;font-size:13px;";
+  closeBtn.onclick = () => wrap.remove();
+  wrap.appendChild(img); wrap.appendChild(msg); wrap.appendChild(closeBtn);
+  wrap.addEventListener("click", e => { if (e.target === wrap) wrap.remove(); });
+  document.body.appendChild(wrap);
+}
+
 function shareResult() {
   if (!resultData) return;
   let cnv;
@@ -381,19 +405,18 @@ function shareResult() {
   const text = "【いそもぐり】" + (playerName ? playerName + "が" : "") +
     (best ? (best.nushi ? "ヌシ・" : "") + best.sp.name + " " + best.cm + "cmをキープ！" : "潜ってきた。") +
     " スコア" + resultData.total + "pt";
-  if (!cnv.toBlob) return;
+  if (!cnv.toBlob) { showShareImage(cnv.toDataURL()); return; }
   cnv.toBlob(blob => {
-    if (!blob) return;
+    if (!blob) { showShareImage(cnv.toDataURL()); return; }
     const file = typeof File === "function" ? new File([blob], "isomoguri.png", { type: "image/png" }) : null;
     if (file && navigator.canShare && navigator.canShare({ files: [file] })) {
-      navigator.share({ files: [file], text: text + " " + SHARE_URL }).catch(() => {});
-    } else if (navigator.share) {
-      navigator.share({ text: text + " " + SHARE_URL }).catch(() => {});
-    } else if (typeof URL !== "undefined" && URL.createObjectURL) {
-      const a = document.createElement("a");
-      a.href = URL.createObjectURL(blob);
-      a.download = "isomoguri.png";
-      a.click();
+      navigator.share({ files: [file], text: text + " " + SHARE_URL }).catch(err => {
+        if (err && err.name === "AbortError") return; // ユーザーが共有をキャンセルしただけ
+        showShareImage(cnv.toDataURL());
+      });
+    } else {
+      // navigator.share非対応、または画像共有非対応（LINE等のアプリ内ブラウザ）
+      showShareImage(cnv.toDataURL());
     }
   }, "image/png");
 }
@@ -1008,6 +1031,15 @@ canvas.addEventListener("pointermove", onMove);
 canvas.addEventListener("pointerup", onUp);
 canvas.addEventListener("pointercancel", onCancel);
 canvas.addEventListener("contextmenu", e => e.preventDefault());
+
+// タブ切替・アプリ背面化・ホーム画面へ移動したときはBGMを止める。
+// unlockElはiOSのマナーモード対策でわざと鳴らし続ける無音ループのため、
+// これを止めない限りバックグラウンドでもBGMのオーディオセッションが生き続けてしまう。
+document.addEventListener("visibilitychange", () => {
+  if (!document.hidden) return;
+  if (AC && AC.state === "running") AC.suspend();
+  if (unlockEl && !unlockEl.paused) unlockEl.pause();
+});
 
 // ---------- 突き ----------
 function nearestFish() {
