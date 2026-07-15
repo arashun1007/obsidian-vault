@@ -55,13 +55,21 @@ flutter pub get
    データ／UI 文字列から使用文字を集め、Noto Sans JP を必要分だけ再生成する。
 4. `flutter test && flutter analyze` を通してからコミット。
 
-## 画像について
+## 画像について（fal / GPT Image 2）
 
-- 各魚種は `imageAsset`（現状すべて `null`）を持つ。
-- 画像は後日 **image2** パイプラインで生成し `app/assets/images/` に配置する予定。
-- 置いたら `pubspec.yaml` の `assets:` に `assets/images/` を追加、`fish.json` の
-  `imageAsset` にパスを入れるだけ。**アプリのコード変更は不要**
-  （`FishImage` が自動でプレースホルダから実画像に切り替わる）。
+- 各魚種は `imageAsset` を持つ（画像未生成なら `null` → プレースホルダ表示）。
+- 生成は `app/tool/gen_images.py`（fal の GPT Image 2、**あなたの fal アカウントで課金**）:
+  ```bash
+  cd app
+  export FAL_KEY=xxxxxxxx-....
+  python3 tool/gen_images.py            # 10種パイロット（中品質 ~$0.20）
+  python3 tool/gen_images.py --all      # 未生成の全種
+  python3 tool/gen_images.py --ids madai,kuromaguro --quality high
+  ```
+  種データから「図鑑リファレンス写真」風プロンプトを組み立て、
+  `assets/images/<id>.jpg` に保存し、`fish.json` の `imageAsset` を自動更新する。
+- `pubspec.yaml` は既に `assets/images/` を含む。生成後 `flutter run` で反映。
+  **アプリのコード変更は不要**（`FishImage` が自動で実画像に切り替わる。JPG/PNG可）。
 
 ## コード構成（`app/lib/`）
 
