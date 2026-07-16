@@ -107,6 +107,7 @@ function postScore(run, runCm, runFish) {
     id: playerId(), name: playerName,
     best: highScore, bestCm: bigFish.cm, bestFish: bigFish.id,
     run, runCm, fish: runFish,
+    lv: titleIdx(), // 称号（ランキングの名前の横に出る）
   };
   fetch("api/score", {
     method: "POST",
@@ -191,6 +192,21 @@ const SKINS = [
   { id: "gold",  name: "ヌシキラー金",     need: 60000, desc: "生ける伝説の証",     tint: "#e8b83a" },
 ];
 let skin = store.getItem("isomoguri_skin") || "black";
+
+// ---------- 称号（通算ポイントで昇格。ランキングの名前に付く） ----------
+const TITLES = [
+  { name: "新米",   need: 0,      color: "#9ab0c4" },
+  { name: "磯人",   need: 3000,   color: "#9ad8f0" },
+  { name: "漁師",   need: 10000,  color: "#7bd88f" },
+  { name: "銛頭",   need: 30000,  color: "#ffe066" },
+  { name: "海賊",   need: 70000,  color: "#ff8c5c" },
+  { name: "竜宮",   need: 150000, color: "#c9a0e8" },
+];
+function titleIdx(total = progress.totalScore || 0) {
+  let idx = 0;
+  for (let i = 0; i < TITLES.length; i++) if (total >= TITLES[i].need) idx = i;
+  return idx;
+}
 
 function skinDef(id) { return SKINS.find(s => s.id === id) || SKINS[0]; }
 function skinUnlocked(def) { return (progress.totalScore || 0) >= def.need; }
@@ -277,8 +293,13 @@ function buildShareCard() {
   g.textAlign = "left";
   g.font = "bold 10px monospace"; g.fillStyle = "#9ad8f0";
   g.fillText("いそもぐり", tx, 22);
+  if (titleIdx() > 0) {
+    const ti = TITLES[titleIdx()];
+    g.font = "bold 8px monospace"; g.fillStyle = ti.color;
+    g.fillText("称号：" + ti.name, tx, 33);
+  }
   g.font = "bold 14px monospace"; g.fillStyle = "#fff";
-  g.fillText(playerName || "名無しの素潜り", tx, 44);
+  g.fillText(playerName || "名無しの素潜り", tx, 46);
   g.font = "bold 12px monospace"; g.fillStyle = "#ffe066";
   if (best) {
     g.fillText((best.nushi ? "ヌシ・" : "") + best.sp.name + " " + best.cm + "cm", tx, 66);
@@ -650,6 +671,9 @@ let state, diver, fishes, rocks, weeds, bubbles, popups;
 let oxygen, bag, cuteBonus, comboBonus, dailyBonus, discoveryBonus, surfaceBonus, sizeBonus, bestCatch;
 let combo, runBestCombo, cam, camX, tGame, aim, struggle, resultData, catchCut, shotFx;
 let hintShown, quote, careWord;
+let jellies = [], morays = [], shells = [];           // 危険生物と採集物
+let pickupBonus = 0, hazardPenalty = 0;               // 採集ボーナスとウツボ被害
+let runCounts = {}, firedTriggers = {};               // 出現キー（このランの捕獲数）
 let tapGuardUntil = 0, screenShake = 0, flash = 0;
 let highScore = Number(store.getItem("isomoguri_hs") || 0);
 let dex = loadJSON("isomoguri_dex", {}); // { fishId: { caught: N, seen: N } }
@@ -709,8 +733,11 @@ function reset() {
   current = Math.random() < 0.5 ? -1 : 1;
   quote = QUOTES[(Math.random() * QUOTES.length) | 0];
   careWord = QUOTES[(Math.random() * 2) | 0]; // 先頭2つはケアワード
+  pickupBonus = 0; hazardPenalty = 0;
+  runCounts = {}; firedTriggers = {};
   spawnTerrain();
   spawnFish();
+  spawnHazards();
 }
 
 function beginDive() {
@@ -784,6 +811,75 @@ function spawnFish() {
       f.nushi = true;
       f.szMul = 1.7 + Math.random() * 0.35;
       f.cm = Math.round(f.sp.len * f.szMul);
+    }
+  }
+}
+
+// ---------- 出現キー（特定の獲物が、次の獲物を呼ぶ） ----------
+// 全部は明かさない。図鑑の「言い伝え」がヒントになっている。
+const TRIGGERS = [
+  { key: "kasago",   need: 3, spawn: "kue",      nushiP: 0.5,  msg: "根がざわつく…クエの気配！" },
+  { key: "hiramasa", need: 2, spawn: "hiramasa", nushiP: 1.0,  msg: "潮が走る…ヌシ・ヒラマサだ！" },
+  { key: "sazae",    need: 2, spawn: "ishidai",  nushiP: 0.3,  msg: "貝の匂いにイシダイが寄ってきた" },
+];
+
+function spawnKeyFish(id, nushiP, msg) {
+  const sp = SPECIES[id];
+  const nushi = Math.random() < nushiP;
+  const szMul = nushi ? 1.7 + Math.random() * 0.35 : 1.1 + Math.random() * 0.25;
+  // ダイバーの少し先・その種の深度帯に出す
+  const y = Math.max(sp.depth[0] * PX_PER_M,
+    Math.min(sp.depth[1] * PX_PER_M, diver.y + 60));
+  const side = diver.x < WORLD_W / 2 ? 1 : -1;
+  const x = Math.max(25, Math.min(WORLD_W - 25, diver.x + side * VW * 0.75));
+  fishes.push({
+    id, sp, szMul, cm: Math.round(sp.len * szMul),
+    x, y, hx: x, hy: y, vx: 0, vy: 0, dir: side < 0 ? 1 : -1,
+    wt: Math.random() * 2, fleeT: 0, cuteT: 0, cuteDone: false,
+    alive: true, wound: false, nushi, noticed: false, keyFish: true,
+  });
+  sfx.nushi();
+  popup(diver.x, diver.y - 30, msg, "#ffe066");
+  screenShake = Math.max(screenShake, 2);
+}
+
+function checkTriggers(key) {
+  for (const tr of TRIGGERS) {
+    if (tr.key !== key || firedTriggers[tr.key]) continue;
+    if ((runCounts[key] || 0) >= tr.need) {
+      firedTriggers[tr.key] = true;
+      spawnKeyFish(tr.spawn, tr.nushiP, tr.msg);
+    }
+  }
+}
+
+// ---------- 危険生物と採集物 ----------
+function spawnHazards() {
+  jellies = []; morays = []; shells = [];
+  // クラゲ：中層をふわふわ漂う
+  for (let i = 0; i < 4; i++) {
+    const y = 200 + Math.random() * 800;
+    jellies.push({ x: 20 + Math.random() * (WORLD_W - 40), y, top: 160, bottom: y + 350,
+                   ph: Math.random() * 9, seed: Math.random() * 9, cd: 0 });
+  }
+  const deepRocks = rocks.filter(r => r.y > 1000 && r.y < WORLD_H - 60);
+  // ウツボ：深場の岩穴に2匹。近づくと頭を出す
+  for (let i = 0; i < 2 && deepRocks.length; i++) {
+    const r = deepRocks[(Math.random() * deepRocks.length) | 0];
+    morays.push({ x: r.x + (Math.random() * 8 - 4), y: r.y - r.r * 0.4,
+                  dir: Math.random() < 0.5 ? -1 : 1, out: 0, cd: 0 });
+  }
+  // サザエ：中層〜深場の岩の上
+  const midRocks = rocks.filter(r => r.y > 350 && r.y < WORLD_H - 40);
+  for (let i = 0; i < 5 && midRocks.length; i++) {
+    const r = midRocks[(Math.random() * midRocks.length) | 0];
+    shells.push({ kind: "sazae", pts: 30, x: r.x + (Math.random() * 10 - 5), y: r.y - r.r - 2, got: false });
+  }
+  // イセエビ：深場の岩陰に、いたりいなかったり
+  for (let i = 0; i < 2 && deepRocks.length; i++) {
+    if (Math.random() < 0.7) {
+      const r = deepRocks[(Math.random() * deepRocks.length) | 0];
+      shells.push({ kind: "ise", pts: 150, x: r.x + (Math.random() * 10 - 5), y: r.y - r.r + 2, got: false });
     }
   }
 }
@@ -1104,6 +1200,9 @@ function catchFish(f, quality) {
   if (!dex[f.id]) dex[f.id] = { caught: 0, seen: 0 };
   dex[f.id].seen = 1;
   dex[f.id].caught++;
+  // 出現キー：特定の獲物を重ねると、次の獲物が寄ってくる
+  runCounts[f.id] = (runCounts[f.id] || 0) + 1;
+  checkTriggers(f.id);
 
   let chainBonus = 0, o2Bonus = 0, discovery = 0, mission = 0, newRec = false;
   let award = f.sp.pts;
@@ -1187,7 +1286,8 @@ function catchFish(f, quality) {
 
 // ---------- 更新 ----------
 function rawRunScore() {
-  return bag.reduce((sum, sp) => sum + sp.pts, 0) + cuteBonus + comboBonus + dailyBonus + discoveryBonus + surfaceBonus + sizeBonus;
+  return bag.reduce((sum, sp) => sum + sp.pts, 0) + cuteBonus + comboBonus + dailyBonus +
+    discoveryBonus + surfaceBonus + sizeBonus + pickupBonus - hazardPenalty;
 }
 
 function resultRank(total, blackout) {
@@ -1214,13 +1314,15 @@ function endRun(blackout) {
   for (const s of SKINS) {
     if (s.need > 0 && prevTotal < s.need && progress.totalScore >= s.need) newSkin = s;
   }
+  const newTitle = titleIdx(progress.totalScore) > titleIdx(prevTotal)
+    ? TITLES[titleIdx(progress.totalScore)] : null;
   saveJSON("isomoguri_progress", progress);
   saveJSON("isomoguri_dex", dex);
   if (!blackout) sfx.surface(); else sfx.bara();
-  if (newSkin) sfx.record();
+  if (newSkin || newTitle) sfx.record();
   submitRun(total);
   resultData = {
-    total, note, isNew, rank: resultRank(total, blackout), blackout, newSkin,
+    total, note, isNew, rank: resultRank(total, blackout), blackout, newSkin, newTitle,
     bonusTotal: comboBonus + dailyBonus + discoveryBonus + surfaceBonus + sizeBonus,
     t: performance.now(),
   };
@@ -1291,6 +1393,57 @@ function update(dt) {
         popup(f.x, f.y, "バラした！", "#ff8c8c");
         struggle = null; state = "dive";
         armTapGuard();
+      }
+    }
+
+    // クラゲ：ふわふわ漂う。触れると息が乱れる
+    for (const j of jellies) {
+      j.ph += dt;
+      j.y += (Math.sin(j.ph * 0.8) * 6 - 4) * dt;
+      j.x += (Math.sin(j.ph * 0.5 + j.seed) * 8 + current * mode.drift * 0.3) * dt;
+      if (j.y < j.top) j.y = j.bottom;
+      if (j.x < 10) j.x = WORLD_W - 10; else if (j.x > WORLD_W - 10) j.x = 10;
+      if (state === "dive" && tGame > j.cd && Math.hypot(j.x - diver.x, j.y - diver.y) < 11) {
+        j.cd = tGame + 2.5;
+        oxygen = Math.max(0.5, oxygen - 4);
+        flash = 0.15; screenShake = Math.max(screenShake, 2);
+        sfx.warn(); haptic(30);
+        popup(diver.x, diver.y - 20, "クラゲ！ 息が乱れた -4秒", "#ff8c8c");
+      }
+    }
+    // ウツボ：近づくと岩から頭を出し、密着すると噛む
+    for (const m of morays) {
+      const md = Math.hypot(m.x - diver.x, m.y - diver.y);
+      m.out = Math.min(1, Math.max(0, m.out + (md < 55 ? dt * 3 : -dt * 2)));
+      if (state === "dive" && tGame > m.cd && md < 18 && m.out > 0.6) {
+        m.cd = tGame + 4;
+        hazardPenalty += 300;
+        oxygen = Math.max(0.5, oxygen - 2);
+        diver.vx += (diver.x - m.x) * 9;
+        diver.vy += (diver.y - m.y) * 9;
+        breakCombo();
+        flash = 0.25; screenShake = Math.max(screenShake, 5);
+        sfx.bara(); haptic([40, 60, 40]);
+        popup(m.x, m.y - 15, "ウツボに噛まれた！ -300", "#ff8c8c");
+      }
+    }
+    // サザエ・イセエビ：泳ぎ寄るだけで採れる
+    for (const s of shells) {
+      if (s.got || state !== "dive") continue;
+      if (Math.hypot(s.x - diver.x, s.y - diver.y) < 13) {
+        s.got = true;
+        pickupBonus += s.pts;
+        haptic(15);
+        if (s.kind === "ise") {
+          oxygen = Math.min(O2_MAX, oxygen + 2);
+          sfx.record();
+          popup(s.x, s.y - 14, "イセエビ！ +150 ひと呼吸+2秒", "#ffe066");
+        } else {
+          sfx.ui();
+          popup(s.x, s.y - 12, "サザエ +30", "#9ad8f0");
+          runCounts.sazae = (runCounts.sazae || 0) + 1;
+          checkTriggers("sazae");
+        }
       }
     }
 
@@ -1420,6 +1573,70 @@ function draw() {
       ctx.quadraticCurveTo(w.x + s * 5 + sway, w.y - w.h * 0.6, w.x + s * 3 + sway * 1.6, w.y - w.h);
       ctx.stroke();
     }
+  }
+
+  // サザエ・イセエビ（たまにきらめいて教えてくれる）
+  for (const s of shells) {
+    if (s.got || s.y < cam - 20 || s.y > cam + VH + 20) continue;
+    if (s.kind === "ise") {
+      ctx.strokeStyle = "#d0663a"; ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(s.x - 2, s.y - 2); ctx.lineTo(s.x - 8, s.y - 8);
+      ctx.moveTo(s.x + 2, s.y - 2); ctx.lineTo(s.x + 8, s.y - 8);
+      ctx.stroke();
+      ctx.fillStyle = "#b34a28"; ctx.fillRect(s.x - 4, s.y - 3, 8, 6);
+      ctx.fillStyle = "#d0663a"; ctx.fillRect(s.x - 3, s.y - 2, 6, 2);
+    } else {
+      ctx.fillStyle = "#7a5a3a";
+      ctx.beginPath(); ctx.arc(s.x, s.y, 4, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = "#9a7a50";
+      ctx.beginPath(); ctx.arc(s.x - 1, s.y - 1, 2, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = "#7a5a3a";
+      ctx.fillRect(s.x - 4, s.y - 5, 2, 2); ctx.fillRect(s.x + 2, s.y - 5, 2, 2);
+    }
+    if (Math.sin(tGame * 3 + s.x) > 0.7) {
+      ctx.fillStyle = "rgba(255,255,220,0.85)";
+      ctx.fillRect(s.x + 3, s.y - 6, 1.5, 1.5);
+    }
+  }
+  // ウツボ（岩穴から頭を出す）
+  for (const m of morays) {
+    if (m.y < cam - 30 || m.y > cam + VH + 30) continue;
+    const ext = m.out * 10;
+    ctx.save();
+    ctx.translate(m.x, m.y);
+    ctx.scale(m.dir, 1);
+    ctx.fillStyle = "#5a5230";
+    ctx.fillRect(-4, -3, 6 + ext, 7);
+    ctx.fillStyle = "#6b6238";
+    ctx.fillRect(ext - 2, -4, 8, 8);
+    if (m.out > 0.55) { // 怒って口を開ける
+      ctx.fillStyle = "#3a1a12";
+      ctx.beginPath();
+      ctx.moveTo(ext + 6, 0); ctx.lineTo(ext + 1, -3.5); ctx.lineTo(ext + 1, 3.5);
+      ctx.closePath(); ctx.fill();
+    }
+    ctx.fillStyle = "#ffe066"; ctx.fillRect(ext + 1, -3, 1.5, 1.5);
+    ctx.restore();
+  }
+  // クラゲ（半透明でふわふわ）
+  for (const j of jellies) {
+    if (j.y < cam - 20 || j.y > cam + VH + 20) continue;
+    const pulse = 1 + Math.sin(j.ph * 2) * 0.12;
+    ctx.save();
+    ctx.translate(j.x, j.y);
+    ctx.globalAlpha = 0.55;
+    ctx.fillStyle = "#e8c9f0";
+    ctx.beginPath(); ctx.arc(0, 0, 6 * pulse, Math.PI, 0); ctx.fill();
+    ctx.strokeStyle = "rgba(232,201,240,0.8)"; ctx.lineWidth = 1;
+    for (let i = -1; i <= 1; i++) {
+      ctx.beginPath();
+      ctx.moveTo(i * 3, 0);
+      ctx.quadraticCurveTo(i * 3 + Math.sin(j.ph * 3 + i) * 2, 5, i * 2 + Math.sin(j.ph * 2 + i) * 3, 9);
+      ctx.stroke();
+    }
+    ctx.restore();
+    ctx.globalAlpha = 1;
   }
 
   // 魚
@@ -1599,7 +1816,8 @@ function drawTitle() {
   ctx.fillText("ハイスコア " + highScore + "pt", VW / 2, 124);
   ctx.font = "bold 8px monospace";
   ctx.fillStyle = "#9ab0c4";
-  ctx.fillText(`潜水 ${progress.dives}　連続 ${progress.streak}日　最多 ${progress.bestCombo}連`, VW / 2, 140);
+  const ttl = titleIdx() > 0 ? `${TITLES[titleIdx()].name}　` : "";
+  ctx.fillText(`${ttl}潜水 ${progress.dives}　連続 ${progress.streak}日　最多 ${progress.bestCombo}連`, VW / 2, 140);
 
   // 日替わりの短期目標
   ctx.fillStyle = "rgba(20,40,60,0.9)";
@@ -1877,6 +2095,18 @@ function drawResult() {
     ctx.textAlign = "right"; ctx.fillText("+" + allBonus + "pt", VW - 40, y);
     y += rowH;
   }
+  if (pickupBonus > 0) {
+    ctx.textAlign = "left"; ctx.fillStyle = "#9ad8f0";
+    ctx.fillText("採集（サザエ・イセエビ）", 62, y);
+    ctx.textAlign = "right"; ctx.fillText("+" + pickupBonus + "pt", VW - 40, y);
+    y += rowH;
+  }
+  if (hazardPenalty > 0) {
+    ctx.textAlign = "left"; ctx.fillStyle = "#f2994a";
+    ctx.fillText("ウツボの被害", 62, y);
+    ctx.textAlign = "right"; ctx.fillText("-" + hazardPenalty + "pt", VW - 40, y);
+    y += rowH;
+  }
   if (runBestCombo >= 2) {
     ctx.textAlign = "center"; ctx.fillStyle = "#9ad8f0";
     ctx.fillText(`ベスト連続キープ ${runBestCombo}`, VW / 2, y);
@@ -1895,11 +2125,14 @@ function drawResult() {
   ctx.fillStyle = "#cfd8e3";
   wrapText("「" + quote + "」", VW / 2, 319, 205, 13);
 
-  // 新スキン解放の告知（きらめかせる）
-  if (resultData.newSkin) {
+  // 新スキン解放・称号昇格の告知（きらめかせる）
+  const unlockMsg = resultData.newSkin ? `新スキン解放「${resultData.newSkin.name}」！ タイトル→スキン`
+    : resultData.newTitle ? `称号昇格「${resultData.newTitle.name}」！ ランキングに刻まれる` : null;
+  if (unlockMsg) {
     ctx.globalAlpha = 0.7 + 0.3 * Math.sin(tGame * 5);
-    ctx.fillStyle = "#c9a0e8"; ctx.font = "bold 9px monospace";
-    ctx.fillText(`新スキン解放「${resultData.newSkin.name}」！ タイトル→スキン`, VW / 2, 355);
+    ctx.fillStyle = resultData.newSkin ? "#c9a0e8" : (resultData.newTitle ? resultData.newTitle.color : "#fff");
+    ctx.font = "bold 9px monospace";
+    ctx.fillText(unlockMsg, VW / 2, 355);
     ctx.globalAlpha = 1;
   }
 
@@ -1948,8 +2181,19 @@ function drawDex() {
     if (y > VH - 40) break;
   }
 
-  ctx.fillStyle = "#cfd8e3";
+  // 言い伝え（出現キーのヒント。日替わりでひとつ）
+  const LORE = [
+    "カサゴが付く根には、主が居着くという。",
+    "ヒラマサが二本走れば、もっとデカいのが続く。",
+    "貝の匂いは、縞の王を呼ぶ。",
+    "深場の岩穴には歯の鋭い主がいる。近づきすぎるな。",
+    "イセエビを見つけたら、ひと呼吸もらえる。",
+  ];
+  ctx.fillStyle = "#5a7a94";
   ctx.textAlign = "center"; ctx.font = "bold 8px monospace";
+  wrapText("言い伝え：" + LORE[daySerial(localDateKey()) % LORE.length], VW / 2, VH - 44, 200, 10);
+
+  ctx.fillStyle = "#cfd8e3";
   ctx.fillText("タップで戻る", VW / 2, VH - 20);
 }
 
@@ -2053,7 +2297,18 @@ function drawRank() {
     ctx.textAlign = "left";
     rows.slice(0, 18).forEach((p, i) => {
       ctx.fillStyle = medal[i] || "#fff";
-      ctx.fillText(`${String(i + 1).padStart(2)}. ${p.n}`, 22, y);
+      const head = `${String(i + 1).padStart(2)}. `;
+      ctx.fillText(head, 22, y);
+      let nx = 22 + ctx.measureText(head).width;
+      // 称号（新米は表示しない。色付きで格の違いを見せる）
+      if (p.v > 0) {
+        const ti = TITLES[Math.min(p.v, TITLES.length - 1)];
+        ctx.fillStyle = ti.color;
+        ctx.fillText(ti.name + "・", nx, y);
+        nx += ctx.measureText(ti.name + "・").width;
+        ctx.fillStyle = medal[i] || "#fff";
+      }
+      ctx.fillText(p.n, nx, y);
       ctx.textAlign = "right";
       if (rankTab === "score") {
         ctx.fillText(`${p.s}pt`, VW - 22, y);
@@ -2080,8 +2335,9 @@ function drawRank() {
       const mine = [];
       if (base.me && base.me.score) mine.push(`スコア ${base.me.score}位`);
       if (base.me && base.me.fish) mine.push(`ヌシ ${base.me.fish}位`);
+      const myTitle = titleIdx() > 0 ? TITLES[titleIdx()].name + "・" : "";
       ctx.fillStyle = "#7bd88f";
-      ctx.fillText(mine.length ? `${playerName}：${mine.join("　")}（全${base.total || 0}人）`
+      ctx.fillText(mine.length ? `${myTitle}${playerName}：${mine.join("　")}（全${base.total || 0}人）`
                                : "記録を出すとここに順位が出る", VW / 2, myY);
     } else {
       ctx.fillStyle = "#ffe066";

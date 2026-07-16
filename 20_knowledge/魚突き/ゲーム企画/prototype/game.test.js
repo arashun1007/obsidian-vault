@@ -174,4 +174,17 @@ tap(120, 390); // 行の外 → タイトルへ
 assert.equal(evaluate("state"), "title");
 evaluate('skin = "black"; progress.totalScore = 0'); // 後続テストのため戻す
 
+// 出現キー：カサゴを3匹重ねるとクエが湧く（1ランに1回だけ）
+evaluate("reset()");
+const kueBefore = evaluate('fishes.filter(f => f.id === "kue").length');
+evaluate('runCounts.kasago = 3; checkTriggers("kasago")');
+assert.equal(evaluate('fishes.filter(f => f.id === "kue").length'), kueBefore + 1);
+assert.ok(evaluate('fishes.some(f => f.keyFish)'));
+evaluate('checkTriggers("kasago")'); // 二重発火しない
+assert.equal(evaluate('fishes.filter(f => f.id === "kue").length'), kueBefore + 1);
+
+// 危険生物と採集物が配置されている
+assert.ok(evaluate("jellies.length") >= 1);
+assert.ok(evaluate("shells.length") >= 1);
+
 console.log("game input regression tests: ok");

@@ -54,8 +54,8 @@ function buildBoards(players, me) {
   if (iF >= 0) my.fish = iF + 1;
   return {
     total: players.length,
-    score: byScore.slice(0, 20).map(p => ({ n: p.n, s: p.s })),
-    fish: byFish.slice(0, 20).map(p => ({ n: p.n, c: p.c, f: p.f || "" })),
+    score: byScore.slice(0, 20).map(p => ({ n: p.n, s: p.s, v: p.v || 0 })),
+    fish: byFish.slice(0, 20).map(p => ({ n: p.n, c: p.c, f: p.f || "", v: p.v || 0 })),
     me: my,
   };
 }
@@ -96,6 +96,7 @@ async function handleSubmit(request, env) {
   const runCm = intIn(body.runCm !== undefined ? body.runCm : body.cm, 1, 400);
   const bestFish = fishIdOf(body.bestFish || body.fish);
   const runFish = fishIdOf(body.fish);
+  const lv = intIn(body.lv, 0, 9); // 称号レベル（クライアントの通算ポイント由来）
 
   // 通算（殿堂）
   const key = "p:" + id;
@@ -105,10 +106,11 @@ async function handleSubmit(request, env) {
     s: Math.max(prev.s || 0, best),
     c: Math.max(prev.c || 0, bestCm),
     f: bestCm > 0 && bestCm >= (prev.c || 0) ? bestFish : (prev.f || ""),
+    v: Math.max(prev.v || 0, lv),
     t: Date.now(),
   };
-  // ベスト更新か名前変更のときだけ書き込む（KV無料枠の書き込み回数を節約）
-  if (next.n !== prev.n || next.s !== (prev.s || 0) || next.c !== (prev.c || 0)) {
+  // ベスト更新・名前変更・称号昇格のときだけ書き込む（KV無料枠の書き込み回数を節約）
+  if (next.n !== prev.n || next.s !== (prev.s || 0) || next.c !== (prev.c || 0) || next.v !== (prev.v || 0)) {
     await env.RANK.put(key, JSON.stringify(next), { metadata: next });
   }
 
@@ -122,9 +124,10 @@ async function handleSubmit(request, env) {
       s: Math.max(prevW.s || 0, run),
       c: Math.max(prevW.c || 0, runCm),
       f: runCm > 0 && runCm >= (prevW.c || 0) ? runFish : (prevW.f || ""),
+      v: Math.max(prevW.v || 0, lv),
       t: Date.now(),
     };
-    if (nextW.n !== prevW.n || nextW.s !== (prevW.s || 0) || nextW.c !== (prevW.c || 0)) {
+    if (nextW.n !== prevW.n || nextW.s !== (prevW.s || 0) || nextW.c !== (prevW.c || 0) || nextW.v !== (prevW.v || 0)) {
       await env.RANK.put(wkey, JSON.stringify(nextW), { metadata: nextW, expirationTtl: 3600 * 24 * 35 });
     }
   }
