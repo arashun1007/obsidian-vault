@@ -189,7 +189,7 @@ function postScore(run, runCm, runFish) {
     body: JSON.stringify(payload),
   }).then(r => (r.ok ? r.json() : null)).then(res => {
     if (res && res.ok) {
-      sentBest = { s: highScore, c: bigFish.cm, n: playerName };
+      sentBest = { s: highScore, c: bigFish.cm, n: playerName, v: titleIdx() };
       saveJSON("isomoguri_sent", sentBest);
       const wk = clientWeek();
       if (weeklySent.week !== wk) weeklySent = { week: wk, s: 0, c: 0 };
@@ -203,7 +203,8 @@ function postScore(run, runCm, runFish) {
 // 名前登録・変更時：通算ベストだけ同期する
 function submitScore() {
   if (!NET_OK || !playerName) return;
-  if (highScore <= sentBest.s && bigFish.cm <= sentBest.c && playerName === sentBest.n) return;
+  if (highScore <= sentBest.s && bigFish.cm <= sentBest.c && playerName === sentBest.n &&
+      titleIdx() <= (sentBest.v || 0)) return;
   postScore(0, 0, "");
 }
 
@@ -213,7 +214,8 @@ function submitRun(total) {
   const wk = clientWeek();
   if (weeklySent.week !== wk) weeklySent = { week: wk, s: 0, c: 0 };
   const improved = total > weeklySent.s || runBig.cm > weeklySent.c ||
-    highScore > sentBest.s || bigFish.cm > sentBest.c || playerName !== sentBest.n;
+    highScore > sentBest.s || bigFish.cm > sentBest.c || playerName !== sentBest.n ||
+    titleIdx() > (sentBest.v || 0); // 称号が上がったら送る
   if (!improved) return;
   postScore(Math.max(0, total), runBig.cm, runBig.id);
 }
@@ -367,7 +369,7 @@ function buildShareCard() {
   g.textAlign = "left";
   g.font = "bold 10px monospace"; g.fillStyle = "#9ad8f0";
   g.fillText("いそもぐり", tx, 22);
-  if (titleIdx() > 0) {
+  {
     const ti = TITLES[titleIdx()];
     g.font = "bold 8px monospace"; g.fillStyle = ti.color;
     g.fillText("称号：" + ti.name, tx, 33);
@@ -1887,11 +1889,16 @@ function drawTitle() {
   ctx.fillStyle = "#9ad8f0";
   ctx.fillText("一息、一突き、無事浮上。", VW / 2, 98);
   ctx.fillStyle = "#ffe066";
-  ctx.fillText("ハイスコア " + highScore + "pt", VW / 2, 124);
+  ctx.fillText("ハイスコア " + highScore + "pt", VW / 2, 116);
   ctx.font = "bold 8px monospace";
+  const nextTtl = TITLES[titleIdx() + 1];
+  const ttlLine = nextTtl
+    ? `称号 ${TITLES[titleIdx()].name}（次の${nextTtl.name}まであと${nextTtl.need - (progress.totalScore || 0)}pt）`
+    : `称号 ${TITLES[titleIdx()].name}（最高位）`;
+  ctx.fillStyle = TITLES[titleIdx()].color;
+  ctx.fillText(ttlLine, VW / 2, 130);
   ctx.fillStyle = "#9ab0c4";
-  const ttl = titleIdx() > 0 ? `${TITLES[titleIdx()].name}　` : "";
-  ctx.fillText(`${ttl}潜水 ${progress.dives}　連続 ${progress.streak}日　最多 ${progress.bestCombo}連`, VW / 2, 140);
+  ctx.fillText(`潜水 ${progress.dives}　連続 ${progress.streak}日　最多 ${progress.bestCombo}連`, VW / 2, 142);
 
   // 日替わりの短期目標
   ctx.fillStyle = "rgba(20,40,60,0.9)";
@@ -2409,7 +2416,7 @@ function drawRank() {
       const mine = [];
       if (base.me && base.me.score) mine.push(`スコア ${base.me.score}位`);
       if (base.me && base.me.fish) mine.push(`ヌシ ${base.me.fish}位`);
-      const myTitle = titleIdx() > 0 ? TITLES[titleIdx()].name + "・" : "";
+      const myTitle = TITLES[titleIdx()].name + "・";
       ctx.fillStyle = "#7bd88f";
       ctx.fillText(mine.length ? `${myTitle}${playerName}：${mine.join("　")}（全${base.total || 0}人）`
                                : "記録を出すとここに順位が出る", VW / 2, myY);
