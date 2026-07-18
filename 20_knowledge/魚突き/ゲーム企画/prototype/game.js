@@ -842,11 +842,12 @@ function spawnKeyFish(id, nushiP, msg) {
     alive: true, wound: false, nushi, noticed: false, keyFish: true,
   });
   sfx.nushi();
-  popup(diver.x, diver.y - 30, msg, "#ffe066");
+  // 捕獲カットイン（最長2.4秒）に隠れないよう長めに出す
+  popup(diver.x, diver.y - 30, msg, "#ffe066", 3.6);
   screenShake = Math.max(screenShake, 2);
   // 気配を掴むと心が静まる。心拍が落ち、しばらく息が長くなる
   calmT = 18;
-  popup(diver.x, diver.y - 14, "心が静まる…息が伸びる", "#7bd88f");
+  popup(diver.x, diver.y - 14, "心が静まる…息が伸びる", "#7bd88f", 3.6);
 }
 
 function checkTriggers(key) {
@@ -1524,7 +1525,7 @@ function update(dt) {
   camX += (targetCamX - camX) * Math.min(1, dt * 6);
 }
 
-function popup(x, y, txt, color) { popups.push({ x, y, txt, color, t: 1.6 }); }
+function popup(x, y, txt, color, dur = 1.6) { popups.push({ x, y, txt, color, t: dur, dur }); }
 
 // ---------- 描画 ----------
 function lerpColor(a, b, t) {
@@ -1724,7 +1725,7 @@ function draw() {
   for (const p of popups) {
     ctx.globalAlpha = Math.min(1, p.t);
     ctx.fillStyle = p.color;
-    ctx.fillText(p.txt, p.x, p.y - (1.6 - p.t) * 14);
+    ctx.fillText(p.txt, p.x, p.y - (1 - p.t / p.dur) * 14);
     ctx.globalAlpha = 1;
   }
 
