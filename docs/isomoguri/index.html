@@ -750,6 +750,7 @@ let hintShown, quote, careWord;
 let jellies = [], morays = [], shells = [];           // 危険生物と採集物
 let pickupBonus = 0, hazardPenalty = 0;               // 採集ボーナスとウツボ被害
 let runCounts = {}, firedTriggers = {};               // 出現キー（このランの捕獲数）
+let calmT = 0;                                        // 静まり：キー発火後は心拍が落ち、酸素消費が半分になる
 let tapGuardUntil = 0, screenShake = 0, flash = 0;
 let highScore = Number(store.getItem("isomoguri_hs") || 0);
 let dex = loadJSON("isomoguri_dex", {}); // { fishId: { caught: N, seen: N } }
@@ -810,7 +811,7 @@ function reset() {
   quote = QUOTES[(Math.random() * QUOTES.length) | 0];
   careWord = QUOTES[(Math.random() * 2) | 0]; // 先頭2つはケアワード
   pickupBonus = 0; hazardPenalty = 0;
-  runCounts = {}; firedTriggers = {};
+  runCounts = {}; firedTriggers = {}; calmT = 0;
   spawnTerrain();
   spawnFish();
   spawnHazards();
@@ -917,6 +918,9 @@ function spawnKeyFish(id, nushiP, msg) {
   sfx.nushi();
   popup(diver.x, diver.y - 30, msg, "#ffe066");
   screenShake = Math.max(screenShake, 2);
+  // 気配を掴むと心が静まる。心拍が落ち、しばらく息が長くなる
+  calmT = 18;
+  popup(diver.x, diver.y - 14, "心が静まる…息が伸びる", "#7bd88f");
 }
 
 function checkTriggers(key) {
@@ -1415,7 +1419,8 @@ function update(dt) {
     // 酸素。格闘中は食いしばって耐える（消費をゆるめ、深場の大物戦を成立させる）
     const depthM = diver.y / PX_PER_M;
     const drainMul = state === "struggle" ? 0.55 : 1;
-    oxygen -= dt * (0.6 + depthM / 14) * mode.o2 * drainMul;
+    const calmMul = calmT > 0 ? 0.5 : 1; // 静まり中は心拍が低い
+    oxygen -= dt * (0.6 + depthM / 14) * mode.o2 * drainMul * calmMul;
     if (oxygen <= 0) { endRun(true); return; }
     if (!hintShown && oxygen < O2_MAX * 0.3) {
       hintShown = true;
@@ -1582,6 +1587,7 @@ function update(dt) {
   popups = popups.filter(p => p.t > 0);
   if (catchCut) { catchCut.t -= dt; if (catchCut.t <= 0) catchCut = null; }
   if (shotFx) { shotFx.t -= dt; if (shotFx.t <= 0) shotFx = null; }
+  calmT = Math.max(0, calmT - dt);
   screenShake = Math.max(0, screenShake - dt * 18);
   flash = Math.max(0, flash - dt);
 
@@ -1819,10 +1825,12 @@ function drawHUD() {
   ctx.fillStyle = "rgba(10,20,35,0.7)";
   ctx.fillRect(6, 6, 106, 12);
   const r = oxygen / O2_MAX;
-  ctx.fillStyle = r < 0.3 ? (Math.sin(tGame * 8) > 0 ? "#ff5c5c" : "#a03030") : "#4dd2ff";
+  ctx.fillStyle = r < 0.3 ? (Math.sin(tGame * 8) > 0 ? "#ff5c5c" : "#a03030")
+                : calmT > 0 ? "#7bd88f" : "#4dd2ff";
   ctx.fillRect(8, 8, 102 * Math.max(0, r), 8);
   ctx.font = "bold 8px monospace"; ctx.textAlign = "left";
   ctx.fillStyle = "#fff"; ctx.fillText("O2", 10, 15);
+  if (calmT > 0) { ctx.fillStyle = "#7bd88f"; ctx.fillText("静", 116, 15); }
   // 深度
   ctx.textAlign = "right";
   ctx.fillStyle = "rgba(10,20,35,0.7)"; ctx.fillRect(VW - 58, 6, 52, 12);
@@ -2269,6 +2277,7 @@ function drawDex() {
     "貝の匂いは、縞の王を呼ぶ。",
     "深場の岩穴には歯の鋭い主がいる。近づきすぎるな。",
     "イセエビを見つけたら、ひと呼吸もらえる。",
+    "気配を掴んだ潜り手は心が静まり、息が伸びる。",
   ];
   ctx.fillStyle = "#5a7a94";
   ctx.textAlign = "center"; ctx.font = "bold 8px monospace";
