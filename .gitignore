@@ -5,3 +5,9 @@
 .obsidian/cache/
 .claude/settings.local.json
 __pycache__/
+# Google Drive同期が生成するゴミファイル（.1_5 .11@0 .1006839630 など）
+/.[0-9]*
+.tmp.drivedownload/
+.tmp.driveupload/
+desktop.ini
+Icon?
