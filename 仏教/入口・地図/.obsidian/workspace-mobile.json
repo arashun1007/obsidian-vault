@@ -1,0 +1,178 @@
+{
+  "main": {
+    "id": "629057776bed53ec",
+    "type": "split",
+    "children": [
+      {
+        "id": "5adf183801cc7450",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "54d3413f3e868bb6",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "仏教/言葉.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "言葉"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "218b2977b0212825",
+    "type": "mobile-drawer",
+    "children": [
+      {
+        "id": "e1f2047392636bcb",
+        "type": "leaf",
+        "state": {
+          "type": "file-explorer",
+          "state": {
+            "sortOrder": "alphabetical",
+            "autoReveal": false
+          },
+          "icon": "lucide-folder-closed",
+          "title": "ファイルエクスプローラ"
+        }
+      },
+      {
+        "id": "9e43b88711f0cc13",
+        "type": "leaf",
+        "state": {
+          "type": "search",
+          "state": {
+            "query": "",
+            "matchingCase": false,
+            "explainSearch": false,
+            "collapseAll": false,
+            "extraContext": false,
+            "sortOrder": "alphabetical"
+          },
+          "icon": "lucide-search",
+          "title": "検索"
+        }
+      },
+      {
+        "id": "386dc837e3776880",
+        "type": "leaf",
+        "state": {
+          "type": "tag",
+          "state": {
+            "sortOrder": "frequency",
+            "useHierarchy": true,
+            "showSearch": false,
+            "searchQuery": ""
+          },
+          "icon": "lucide-tags",
+          "title": "タグ"
+        }
+      },
+      {
+        "id": "234da8e969aa0fe4",
+        "type": "leaf",
+        "state": {
+          "type": "all-properties",
+          "state": {
+            "sortOrder": "frequency",
+            "showSearch": false,
+            "searchQuery": ""
+          },
+          "icon": "lucide-archive",
+          "title": "すべてのプロパティ"
+        }
+      },
+      {
+        "id": "08edd8f1f1088f9f",
+        "type": "leaf",
+        "state": {
+          "type": "bookmarks",
+          "state": {},
+          "icon": "lucide-bookmark",
+          "title": "ブックマーク"
+        }
+      }
+    ],
+    "currentTab": 0
+  },
+  "right": {
+    "id": "791a2fc269ab27f2",
+    "type": "mobile-drawer",
+    "children": [
+      {
+        "id": "87dc622b5c27c817",
+        "type": "leaf",
+        "state": {
+          "type": "backlink",
+          "state": {
+            "file": "仏教/言葉.md",
+            "collapseAll": false,
+            "extraContext": false,
+            "sortOrder": "alphabetical",
+            "showSearch": false,
+            "searchQuery": "",
+            "backlinkCollapsed": false,
+            "unlinkedCollapsed": true
+          },
+          "icon": "links-coming-in",
+          "title": "バックリンク"
+        }
+      },
+      {
+        "id": "ef0d6b20eed3c265",
+        "type": "leaf",
+        "state": {
+          "type": "outgoing-link",
+          "state": {
+            "file": "仏教/言葉.md",
+            "linksCollapsed": false,
+            "unlinkedCollapsed": true
+          },
+          "icon": "links-going-out",
+          "title": "アウトゴーイングリンク"
+        }
+      },
+      {
+        "id": "24a735940b21e6ee",
+        "type": "leaf",
+        "state": {
+          "type": "outline",
+          "state": {
+            "file": "仏教/言葉.md",
+            "followCursor": false,
+            "showSearch": false,
+            "searchQuery": ""
+          },
+          "icon": "lucide-list",
+          "title": "アウトライン"
+        }
+      }
+    ],
+    "currentTab": 0
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:クイックスイッチャーを開く": false,
+      "graph:グラフビューを開く": false,
+      "canvas:新規キャンバスを作成": false,
+      "daily-notes:今日のデイリーノートを開く": false,
+      "templates:テンプレートを挿入": false,
+      "command-palette:コマンドパレットを開く": false,
+      "bases:新規ベースを作成": false
+    }
+  },
+  "active": "54d3413f3e868bb6",
+  "lastOpenFiles": [
+    "読書・学習ログ.md",
+    "仏教/言葉.md",
+    "仏教",
+    "今の関心.md"
+  ]
+}
