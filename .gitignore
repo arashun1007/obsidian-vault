@@ -11,3 +11,7 @@ __pycache__/
 .tmp.driveupload/
 desktop.ini
 Icon?
+# Obsidianプラグイン本体（各端末で個別インストールする。設定(data.json)のみ同期）
+.obsidian/plugins/*/main.js
+.obsidian/plugins/*/styles.css
+.obsidian/plugins/*/manifest.json
