@@ -1,0 +1,456 @@
+{
+  "main": {
+    "id": "f0ee89aa877528cf",
+    "type": "split",
+    "children": [
+      {
+        "id": "83b2d7e83ad555e8",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "feb1865b2a7350ce",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "プロンプト/ai文章の書き方.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "ai文章の書き方"
+            }
+          },
+          {
+            "id": "03f7bd7156a919c7",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "90日後目指す状態.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "90日後目指す状態"
+            }
+          },
+          {
+            "id": "5d2d53219ccdca97",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "記事/魚の腹から考えた、日記を記事に変える3つの問い.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "魚の腹から考えた、日記を記事に変える3つの問い"
+            }
+          },
+          {
+            "id": "1dc864461d44e926",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "無題のファイル.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "無題のファイル"
+            }
+          },
+          {
+            "id": "205834deebccfc26",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "記事/魚の腹から考えた、日記を記事に変える3つの問い.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "魚の腹から考えた、日記を記事に変える3つの問い"
+            }
+          },
+          {
+            "id": "bc91c858b5cb1204",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "文で描くためのモチーフ100.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "文で描くためのモチーフ100"
+            }
+          },
+          {
+            "id": "03f42a3e8d8fb8d0",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Tips.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "Tips"
+            }
+          },
+          {
+            "id": "61a39d0551a71099",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "文で描くためのモチーフ100.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "文で描くためのモチーフ100"
+            }
+          },
+          {
+            "id": "4bf2e98e9346e796",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "テーマ集.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "テーマ集"
+            }
+          },
+          {
+            "id": "281693130ac845e6",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "プロンプト/フォーマット.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "フォーマット"
+            }
+          },
+          {
+            "id": "5ae268076e340bb0",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "テーマ分類.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "テーマ分類"
+            }
+          },
+          {
+            "id": "ce02e4ed02ba27df",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "ネタストック.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "ネタストック"
+            }
+          },
+          {
+            "id": "0a5843e19453618d",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "ペルソナ.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "ペルソナ"
+            }
+          },
+          {
+            "id": "173f6b6841a0180e",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "最も大切なこと.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "最も大切なこと"
+            }
+          },
+          {
+            "id": "db82a0703f75f4e3",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "プロンプト/セルフエコチェン防ぐ指示.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "セルフエコチェン防ぐ指示"
+            }
+          },
+          {
+            "id": "c300cc8347c227eb",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Tips.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "Tips"
+            }
+          },
+          {
+            "id": "88607d5a74ce868f",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "書く理由.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "書く理由"
+            }
+          },
+          {
+            "id": "ca5b69a11f0eb6f7",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "テーマ集.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "テーマ集"
+            }
+          },
+          {
+            "id": "cdc492ad6fe4baa6",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "起こす変化.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "起こす変化"
+            }
+          }
+        ],
+        "currentTab": 18
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "b34145efc78855a7",
+    "type": "mobile-drawer",
+    "children": [
+      {
+        "id": "2062e359e3dc0a00",
+        "type": "leaf",
+        "state": {
+          "type": "file-explorer",
+          "state": {
+            "sortOrder": "alphabetical",
+            "autoReveal": false
+          },
+          "icon": "lucide-folder-closed",
+          "title": "ファイルエクスプローラ"
+        }
+      },
+      {
+        "id": "6f65ed29b60d4f3c",
+        "type": "leaf",
+        "state": {
+          "type": "search",
+          "state": {
+            "query": "",
+            "matchingCase": false,
+            "explainSearch": false,
+            "collapseAll": false,
+            "extraContext": false,
+            "sortOrder": "alphabetical"
+          },
+          "icon": "lucide-search",
+          "title": "検索"
+        }
+      },
+      {
+        "id": "f30886c66fb9f44e",
+        "type": "leaf",
+        "state": {
+          "type": "tag",
+          "state": {
+            "sortOrder": "frequency",
+            "useHierarchy": true,
+            "showSearch": false,
+            "searchQuery": ""
+          },
+          "icon": "lucide-tags",
+          "title": "タグ"
+        }
+      },
+      {
+        "id": "572c78db9870d87d",
+        "type": "leaf",
+        "state": {
+          "type": "all-properties",
+          "state": {
+            "sortOrder": "frequency",
+            "showSearch": false,
+            "searchQuery": ""
+          },
+          "icon": "lucide-archive",
+          "title": "すべてのプロパティ"
+        }
+      },
+      {
+        "id": "f2117a53fb7b2081",
+        "type": "leaf",
+        "state": {
+          "type": "bookmarks",
+          "state": {},
+          "icon": "lucide-bookmark",
+          "title": "ブックマーク"
+        }
+      }
+    ],
+    "currentTab": 0
+  },
+  "right": {
+    "id": "f8b20996d039d2f1",
+    "type": "mobile-drawer",
+    "children": [
+      {
+        "id": "07596fcb76028231",
+        "type": "leaf",
+        "state": {
+          "type": "backlink",
+          "state": {
+            "file": "記事/包丁の重さと無重力の宇宙.md",
+            "collapseAll": false,
+            "extraContext": false,
+            "sortOrder": "alphabetical",
+            "showSearch": false,
+            "searchQuery": "",
+            "backlinkCollapsed": false,
+            "unlinkedCollapsed": true
+          },
+          "icon": "links-coming-in",
+          "title": "バックリンク"
+        }
+      },
+      {
+        "id": "ac885c5e9de40a8a",
+        "type": "leaf",
+        "state": {
+          "type": "outgoing-link",
+          "state": {
+            "file": "プロンプト.md",
+            "linksCollapsed": false,
+            "unlinkedCollapsed": true
+          },
+          "icon": "links-going-out",
+          "title": "アウトゴーイングリンク"
+        }
+      },
+      {
+        "id": "3f6ced9de0803f41",
+        "type": "leaf",
+        "state": {
+          "type": "outline",
+          "state": {
+            "file": "プロンプト.md",
+            "followCursor": false,
+            "showSearch": false,
+            "searchQuery": ""
+          },
+          "icon": "lucide-list",
+          "title": "アウトライン"
+        }
+      }
+    ],
+    "currentTab": 0
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:クイックスイッチャーを開く": false,
+      "graph:グラフビューを開く": false,
+      "canvas:新規キャンバスを作成": false,
+      "daily-notes:今日のデイリーノートを開く": false,
+      "templates:テンプレートを挿入": false,
+      "command-palette:コマンドパレットを開く": false,
+      "bases:新規ベースを作成": false
+    }
+  },
+  "active": "2062e359e3dc0a00",
+  "lastOpenFiles": [
+    "テーマ集.md",
+    "起こす変化.md",
+    "最も大切なこと.md",
+    "ペルソナ.md",
+    "手書きのルール.md",
+    "マニフェスト.md",
+    "記事/包丁の重さと無重力の宇宙.md",
+    "記事/無題のファイル.md",
+    "記事/野生と台所は、ぼくの生存圏だった.md",
+    "書く理由.md",
+    "記事/場違いな枯れ葉のこと.md",
+    "プロンプト/フォーマット.md",
+    "読む本.md",
+    "Tips.md",
+    "出せる価値.md",
+    "プロンプト/セルフエコチェン防ぐ指示.md",
+    "商品化の筋道.md",
+    "記事/暦より先に手元へくる季節.md",
+    "テーマ分類.md",
+    "文で描くためのモチーフ100.md",
+    "ネタストック.md",
+    "記事/名前を調べる前に、ただ見る.md",
+    "フォーマット.md",
+    "プロンプト/クロード推敲用.md",
+    "記事/暦より身体で季節が分かる.md",
+    "記事/いい素材でも、出し方を間違えるとまずくなる.md",
+    "目標",
+    "記事",
+    "プロンプト"
+  ]
+}

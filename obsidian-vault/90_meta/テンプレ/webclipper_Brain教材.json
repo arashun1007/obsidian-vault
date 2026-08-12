@@ -1,0 +1,38 @@
+{
+  "schemaVersion": "0.1.0",
+  "name": "Brain教材",
+  "behavior": "create",
+  "noteNameFormat": "{{title|safe_name}}",
+  "path": "20_knowledge/教材/Brain",
+  "properties": [
+    {
+      "name": "title",
+      "value": "{{title}}",
+      "type": "text"
+    },
+    {
+      "name": "author",
+      "value": "{{author}}",
+      "type": "text"
+    },
+    {
+      "name": "source",
+      "value": "{{url}}",
+      "type": "text"
+    },
+    {
+      "name": "clipped",
+      "value": "{{date|date:\"YYYY-MM-DD\"}}",
+      "type": "date"
+    },
+    {
+      "name": "tags",
+      "value": "教材/brain",
+      "type": "multitext"
+    }
+  ],
+  "triggers": [
+    "https://brain-market.com/"
+  ],
+  "noteContentFormat": "> [!info] クリップ元\n> {{url}}（クリップ日: {{date|date:\"YYYY-MM-DD\"}}）\n> 購入済み教材の私的な学習メモ。vault外への転載禁止。\n\n{{content}}\n\n---\n\n## 自分のメモ（あとで書く）\n\n- 業務に使えそうな点:\n- 疑問・違和感:\n- 試すこと:\n"
+}
