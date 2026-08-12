@@ -40,6 +40,7 @@
 | weekly-review | 週次のネタ棚卸しとふりかえり | 「週次レビューして」 |
 | inbox-triage | 00_inboxの分類・改名・移動（承認制） | 「inboxを整理して」 |
 | monthly-work | 日報の月次集計（件数・売上・次回提案） | 「今月の集計をして」 |
+| ai-hisho-discord-jochu | AI秘書をDiscordに常駐させる工事ガイド（要ローカル常時稼働PC） | 「Discordに常駐して」「スマホから呼べるようにして」 |
 
 ## AI秘書の人格
 
