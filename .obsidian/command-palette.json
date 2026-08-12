@@ -1,5 +1,6 @@
 {
   "pinned": [
-    "obsidian-git:clone-repo"
+    "obsidian-git:clone-repo",
+    "obsidian-git:push"
   ]
 }
