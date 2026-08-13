@@ -10,7 +10,7 @@
   "user_scripts_folder": "",
   "folder_templates": [
     {
-      "folder": "work",
+      "folder": "10_work/日報",
       "template": "テンプレ/Template_work.md"
     },
     {

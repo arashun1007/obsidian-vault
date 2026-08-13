@@ -1,6 +1,6 @@
 [
   "calendar",
-  "templater-obsidian",
   "dataview",
-  "obsidian-git"
+  "obsidian-git",
+  "templater-obsidian"
 ]
