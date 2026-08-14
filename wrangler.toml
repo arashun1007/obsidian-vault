@@ -1,0 +1,5 @@
+name = "isomoguri"
+compatibility_date = "2026-08-01"
+
+[assets]
+directory = "20_knowledge/魚突き/ゲーム企画/prototype/dist"
