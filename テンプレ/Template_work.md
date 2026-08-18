@@ -1,18 +1,20 @@
 <%*
-// 現在の日付を取得
 let m = moment();
 
-// もし今日が26日以降なら、フォルダ用日付を「翌月」として扱う
 let folderM = moment();
+
 if (m.date() > 25) {
-  folderM = folderM.add(1, 'month');
+    folderM = folderM.add(1, 'month');
 }
 
-// フォルダパスとファイル名の構成
-let folderPath = "work/" + folderM.format("YYYY") + "/" + folderM.format("MM");
-let fileName = m.format("YYYY-MM-DD") + "_work";
+let folderPath =
+    "10_work/日報/" +
+    folderM.format("YYYY") + "/" +
+    folderM.format("MM");
 
-// 移動とリネームの実行
+let fileName =
+    m.format("YYYY-MM-DD") + " work";
+
 await tp.file.move(folderPath + "/" + fileName);
 %>
 
